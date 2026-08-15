@@ -98,48 +98,38 @@ export function AppSidebar({ role }: { role: Role }) {
           collapsed ? 'w-[4.25rem]' : 'w-60',
         )}
       >
+        {/*
+          The toggle sits in the header rather than at the foot of the column.
+          Bottom-left is where Next puts its development indicator, which
+          covered it outright — and once collapsed, the control that expands
+          the sidebar again was underneath that badge with no other way back.
+        */}
         <div
           className={cn(
-            'flex h-14 items-center border-b border-sidebar-border px-4',
-            collapsed && 'justify-center px-0',
+            'flex h-14 items-center border-b border-sidebar-border px-3',
+            collapsed ? 'justify-center' : 'justify-between pl-4',
           )}
         >
-          {collapsed ? (
-            <span className="font-heading text-xl font-semibold">P</span>
-          ) : (
-            <Brand />
-          )}
-        </div>
-
-        <SidebarBody role={role} collapsed={collapsed} />
-
-        <div
-          className={cn(
-            'border-t border-sidebar-border p-2.5',
-            collapsed && 'flex justify-center',
-          )}
-        >
+          {!collapsed && <Brand />}
           <button
             type="button"
             onClick={toggleCollapsed}
             aria-label={collapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'}
             className={cn(
-              'flex h-8 items-center gap-2 rounded-lg px-2 text-sm text-muted-foreground transition-colors',
+              'flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors',
               'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               'focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none',
-              collapsed && 'w-8 justify-center px-0',
             )}
           >
             {collapsed ? (
               <PanelLeftOpen className="size-4" />
             ) : (
-              <>
-                <PanelLeftClose className="size-4" />
-                <span>Thu gọn</span>
-              </>
+              <PanelLeftClose className="size-4" />
             )}
           </button>
         </div>
+
+        <SidebarBody role={role} collapsed={collapsed} />
       </aside>
 
       <Dialog.Root open={mobileOpen} onOpenChange={setMobileOpen}>
