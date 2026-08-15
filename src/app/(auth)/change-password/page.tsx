@@ -8,8 +8,10 @@ import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api/client';
 import type { ChangePasswordResponse } from '@/lib/api/types';
+import { passwordSchema } from '@/lib/auth/password';
 import { homePathFor, storeRefreshToken, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { FormError } from '@/components/form-error';
 import { PasswordInput } from '@/components/password-input';
@@ -17,7 +19,7 @@ import { PasswordInput } from '@/components/password-input';
 const ChangePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
-    newPassword: z.string().min(6, 'Mật khẩu mới cần ít nhất 6 ký tự'),
+    newPassword: passwordSchema,
     confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu mới'),
   })
   .refine((v) => v.newPassword !== v.currentPassword, {
@@ -42,7 +44,12 @@ export default function ChangePasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordValues>({
     resolver: zodResolver(ChangePasswordSchema),
-    mode: 'onBlur',
+    // Same reasoning as the login form: nothing is flagged until the user
+    // actually submits, after which each field clears as it is fixed. On blur,
+    // simply tabbing past an empty field accused them of a mistake they had
+    // not made yet.
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
   });
 
   useEffect(() => {
@@ -82,15 +89,17 @@ export default function ChangePasswordPage() {
   }
 
   if (status === 'loading' || !user) {
-    return <div className="h-64 animate-pulse rounded-lg bg-muted/50" />;
+    return <div className="h-72 animate-pulse rounded-xl bg-muted/50" />;
   }
 
   return (
-    <div className="space-y-7">
+    <Card className="px-6 py-7">
       <div className="space-y-1.5">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
+        <h1 className="font-heading text-xl font-semibold tracking-tight">
           Đổi mật khẩu
         </h1>
+        {/* Unlike the login screen, this line earns its place: it is the only
+            thing explaining why the user cannot go anywhere else. */}
         <p className="text-sm text-muted-foreground">
           Tài khoản đang dùng mật khẩu tạm. Đặt mật khẩu mới để tiếp tục.
         </p>
@@ -150,6 +159,6 @@ export default function ChangePasswordPage() {
           Cập nhật mật khẩu
         </Button>
       </form>
-    </div>
+    </Card>
   );
 }

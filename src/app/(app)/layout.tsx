@@ -46,7 +46,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-full flex-col">
+    // See the note in (auth)/layout.tsx — flex-1 rather than min-h-full.
+    <div className="flex flex-1 flex-col">
       <header className="flex items-center justify-between border-b px-5 py-3 sm:px-8">
         <Brand />
         <div className="flex items-center gap-1">

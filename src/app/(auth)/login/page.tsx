@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,13 +11,20 @@ import { api, ApiError } from '@/lib/api/client';
 import type { LoginResponse } from '@/lib/api/types';
 import { homePathFor, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormError } from '@/components/form-error';
 import { PasswordInput } from '@/components/password-input';
 
 const LoginSchema = z.object({
-  email: z.email('Email không hợp lệ'),
+  // Empty and malformed are different mistakes and deserve different words —
+  // z.email() alone calls a blank field "không hợp lệ", which reads as an
+  // accusation about something the user has not typed yet.
+  email: z
+    .string()
+    .min(1, 'Vui lòng nhập email')
+    .pipe(z.email('Email không hợp lệ')),
   password: z.string().min(1, 'Vui lòng nhập mật khẩu'),
 });
 
@@ -33,9 +41,11 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(LoginSchema),
-    // Validating as the user types turns a half-typed address into an error;
-    // wait until they leave the field.
-    mode: 'onBlur',
+    // Nothing is flagged until the user actually tries to sign in; after that
+    // each field clears as it is fixed. Validating on blur meant tabbing
+    // through an empty form lit it up red before any attempt was made.
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
   });
 
   // Someone already signed in has no business on this screen.
@@ -76,15 +86,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="space-y-7">
-      <div className="space-y-1.5">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Đăng nhập
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Dùng tài khoản do khoa cấp.
-        </p>
-      </div>
+    <Card className="px-6 py-7">
+      <h1 className="font-heading text-xl font-semibold tracking-tight">
+        Đăng nhập
+      </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <FormError message={formError} />
@@ -106,7 +111,19 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Mật khẩu</Label>
+          <div className="flex items-baseline justify-between">
+            <Label htmlFor="password">Mật khẩu</Label>
+            {/* Colour alone carries the hover state: an underline would be a
+                second signal for the same change, and at this size it sits
+                heavily against the label's baseline. The focus ring is what
+                actually helps keyboard users, which hover never did. */}
+            <Link
+              href="/forgot-password"
+              className="rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
           <PasswordInput
             id="password"
             autoComplete="current-password"
@@ -125,6 +142,6 @@ export default function LoginPage() {
           Đăng nhập
         </Button>
       </form>
-    </div>
+    </Card>
   );
 }
