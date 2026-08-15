@@ -76,14 +76,9 @@ export default function ForgotPasswordPage() {
 
   return (
     <Card className="px-6 py-7">
-      <div className="space-y-1.5">
-        <h1 className="font-heading text-xl font-semibold tracking-tight">
-          Quên mật khẩu
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Nhập email của bạn, chúng tôi sẽ gửi liên kết đặt lại.
-        </p>
-      </div>
+      <h1 className="font-heading text-xl font-semibold tracking-tight">
+        Quên mật khẩu
+      </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <FormError message={formError} />
