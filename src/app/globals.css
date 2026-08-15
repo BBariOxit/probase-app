@@ -198,4 +198,25 @@
   html {
     @apply font-sans;
   }
+
+  /*
+   * Honouring this is not a nicety. For users with vestibular disorders a
+   * sliding drawer can cause actual nausea, and the setting is how they have
+   * already said so at the OS level.
+   *
+   * Motion is suppressed rather than removed: a near-zero duration still fires
+   * transitionend and animationend, so anything waiting on those events —
+   * including the popups Base UI keeps mounted until their exit finishes —
+   * still tears down instead of hanging around forever.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }

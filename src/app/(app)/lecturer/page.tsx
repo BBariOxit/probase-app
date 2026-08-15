@@ -1,10 +1,10 @@
 import { PageHeading } from '@/components/page-heading';
 
-export default function LecturerHomePage() {
+export default function LecturerTopicsPage() {
   return (
     <PageHeading
-      title="Giảng viên"
-      description="Đề tài hướng dẫn, duyệt nhóm đăng ký và chấm điểm."
+      title="Đề tài của tôi"
+      description="Đề tài bạn ra đề, trạng thái duyệt và cổng đăng ký."
     />
   );
 }
