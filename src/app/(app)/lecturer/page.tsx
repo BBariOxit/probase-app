@@ -24,7 +24,7 @@ import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { PaginationBar } from '@/components/pagination-bar';
-import { TopicStatusBadge } from '@/components/topic-status-badge';
+import { TopicOwnerBadge } from '@/components/topic-status-badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -71,7 +71,9 @@ function RowActions({ topic }: { topic: TopicListItem }) {
   const canClose = topic.status === 'OPEN';
   const canEdit =
     topic.status !== 'IN_PROGRESS' && topic.status !== 'COMPLETED';
-  const canDelete = topic._count.registrationGroups === 0;
+  // Only a group still standing blocks deletion — a rejected one has handed
+  // the topic back, and the API agrees.
+  const canDelete = topic.activeGroup === null;
 
   return (
     <>
@@ -101,7 +103,7 @@ function RowActions({ topic }: { topic: TopicListItem }) {
               onClick={() => transition.mutate({ id: topic.id, to: 'open' })}
             >
               <DoorOpen />
-              Mở cổng đăng ký
+              Mở đăng ký
             </DropdownMenuItem>
           )}
           {canClose && (
@@ -109,7 +111,7 @@ function RowActions({ topic }: { topic: TopicListItem }) {
               onClick={() => transition.mutate({ id: topic.id, to: 'close' })}
             >
               <DoorClosed />
-              Đóng cổng đăng ký
+              Đóng đăng ký
             </DropdownMenuItem>
           )}
           {canDelete && (
@@ -228,8 +230,7 @@ export default function LecturerTopicsPage() {
               <TableRow>
                 <TableHead className="min-w-64">Tiêu đề</TableHead>
                 <TableHead className="w-40">Loại đồ án</TableHead>
-                <TableHead className="w-32">Trạng thái</TableHead>
-                <TableHead className="w-24 text-right">Nhóm ĐK</TableHead>
+                <TableHead className="w-36">Trạng thái</TableHead>
                 <TableHead className="w-12" />
               </TableRow>
             </TableHeader>
@@ -239,22 +240,28 @@ export default function LecturerTopicsPage() {
                   <TableCell className="font-medium">
                     <Link
                       href={`/lecturer/topics/${topic.id}`}
-                      className="rounded-sm hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      className="rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                     >
                       {topic.title}
                     </Link>
+                    {/* The group lives here rather than in a column of its
+                        own: it is only ever interesting while the topic is
+                        open, so a column would be empty on most rows. */}
                     <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                      {topic.semester.name} · tối đa {topic.maxStudents} SV
+                      {topic.semester.name} ·{' '}
+                      {topic.activeGroup
+                        ? `nhóm ${topic.activeGroup.occupiedSeats}/${topic.maxStudents}`
+                        : 'chưa có nhóm'}
                     </span>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
                     {topic.projectType.name}
                   </TableCell>
                   <TableCell>
-                    <TopicStatusBadge status={topic.status} />
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {topic._count.registrationGroups}
+                    <TopicOwnerBadge
+                      status={topic.status}
+                      activeGroup={topic.activeGroup}
+                    />
                   </TableCell>
                   <TableCell>
                     <RowActions topic={topic} />

@@ -40,7 +40,11 @@ export default function EditTopicPage({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeading
           title="Sửa đề tài"
-          description={`${topic.semester.name} · ${topic._count.registrationGroups} nhóm đã đăng ký`}
+          description={
+            topic.activeGroup
+              ? `${topic.semester.name} · nhóm ${topic.activeGroup.occupiedSeats}/${topic.maxStudents}`
+              : `${topic.semester.name} · chưa có nhóm`
+          }
         />
         <TopicStatusBadge status={topic.status} className="mt-1.5" />
       </div>

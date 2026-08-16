@@ -1,4 +1,4 @@
-import type { TopicStatus } from '@/lib/api/types';
+import type { ActiveGroup, TopicStatus } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 
 /**
@@ -33,15 +33,15 @@ const TOPIC_STATUS: Record<
   COMPLETED: { label: 'Hoàn thành', tone: 'idle' },
 };
 
-export function TopicStatusBadge({
-  status,
+function Badge({
+  label,
+  tone,
   className,
 }: {
-  status: TopicStatus;
+  label: string;
+  tone: keyof typeof TONE_CLASS;
   className?: string;
 }) {
-  const { label, tone } = TOPIC_STATUS[status];
-
   return (
     <span
       className={cn(
@@ -53,4 +53,47 @@ export function TopicStatusBadge({
       {label}
     </span>
   );
+}
+
+export function TopicStatusBadge({
+  status,
+  className,
+}: {
+  status: TopicStatus;
+  className?: string;
+}) {
+  return <Badge {...TOPIC_STATUS[status]} className={className} />;
+}
+
+/**
+ * The same badge for a lecturer looking at their own topics, folding in what
+ * the group is doing.
+ *
+ * One column rather than two, because the group only says anything new while
+ * the topic is OPEN: before that no group can exist, and afterwards there is
+ * always exactly one approved. A second column would be empty on most rows and
+ * repeat the first on the rest.
+ *
+ * "Chờ xác nhận" is the whole point — it is the only state here that is
+ * waiting on the lecturer, and the plain status badge never said it.
+ */
+export function TopicOwnerBadge({
+  status,
+  activeGroup,
+  className,
+}: {
+  status: TopicStatus;
+  activeGroup: ActiveGroup | null;
+  className?: string;
+}) {
+  if (status === 'OPEN' && activeGroup) {
+    const owned =
+      activeGroup.status === 'SUBMITTED'
+        ? ({ label: 'Chờ xác nhận', tone: 'waiting' } as const)
+        : ({ label: 'Đang lập nhóm', tone: 'active' } as const);
+
+    return <Badge {...owned} className={className} />;
+  }
+
+  return <Badge {...TOPIC_STATUS[status]} className={className} />;
 }

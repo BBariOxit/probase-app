@@ -67,6 +67,23 @@ export interface Paginated<T> {
   totalPages: number;
 }
 
+export type RegistrationGroupStatus =
+  'FORMING' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+
+/**
+ * The single group holding a topic, or null when nobody has taken it.
+ *
+ * Never a count: at most one group can be live on a topic, and rejected ones
+ * are kept for the record — so counting rows would report groups that walked
+ * away as though they were still there.
+ */
+export interface ActiveGroup {
+  id: number;
+  status: RegistrationGroupStatus;
+  /** ACCEPTED members plus outstanding invitations, which hold their seat. */
+  occupiedSeats: number;
+}
+
 export type TopicStatus =
   'PENDING' | 'APPROVED' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED';
 
@@ -84,7 +101,7 @@ export interface TopicListItem {
   semester: { id: number; name: string; code: string };
   projectType: { id: number; name: string; code: string };
   lecturer: { id: number; fullName: string; academicTitle: string | null };
-  _count: { registrationGroups: number };
+  activeGroup: ActiveGroup | null;
 }
 
 export interface TopicDetail {
@@ -112,7 +129,7 @@ export interface TopicDetail {
     lecturerCode: string;
     academicTitle: string | null;
   };
-  _count: { registrationGroups: number };
+  activeGroup: ActiveGroup | null;
   /** Computed server-side: the topic is OPEN *and* the window is current. */
   isRegistrationOpen: boolean;
 }
