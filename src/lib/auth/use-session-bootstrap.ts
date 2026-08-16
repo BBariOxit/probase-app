@@ -54,10 +54,32 @@ export function useSessionBootstrap() {
         });
       } catch (err) {
         if (cancelled) return;
-        // An expired or revoked refresh token is the normal way a session
-        // ends; anything else still leaves us with no usable credentials.
-        if (!(err instanceof ApiError)) console.error(err);
-        useSession.getState().signOut();
+
+        // Two very different failures used to be treated the same way, and
+        // signOut() deletes the stored refresh token.
+        //
+        // An ApiError means the server answered and rejected the token —
+        // expired, revoked, already rotated. The credentials really are gone
+        // and keeping them would only fail again.
+        if (err instanceof ApiError) {
+          useSession.getState().signOut();
+          return;
+        }
+
+        // Anything else is fetch failing to reach the host at all: the API
+        // restarting, or the machine briefly offline. The token is very
+        // probably still good, so it stays put and a reload once the server
+        // is back restores the session. Throwing it away turned a two-second
+        // blip into a forced sign-in.
+        //
+        // Warn rather than error: this is a condition, not a defect, and
+        // console.error is what paints Next's full-screen overlay over it.
+        console.warn('Không kết nối được máy chủ khi khôi phục phiên:', err);
+        useSession.setState({
+          status: 'unauthenticated',
+          accessToken: null,
+          user: null,
+        });
       }
     })();
 
