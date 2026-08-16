@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import type { SessionUser } from '@/lib/api/types';
 import { NAV_BY_ROLE, type NavItem } from '@/lib/nav';
 import { cn } from '@/lib/utils';
+import { Brand } from '@/components/brand';
 import { NavUser } from '@/components/nav-user';
 import { SemesterContext } from '@/components/semester-context';
 import {
@@ -40,7 +41,7 @@ function NavEntry({ item }: { item: NavItem }) {
         <SidebarMenuButton
           disabled
           tooltip={`${item.label} — chưa xây dựng`}
-          className="cursor-not-allowed opacity-45"
+          className="h-9 cursor-not-allowed opacity-45"
         >
           <Icon />
           <span>{item.label}</span>
@@ -58,6 +59,7 @@ function NavEntry({ item }: { item: NavItem }) {
         // and icon instead marks the position without turning one menu entry
         // into the heaviest object on screen.
         className={cn(
+          'h-9',
           active && 'text-sidebar-primary [&_svg]:text-sidebar-primary',
         )}
         render={<Link href={item.href} />}
@@ -78,33 +80,36 @@ export function AppSidebar({
 }) {
   return (
     <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              className="hover:bg-transparent active:bg-transparent"
-              render={<Link href="/" />}
-            >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold text-primary-foreground">
-                P
-              </div>
-              <span className="font-heading text-lg font-semibold tracking-tight">
-                Pro<span className="text-muted-foreground">Base</span>
-              </span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+      {/*
+        Just the wordmark. A coloured square holding the product's first
+        letter is the default badge of every generated dashboard, and it was
+        doing nothing the word next to it did not already do.
+
+        It hides entirely when collapsed rather than shrinking to an initial,
+        for the same reason: the rail is a column of icons, and an icon for
+        the application itself is one nobody needs.
+      */}
+      <SidebarHeader className="px-3 py-3 group-data-[collapsible=icon]:hidden">
+        <Link
+          href="/"
+          className="rounded-sm focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
+        >
+          <Brand />
+        </Link>
       </SidebarHeader>
 
-      <SidebarContent>
+      {/* shadcn ships gap-0 at both levels, which stacks the rows edge to
+          edge. Nav is read by scanning, and scanning needs air. */}
+      <SidebarContent className="gap-4 group-data-[collapsible=icon]:pt-3">
         {NAV_BY_ROLE[user.role].map((group, index) => (
-          <SidebarGroup key={group.label ?? index}>
+          <SidebarGroup key={group.label ?? index} className="px-3 py-0">
             {group.label && (
-              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarGroupLabel className="mb-1">
+                {group.label}
+              </SidebarGroupLabel>
             )}
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-1">
                 {group.items.map((item) => (
                   <NavEntry key={item.href} item={item} />
                 ))}
@@ -114,7 +119,7 @@ export function AppSidebar({
         ))}
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="gap-3 px-3 pb-3">
         <SemesterContext />
         <SidebarSeparator className="mx-0" />
         <NavUser user={user} onSignOut={onSignOut} />

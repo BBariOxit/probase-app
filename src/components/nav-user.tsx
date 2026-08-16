@@ -8,8 +8,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -50,10 +48,14 @@ export function NavUser({
             render={
               <SidebarMenuButton
                 size="lg"
-                className="data-popup-open:bg-sidebar-accent"
+                className="px-2 data-popup-open:bg-sidebar-accent"
               >
+                {/* Muted rather than brand-coloured. A filled accent disc
+                    holding one letter is the same motif as the logo badge
+                    that was removed from the header, and it would have been
+                    the loudest thing in the sidebar. */}
                 <Avatar className="size-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
+                  <AvatarFallback className="rounded-lg bg-sidebar-accent text-xs font-semibold text-sidebar-accent-foreground">
                     {user.email.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
@@ -76,10 +78,13 @@ export function NavUser({
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="text-muted-foreground">
-              {user.email}
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            {/*
+              No heading repeating the address. It sits in the trigger this
+              menu is anchored to, a few pixels away — and as a bare
+              DropdownMenuLabel it crashed the menu outright, because Base UI
+              requires group labels to live inside a Menu.Group. Deleting it
+              fixes the crash and drops the duplicate in one go.
+            */}
             <DropdownMenuItem render={<Link href="/change-password" />}>
               <KeyRound />
               Đổi mật khẩu
