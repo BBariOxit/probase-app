@@ -51,3 +51,68 @@ export interface Semester {
   gradeSubmissionDeadline: string | null;
   isActive: boolean;
 }
+
+export interface ProjectType {
+  id: number;
+  name: string;
+  code: string;
+}
+
+/** Every list endpoint answers in this envelope. */
+export interface Paginated<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type TopicStatus =
+  'PENDING' | 'APPROVED' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED';
+
+/**
+ * A row in the topic list. The long text bodies are absent by design — the API
+ * leaves them out of list responses, so anything needing them has to fetch the
+ * detail.
+ */
+export interface TopicListItem {
+  id: number;
+  title: string;
+  maxStudents: number;
+  status: TopicStatus;
+  createdAt: string;
+  semester: { id: number; name: string; code: string };
+  projectType: { id: number; name: string; code: string };
+  lecturer: { id: number; fullName: string; academicTitle: string | null };
+  _count: { registrationGroups: number };
+}
+
+export interface TopicDetail {
+  id: number;
+  title: string;
+  description: string;
+  expectedOutcomes: string;
+  maxStudents: number;
+  status: TopicStatus;
+  createdAt: string;
+  updatedAt: string;
+  semesterId: number;
+  projectTypeId: number;
+  semester: {
+    id: number;
+    name: string;
+    code: string;
+    registrationStart: string;
+    registrationEnd: string;
+  };
+  projectType: { id: number; name: string; code: string };
+  lecturer: {
+    id: number;
+    fullName: string;
+    lecturerCode: string;
+    academicTitle: string | null;
+  };
+  _count: { registrationGroups: number };
+  /** Computed server-side: the topic is OPEN *and* the window is current. */
+  isRegistrationOpen: boolean;
+}
