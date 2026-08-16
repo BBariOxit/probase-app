@@ -68,6 +68,13 @@
  * an unstyled starter. A single indigo (hue 265) now carries primary, the
  * focus ring and the sidebar's active item, and nothing else is tinted. One
  * hue is what keeps a system looking deliberate rather than decorated.
+ *
+ * Three surfaces, always in the same order: --sidebar is the ground the app
+ * sits on, --background is the inset panel floating above it, --card is what
+ * sits on the panel. Depth comes from that stack rather than from borders,
+ * and the order never flips between themes — only the direction of travel
+ * does. Inverting it in dark mode is what makes a theme toggle feel like two
+ * different applications.
  */
 :root {
   --background: oklch(1 0 0);
@@ -124,30 +131,34 @@
   --chart-5: oklch(0.6 0.17 20);
 
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0.002 265);
+  /* The ground: a shade below the white panel, so the inset reads as lifted. */
+  --sidebar: oklch(0.967 0.003 265);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.47 0.18 265);
   --sidebar-primary-foreground: oklch(0.985 0.005 265);
-  --sidebar-accent: oklch(0.955 0.005 265);
+  --sidebar-accent: oklch(0.93 0.006 265);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.915 0.003 265);
   --sidebar-ring: oklch(0.47 0.18 265);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* Was oklch(0.145) — near enough to black that it sat flat against an almost
+     black sidebar and read as cheap. The panel is lifted well clear of the
+     ground now, and cards clear of the panel. */
+  --background: oklch(0.208 0.004 265);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.242 0.006 265);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.242 0.006 265);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.7 0.155 265);
   --primary-foreground: oklch(0.16 0.03 265);
-  --secondary: oklch(0.269 0 0);
+  --secondary: oklch(0.285 0.005 265);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --muted: oklch(0.285 0.005 265);
+  --muted-foreground: oklch(0.715 0.008 265);
+  --accent: oklch(0.285 0.005 265);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -174,15 +185,14 @@
   --chart-4: oklch(0.8 0.13 85);
   --chart-5: oklch(0.7 0.16 20);
 
-  /* Slightly lifted off --background rather than equal to it, so the sidebar
-     reads as a panel without needing a heavy border to say so. */
-  --sidebar: oklch(0.185 0.006 265);
+  /* The ground the inset panel floats on, so it goes below --background. */
+  --sidebar: oklch(0.158 0.005 265);
   --sidebar-foreground: oklch(0.985 0 0);
   /* Was indigo here while light mode was grey — the active nav item changed
      colour for no reason when the theme flipped. */
   --sidebar-primary: oklch(0.7 0.155 265);
   --sidebar-primary-foreground: oklch(0.16 0.03 265);
-  --sidebar-accent: oklch(0.26 0.012 265);
+  --sidebar-accent: oklch(0.245 0.012 265);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.6 0.16 265);

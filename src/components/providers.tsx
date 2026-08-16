@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';
 import { ApiError } from '@/lib/api/client';
 import { useSessionBootstrap } from '@/lib/auth/use-session-bootstrap';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 function SessionBootstrap() {
   useSessionBootstrap();
@@ -37,8 +38,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <QueryClientProvider client={queryClient}>
-        <SessionBootstrap />
-        {children}
+        {/* The collapsed sidebar labels its icons with tooltips, so the
+            provider has to sit above every signed-in screen. */}
+        <TooltipProvider delay={300}>
+          <SessionBootstrap />
+          {children}
+        </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>
   );

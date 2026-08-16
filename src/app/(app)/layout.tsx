@@ -1,11 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api/client';
 import { useSession } from '@/lib/auth/session';
 import { AppHeader } from '@/components/app-header';
 import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+
+/** SidebarProvider writes this on every toggle but never reads it back. */
+function storedSidebarOpen(): boolean {
+  if (typeof document === 'undefined') return true;
+  return !/(^|;\s*)sidebar_state=false(;|$)/.test(document.cookie);
+}
 
 /**
  * The guard for every signed-in screen.
@@ -18,6 +25,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { status, user, signOut } = useSession();
+  const [defaultOpen] = useState(storedSidebarOpen);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
@@ -38,12 +46,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (status !== 'authenticated' || !user || user.mustChangePassword) {
     // The frame does not depend on any request, so it is drawn immediately and
-    // only the content waits. Blanking the whole screen used to make the shell
+    // only the content waits. Blanking the whole viewport made the shell
     // arrive late and jump into place.
     return (
-      <div className="flex flex-1">
-        <div className="sticky top-0 hidden h-svh w-60 shrink-0 border-r border-sidebar-border bg-sidebar lg:block" />
-        <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-h-svh flex-1 bg-sidebar">
+        <div className="hidden w-64 shrink-0 md:block" />
+        <div className="m-2 ml-0 flex flex-1 flex-col rounded-xl bg-background shadow-sm">
           <div className="h-14 border-b" />
           <div className="flex flex-1 items-center justify-center">
             <div className="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
@@ -54,15 +62,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-1">
-      <AppSidebar role={user.role} />
-
-      {/* min-w-0 so a wide table scrolls inside the column instead of pushing
-          the whole page sideways. */}
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AppHeader user={user} onSignOut={handleSignOut} />
-        <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
-      </div>
-    </div>
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <SidebarInset>
+        <AppHeader role={user.role} />
+        {/* min-w-0 so a wide table scrolls inside the panel instead of pushing
+            the page sideways. */}
+        <div className="min-w-0 flex-1 p-4 md:p-6">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
