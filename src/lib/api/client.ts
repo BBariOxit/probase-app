@@ -19,8 +19,34 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Statuses where the server has nothing useful to add, so it must not be
+ * quoted.
+ *
+ * A rate limit comes back from Nest as "ThrottlerException: Too Many
+ * Requests" — a framework class name, in English, in the middle of a
+ * Vietnamese screen. Nobody reading it learns that they should wait a minute.
+ * A 5xx is worse: whatever it says is about our server, not about anything the
+ * person can do.
+ *
+ * Everything else still shows what the API said, because those messages are
+ * ours and they carry the actual reason — "Đề tài vừa có nhóm khác nhận" is
+ * exactly what someone needs to read, and replacing it with a generic line
+ * would be throwing away the only useful part of the response.
+ */
+const STATUS_MESSAGES: Record<number, string> = {
+  429: 'Bạn thao tác quá nhanh. Đợi khoảng một phút rồi thử lại.',
+  500: 'Máy chủ gặp sự cố. Thử lại sau ít phút.',
+  502: 'Không kết nối được máy chủ.',
+  503: 'Máy chủ đang bảo trì. Thử lại sau ít phút.',
+  504: 'Máy chủ phản hồi quá chậm. Thử lại nhé.',
+};
+
 /** Nest replies with `message` as either a string or an array of them. */
 async function errorMessage(response: Response): Promise<string> {
+  const canned = STATUS_MESSAGES[response.status];
+  if (canned) return canned;
+
   try {
     const body: unknown = await response.json();
     if (body && typeof body === 'object' && 'message' in body) {

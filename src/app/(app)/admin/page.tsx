@@ -92,7 +92,7 @@ export default function AdminTopicQueuePage() {
                   <TableCell className="font-medium">
                     <Link
                       href={`/admin/topics/${topic.id}`}
-                      className="rounded-sm hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      className="rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                     >
                       {topic.title}
                     </Link>
