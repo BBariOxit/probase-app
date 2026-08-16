@@ -90,7 +90,10 @@
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
+  /* Only the select and dropdown surfaces read this, so it is tuned for one
+     job: marking the row under the cursor. The shipped value sat 0.03 from the
+     popover behind it, which is a difference you have to look for. */
+  --accent: oklch(0.945 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
@@ -162,7 +165,7 @@
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.285 0.005 265);
   --muted-foreground: oklch(0.715 0.008 265);
-  --accent: oklch(0.285 0.005 265);
+  --accent: oklch(0.315 0.006 265);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);

@@ -44,11 +44,19 @@ function Button({
   className,
   variant = 'default',
   size = 'default',
+  render,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
       data-slot="button"
+      // Base UI assumes it is rendering a real <button> and warns when that
+      // turns out to be false, because native button semantics on an anchor
+      // break forms and assistive technology. Every `render` here supplies a
+      // Link, so the flag follows the element actually produced instead of
+      // leaving each call site to remember.
+      nativeButton={render === undefined}
+      render={render}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

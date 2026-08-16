@@ -51,3 +51,85 @@ export interface Semester {
   gradeSubmissionDeadline: string | null;
   isActive: boolean;
 }
+
+export interface ProjectType {
+  id: number;
+  name: string;
+  code: string;
+}
+
+/** Every list endpoint answers in this envelope. */
+export interface Paginated<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export type RegistrationGroupStatus =
+  'FORMING' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+
+/**
+ * The single group holding a topic, or null when nobody has taken it.
+ *
+ * Never a count: at most one group can be live on a topic, and rejected ones
+ * are kept for the record — so counting rows would report groups that walked
+ * away as though they were still there.
+ */
+export interface ActiveGroup {
+  id: number;
+  status: RegistrationGroupStatus;
+  /** ACCEPTED members plus outstanding invitations, which hold their seat. */
+  occupiedSeats: number;
+}
+
+export type TopicStatus =
+  'PENDING' | 'APPROVED' | 'OPEN' | 'IN_PROGRESS' | 'COMPLETED';
+
+/**
+ * A row in the topic list. The long text bodies are absent by design — the API
+ * leaves them out of list responses, so anything needing them has to fetch the
+ * detail.
+ */
+export interface TopicListItem {
+  id: number;
+  title: string;
+  maxStudents: number;
+  status: TopicStatus;
+  createdAt: string;
+  semester: { id: number; name: string; code: string };
+  projectType: { id: number; name: string; code: string };
+  lecturer: { id: number; fullName: string; academicTitle: string | null };
+  activeGroup: ActiveGroup | null;
+}
+
+export interface TopicDetail {
+  id: number;
+  title: string;
+  description: string;
+  expectedOutcomes: string;
+  maxStudents: number;
+  status: TopicStatus;
+  createdAt: string;
+  updatedAt: string;
+  semesterId: number;
+  projectTypeId: number;
+  semester: {
+    id: number;
+    name: string;
+    code: string;
+    registrationStart: string;
+    registrationEnd: string;
+  };
+  projectType: { id: number; name: string; code: string };
+  lecturer: {
+    id: number;
+    fullName: string;
+    lecturerCode: string;
+    academicTitle: string | null;
+  };
+  activeGroup: ActiveGroup | null;
+  /** Computed server-side: the topic is OPEN *and* the window is current. */
+  isRegistrationOpen: boolean;
+}
