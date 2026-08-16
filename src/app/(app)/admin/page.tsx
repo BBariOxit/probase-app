@@ -7,7 +7,6 @@ import { useTopicTransition, useTopics } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { EmptyState } from '@/components/empty-state';
-import { PageHeading } from '@/components/page-heading';
 import { PaginationBar } from '@/components/pagination-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,24 +46,28 @@ export default function AdminTopicQueuePage() {
   const topics = data?.items ?? [];
 
   return (
-    <div className="space-y-5">
-      <PageHeading
-        title="Duyệt đề tài"
-        description="Đề tài giảng viên gửi lên, chờ khoa xét duyệt."
-      />
+    <div className="space-y-4">
+      {/* No page heading: the app header names this screen already. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative min-w-52 flex-1 sm:max-w-xs">
+          <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Tìm theo tên đề tài…"
+            className="pl-8"
+            aria-label="Tìm đề tài"
+          />
+        </div>
 
-      <div className="relative min-w-56 sm:max-w-xs">
-        <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(1);
-          }}
-          placeholder="Tìm theo tên đề tài…"
-          className="pl-8"
-          aria-label="Tìm đề tài"
-        />
+        {data && (
+          <span className="ml-auto text-sm text-muted-foreground">
+            {data.total} đề tài chờ duyệt
+          </span>
+        )}
       </div>
 
       {error && (
@@ -148,12 +151,10 @@ export default function AdminTopicQueuePage() {
         )}
       </div>
 
-      {data && data.total > 0 && (
+      {data && (
         <PaginationBar
           page={data.page}
           totalPages={data.totalPages}
-          total={data.total}
-          unit="đề tài chờ duyệt"
           onPageChange={setPage}
         />
       )}

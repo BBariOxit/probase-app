@@ -12,11 +12,19 @@ import type {
 export interface TopicQuery {
   semesterId?: number;
   projectTypeId?: number;
+  lecturerId?: number;
   status?: TopicStatus;
   q?: string;
   mine?: boolean;
   page?: number;
   limit?: number;
+}
+
+/** Just enough of a lecturer to name them in a filter. */
+export interface TopicLecturer {
+  id: number;
+  fullName: string;
+  academicTitle: string | null;
 }
 
 /**
@@ -52,6 +60,23 @@ export function useTopics(query: TopicQuery) {
     // the table empties and the page jumps every time someone types a letter
     // into the search box.
     placeholderData: (previous) => previous,
+  });
+}
+
+/**
+ * Only lecturers who actually have a visible topic, which is what the endpoint
+ * returns — a filter whose options mostly lead to an empty page is worse than
+ * no filter at all.
+ */
+export function useTopicLecturers(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: [...topicKeys.all, 'lecturers', semesterId],
+    queryFn: () =>
+      api<TopicLecturer[]>(
+        `/topics/lecturers${semesterId ? `?semesterId=${semesterId}` : ''}`,
+      ),
+    enabled: semesterId !== undefined,
+    staleTime: 60_000,
   });
 }
 

@@ -14,9 +14,13 @@ const TONE_CLASS = {
 } as const;
 
 /**
- * Five topic states over four tones. COMPLETED shares "idle" with APPROVED
- * because both mean the same thing to whoever is looking at the list: there is
- * nothing to do here right now.
+ * Five topic states over four tones.
+ *
+ * Green goes to OPEN rather than to IN_PROGRESS, because on the screen where
+ * these matter most — a student browsing — green answers the only question
+ * being asked: can I register for this one. IN_PROGRESS takes blue for
+ * "running, nothing for you to do", and COMPLETED shares grey with APPROVED
+ * since both mean the same to a reader: no action here.
  */
 const TOPIC_STATUS: Record<
   TopicStatus,
@@ -24,8 +28,8 @@ const TOPIC_STATUS: Record<
 > = {
   PENDING: { label: 'Chờ duyệt', tone: 'waiting' },
   APPROVED: { label: 'Đã duyệt', tone: 'idle' },
-  OPEN: { label: 'Đang mở', tone: 'active' },
-  IN_PROGRESS: { label: 'Đang thực hiện', tone: 'success' },
+  OPEN: { label: 'Đang mở', tone: 'success' },
+  IN_PROGRESS: { label: 'Đang thực hiện', tone: 'active' },
   COMPLETED: { label: 'Hoàn thành', tone: 'idle' },
 };
 

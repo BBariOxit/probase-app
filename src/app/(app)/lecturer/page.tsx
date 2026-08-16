@@ -23,7 +23,6 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
-import { PageHeading } from '@/components/page-heading';
 import { PaginationBar } from '@/components/pagination-bar';
 import { TopicStatusBadge } from '@/components/topic-status-badge';
 import { Button } from '@/components/ui/button';
@@ -158,19 +157,10 @@ export default function LecturerTopicsPage() {
   const filtering = debouncedSearch !== '' || status !== 'ALL';
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <PageHeading
-          title="Đề tài của tôi"
-          description="Đề tài bạn ra đề, trạng thái duyệt và cổng đăng ký."
-        />
-        <Button render={<Link href="/lecturer/topics/new" />}>
-          <Plus />
-          Tạo đề tài
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-4">
+      {/* No page heading: the app header names this screen already, and a
+          second <h1> saying the same thing only pushed the table down. */}
+      <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-56 flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -209,6 +199,18 @@ export default function LecturerTopicsPage() {
             ))}
           </SelectContent>
         </Select>
+
+        <div className="ml-auto flex items-center gap-3">
+          {data && (
+            <span className="text-sm text-muted-foreground">
+              {data.total} đề tài
+            </span>
+          )}
+          <Button render={<Link href="/lecturer/topics/new" />}>
+            <Plus />
+            Tạo đề tài
+          </Button>
+        </div>
       </div>
 
       {error && (
@@ -293,12 +295,10 @@ export default function LecturerTopicsPage() {
         )}
       </div>
 
-      {data && data.total > 0 && (
+      {data && (
         <PaginationBar
           page={data.page}
           totalPages={data.totalPages}
-          total={data.total}
-          unit="đề tài"
           onPageChange={setPage}
         />
       )}
