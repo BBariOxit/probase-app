@@ -1,10 +1,10 @@
 import { PageHeading } from '@/components/page-heading';
 
-export default function AdminHomePage() {
+export default function AdminTopicsPage() {
   return (
     <PageHeading
-      title="Quản trị"
-      description="Quản lý tài khoản, chuyên ngành, học kỳ và loại đồ án."
+      title="Duyệt đề tài"
+      description="Đề tài giảng viên gửi lên, chờ khoa xét duyệt."
     />
   );
 }

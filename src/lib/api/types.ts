@@ -38,3 +38,16 @@ export function displayName(me: MeResponse): string {
     me.studentProfile?.fullName ?? me.lecturerProfile?.fullName ?? me.email
   );
 }
+
+/** Dates arrive as ISO strings; nothing parses them into Date on the way in. */
+export interface Semester {
+  id: number;
+  name: string;
+  code: string;
+  startDate: string;
+  endDate: string;
+  registrationStart: string;
+  registrationEnd: string;
+  gradeSubmissionDeadline: string | null;
+  isActive: boolean;
+}

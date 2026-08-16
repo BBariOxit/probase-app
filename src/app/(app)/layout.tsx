@@ -1,13 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
 import { api } from '@/lib/api/client';
 import { useSession } from '@/lib/auth/session';
-import { Brand } from '@/components/brand';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { Button } from '@/components/ui/button';
+import { AppHeader } from '@/components/app-header';
+import { AppSidebar } from '@/components/app-sidebar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+
+/** SidebarProvider writes this on every toggle but never reads it back. */
+function storedSidebarOpen(): boolean {
+  if (typeof document === 'undefined') return true;
+  return !/(^|;\s*)sidebar_state=false(;|$)/.test(document.cookie);
+}
 
 /**
  * The guard for every signed-in screen.
@@ -20,10 +25,12 @@ import { Button } from '@/components/ui/button';
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { status, user, signOut } = useSession();
+  const [defaultOpen] = useState(storedSidebarOpen);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
-    // A temporary password gets you exactly one destination.
+    // A temporary password gets you exactly one destination. The API enforces
+    // this too, since a redirect only steers a browser.
     else if (status === 'authenticated' && user?.mustChangePassword) {
       router.replace('/change-password');
     }
@@ -38,36 +45,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   if (status !== 'authenticated' || !user || user.mustChangePassword) {
+    // The frame does not depend on any request, so it is drawn immediately and
+    // only the content waits. Blanking the whole viewport made the shell
+    // arrive late and jump into place.
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
+      <div className="flex min-h-svh flex-1 bg-sidebar">
+        <div className="hidden w-64 shrink-0 md:block" />
+        <div className="m-2 ml-0 flex flex-1 flex-col rounded-xl bg-background shadow-sm">
+          <div className="h-14 border-b" />
+          <div className="flex flex-1 items-center justify-center">
+            <div className="size-5 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-foreground" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    // See the note in (auth)/layout.tsx — flex-1 rather than min-h-full.
-    <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between border-b px-5 py-3 sm:px-8">
-        <Brand />
-        <div className="flex items-center gap-1">
-          <span className="mr-2 hidden text-sm text-muted-foreground sm:inline">
-            {user.email}
-          </span>
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Đăng xuất"
-            onClick={handleSignOut}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <LogOut className="size-4" />
-          </Button>
-        </div>
-      </header>
-
-      <main className="flex-1 px-5 py-8 sm:px-8">{children}</main>
-    </div>
+    <SidebarProvider defaultOpen={defaultOpen}>
+      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <SidebarInset>
+        <AppHeader role={user.role} />
+        {/* min-w-0 so a wide table scrolls inside the panel instead of pushing
+            the page sideways. */}
+        <div className="min-w-0 flex-1 p-4 md:p-6">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

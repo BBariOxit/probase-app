@@ -25,6 +25,16 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-status-waiting: var(--status-waiting);
+  --color-status-waiting-bg: var(--status-waiting-bg);
+  --color-status-active: var(--status-active);
+  --color-status-active-bg: var(--status-active-bg);
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-idle: var(--status-idle);
+  --color-status-idle-bg: var(--status-idle-bg);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -50,6 +60,23 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * Neutrals stay neutral; exactly one hue carries the brand.
+ *
+ * The palette shipped as pure greyscale, which meant the primary button was
+ * black in light mode and white in dark — legible, but indistinguishable from
+ * an unstyled starter. A single indigo (hue 265) now carries primary and the
+ * sidebar's active item, and nothing else is tinted — not even focus, which
+ * is a state rather than a thing and stays grey. One hue, spent sparingly, is
+ * what keeps a system looking deliberate rather than decorated.
+ *
+ * Three surfaces, always in the same order: --sidebar is the ground the app
+ * sits on, --background is the inset panel floating above it, --card is what
+ * sits on the panel. Depth comes from that stack rather than from borders,
+ * and the order never flips between themes — only the direction of travel
+ * does. Inverting it in dark mode is what makes a theme toggle feel like two
+ * different applications.
+ */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -57,8 +84,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.47 0.18 265);
+  --primary-foreground: oklch(0.985 0.005 265);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -68,55 +95,111 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  /* Focus stays neutral. A branded ring meant every click on a text field
+     threw a block of indigo across the form, which reads as loud rather than
+     as attentive — and it spent the accent on a state, leaving less of it for
+     the things the accent is actually for. A crisp grey border plus the
+     faintest halo is just as unmissable and much quieter. */
+  --ring: oklch(0.44 0 0);
+
+  /*
+   * Status tokens. The schema defines fifteen states across topics, groups,
+   * members and proposals; painting each with its own Tailwind colour pair
+   * would leave fifteen hand-picked combinations that nobody can keep in
+   * balance — which is exactly how a dark mode ends up looking amateur.
+   * They collapse into five meanings instead, and every badge consumes these.
+   *
+   *   waiting  PENDING · SUBMITTED · INVITED
+   *   active   OPEN · IN_PROGRESS
+   *   success  COMPLETED · ACCEPTED · APPROVED
+   *   danger   REJECTED · DECLINED
+   *   idle     APPROVED-not-yet-open · FORMING
+   */
+  --status-waiting: oklch(0.5 0.13 75);
+  --status-waiting-bg: oklch(0.955 0.045 85);
+  --status-active: oklch(0.49 0.15 245);
+  --status-active-bg: oklch(0.955 0.03 245);
+  --status-success: oklch(0.48 0.12 160);
+  --status-success-bg: oklch(0.955 0.035 160);
+  --status-danger: oklch(0.52 0.19 25);
+  --status-danger-bg: oklch(0.955 0.03 25);
+  --status-idle: oklch(0.5 0.01 265);
+  --status-idle-bg: oklch(0.955 0.003 265);
+
+  /* Categorical, not a ramp: these label separate series, so they have to be
+     told apart by hue rather than by lightness. */
+  --chart-1: oklch(0.55 0.17 265);
+  --chart-2: oklch(0.62 0.14 190);
+  --chart-3: oklch(0.65 0.14 145);
+  --chart-4: oklch(0.72 0.14 85);
+  --chart-5: oklch(0.6 0.17 20);
+
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  /* The ground: a shade below the white panel, so the inset reads as lifted. */
+  --sidebar: oklch(0.967 0.003 265);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-primary: oklch(0.47 0.18 265);
+  --sidebar-primary-foreground: oklch(0.985 0.005 265);
+  --sidebar-accent: oklch(0.93 0.006 265);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-border: oklch(0.915 0.003 265);
+  --sidebar-ring: oklch(0.44 0 0);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* Was oklch(0.145) — near enough to black that it sat flat against an almost
+     black sidebar and read as cheap. The panel is lifted well clear of the
+     ground now, and cards clear of the panel. */
+  --background: oklch(0.208 0.004 265);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.242 0.006 265);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
+  --popover: oklch(0.242 0.006 265);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  --primary: oklch(0.7 0.155 265);
+  --primary-foreground: oklch(0.16 0.03 265);
+  --secondary: oklch(0.285 0.005 265);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --muted: oklch(0.285 0.005 265);
+  --muted-foreground: oklch(0.715 0.008 265);
+  --accent: oklch(0.285 0.005 265);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
+  --ring: oklch(0.72 0 0);
+
+  /* Same five meanings, re-picked rather than dimmed: a light-mode tint laid
+     over a dark background turns muddy, so both halves of each pair are
+     chosen against the surface they actually sit on. */
+  --status-waiting: oklch(0.82 0.13 85);
+  --status-waiting-bg: oklch(0.32 0.06 75);
+  --status-active: oklch(0.78 0.12 245);
+  --status-active-bg: oklch(0.3 0.07 250);
+  --status-success: oklch(0.8 0.13 160);
+  --status-success-bg: oklch(0.3 0.06 160);
+  --status-danger: oklch(0.78 0.14 25);
+  --status-danger-bg: oklch(0.32 0.08 25);
+  --status-idle: oklch(0.72 0.01 265);
+  --status-idle-bg: oklch(0.28 0.008 265);
+
+  --chart-1: oklch(0.68 0.16 265);
+  --chart-2: oklch(0.72 0.13 190);
+  --chart-3: oklch(0.74 0.13 145);
+  --chart-4: oklch(0.8 0.13 85);
+  --chart-5: oklch(0.7 0.16 20);
+
+  /* The ground the inset panel floats on, so it goes below --background. */
+  --sidebar: oklch(0.158 0.005 265);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  /* Was indigo here while light mode was grey — the active nav item changed
+     colour for no reason when the theme flipped. */
+  --sidebar-primary: oklch(0.7 0.155 265);
+  --sidebar-primary-foreground: oklch(0.16 0.03 265);
+  --sidebar-accent: oklch(0.245 0.012 265);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.72 0 0);
 }
 
 @layer base {
@@ -128,5 +211,26 @@
   }
   html {
     @apply font-sans;
+  }
+
+  /*
+   * Honouring this is not a nicety. For users with vestibular disorders a
+   * sliding drawer can cause actual nausea, and the setting is how they have
+   * already said so at the OS level.
+   *
+   * Motion is suppressed rather than removed: a near-zero duration still fires
+   * transitionend and animationend, so anything waiting on those events —
+   * including the popups Base UI keeps mounted until their exit finishes —
+   * still tears down instead of hanging around forever.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

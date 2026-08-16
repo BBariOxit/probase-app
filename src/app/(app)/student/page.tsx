@@ -1,10 +1,10 @@
 import { PageHeading } from '@/components/page-heading';
 
-export default function StudentHomePage() {
+export default function StudentTopicsPage() {
   return (
     <PageHeading
-      title="Sinh viên"
-      description="Đề tài đang mở, nhóm đăng ký, nộp báo cáo và kết quả."
+      title="Đề tài"
+      description="Các đề tài đang mở đăng ký trong học kỳ này."
     />
   );
 }
