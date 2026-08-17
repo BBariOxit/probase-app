@@ -42,7 +42,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
     {
       items: [
         { href: '/student', label: 'Đề tài', icon: BookOpen, ready: true },
-        { href: '/student/nhom', label: 'Nhóm của tôi', icon: Users },
+        {
+          href: '/student/nhom',
+          label: 'Nhóm của tôi',
+          icon: Users,
+          ready: true,
+        },
         { href: '/student/de-xuat', label: 'Đề xuất của tôi', icon: Lightbulb },
         { href: '/student/nop-bai', label: 'Nộp báo cáo', icon: FileUp },
         { href: '/student/ket-qua', label: 'Kết quả', icon: GraduationCap },

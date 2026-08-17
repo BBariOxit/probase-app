@@ -11,10 +11,12 @@ import {
   Search,
 } from 'lucide-react';
 import { useActiveSemester, useProjectTypes } from '@/lib/api/master-data';
+import { useMyGroup } from '@/lib/api/registration';
 import { useTopicLecturers, useTopics } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { EmptyState } from '@/components/empty-state';
+import { MyGroupBanner } from '@/components/my-group-banner';
 import { PaginationBar } from '@/components/pagination-bar';
 import { SeatBadge } from '@/components/seat-indicator';
 import { TopicRegisterButton } from '@/components/topic-register-button';
@@ -36,6 +38,7 @@ export default function StudentTopicsPage() {
   const activeSemester = useActiveSemester();
   const { data: projectTypes } = useProjectTypes();
   const { data: lecturers } = useTopicLecturers(activeSemester?.id);
+  const { data: myGroup } = useMyGroup();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
@@ -72,6 +75,8 @@ export default function StudentTopicsPage() {
         pushed the list a hundred pixels down the page — on the one screen
         where the list is the whole point.
       */}
+      {myGroup && <MyGroupBanner group={myGroup} />}
+
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-52 flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
