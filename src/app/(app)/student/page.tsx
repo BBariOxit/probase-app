@@ -16,7 +16,7 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { EmptyState } from '@/components/empty-state';
 import { PaginationBar } from '@/components/pagination-bar';
-import { TopicStatusBadge } from '@/components/topic-status-badge';
+import { SeatBadge } from '@/components/seat-indicator';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -185,15 +185,28 @@ export default function StudentTopicsPage() {
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {topics.map((topic) => (
             <li key={topic.id}>
-              <Link
-                href={`/student/topics/${topic.id}`}
-                className="group flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-              >
+              {/*
+                The card is a container rather than one big <Link>, because it
+                now holds a button as well. The link is stretched over the card
+                with an ::after overlay instead: the whole surface still
+                navigates, the button sits above it, and neither ends up nested
+                inside the other.
+              */}
+              <div className="group relative flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-within:ring-2 focus-within:ring-ring">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="line-clamp-2 text-sm font-medium">
-                    {topic.title}
+                    <Link
+                      href={`/student/topics/${topic.id}`}
+                      className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none"
+                    >
+                      {topic.title}
+                    </Link>
                   </h2>
-                  <TopicStatusBadge status={topic.status} />
+                  {/* Not the topic status: this list is already filtered to
+                      OPEN, so a status badge read "Đang mở" on every card and
+                      answered nothing. Whether a seat is left is the question
+                      actually being asked. */}
+                  <SeatBadge topic={topic} />
                 </div>
 
                 <div className="mt-auto flex items-end justify-between gap-2">
@@ -212,11 +225,9 @@ export default function StudentTopicsPage() {
                     </p>
                   </div>
 
-                  {/* The card is a link, but nothing said so. This is the
-                      cheapest thing that does. */}
                   <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
                 </div>
-              </Link>
+              </div>
             </li>
           ))}
         </ul>
