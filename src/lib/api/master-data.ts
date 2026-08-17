@@ -7,8 +7,14 @@ import type { ProjectType, Semester } from '@/lib/api/types';
 /**
  * Master data changes a few times a year at most. Refetching it on every
  * navigation would be pure noise, so it is held for a long while.
+ *
+ * Half an hour rather than the five minutes this used to be. Five did not match
+ * the sentence above it, and the gap was visible: React Query refetches every
+ * stale query when the window regains focus, so coming back to a tab after lunch
+ * fired the whole set again — semesters, project types and cohort eligibility
+ * together — for data that had not moved since term started.
  */
-const MASTER_DATA_STALE_TIME = 5 * 60_000;
+const MASTER_DATA_STALE_TIME = 30 * 60_000;
 
 export function useSemesters() {
   return useQuery({
