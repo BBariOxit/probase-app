@@ -10,7 +10,11 @@ import {
   Loader2,
   Search,
 } from 'lucide-react';
-import { useActiveSemester, useProjectTypes } from '@/lib/api/master-data';
+import {
+  useActiveSemester,
+  useMyEligibleProjectTypes,
+  useProjectTypes,
+} from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
 import { useTopicLecturers, useTopics } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
@@ -33,24 +37,41 @@ import {
 const PAGE_SIZE = 12;
 /** Sentinel for "no filter" — a Select needs a value, and 0 is never an id. */
 const ANY = 0;
+/**
+ * Sentinel for the default: the project types this student's intake may take.
+ *
+ * Negative so it can never collide with an id. It is the starting value rather
+ * than "all", because a student registering for a project type their cohort is
+ * not open for is refused by the API — showing them the whole catalogue means
+ * most of what they scroll past is not theirs to take.
+ *
+ * It is a visible, removable option and not a hidden filter, which is the part
+ * that matters: filtering silently is what makes people think data is missing.
+ */
+const MY_COHORT = -1;
 
 export default function StudentTopicsPage() {
   const allowed = useRequireRole('STUDENT');
   const activeSemester = useActiveSemester();
   const { data: projectTypes } = useProjectTypes();
+  const { data: myTypes } = useMyEligibleProjectTypes(activeSemester?.id);
   const { data: lecturers } = useTopicLecturers(activeSemester?.id);
   const { data: myGroup } = useMyGroup();
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [projectTypeId, setProjectTypeId] = useState(ANY);
+  const [projectTypeId, setProjectTypeId] = useState(MY_COHORT);
   const [lecturerId, setLecturerId] = useState(ANY);
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, isPending, error } = useTopics({
     status: 'OPEN',
     semesterId: activeSemester?.id,
-    projectTypeId: projectTypeId === ANY ? undefined : projectTypeId,
+    forMyCohort: projectTypeId === MY_COHORT,
+    projectTypeId:
+      projectTypeId === ANY || projectTypeId === MY_COHORT
+        ? undefined
+        : projectTypeId,
     lecturerId: lecturerId === ANY ? undefined : lecturerId,
     q: debouncedSearch || undefined,
     page,
@@ -60,8 +81,19 @@ export default function StudentTopicsPage() {
   if (!allowed) return null;
 
   const topics = data?.items ?? [];
+  // The default filter does not count as filtering: an empty page under it means
+  // the faculty has opened nothing for this intake, not that the student narrowed
+  // too far, and telling them to loosen a filter they never set is misleading.
   const filtering =
-    debouncedSearch !== '' || projectTypeId !== ANY || lecturerId !== ANY;
+    debouncedSearch !== '' ||
+    (projectTypeId !== ANY && projectTypeId !== MY_COHORT) ||
+    lecturerId !== ANY;
+
+  /** How the default reads, once we know what it resolves to. */
+  const myCohortLabel =
+    myTypes && myTypes.length > 0
+      ? `Dành cho khóa của bạn (${myTypes.map((type) => type.name).join(', ')})`
+      : 'Dành cho khóa của bạn';
 
   /** Every filter change invalidates the current page number. */
   function resetPage() {
@@ -108,15 +140,19 @@ export default function StudentTopicsPage() {
             resetPage();
           }}
         >
-          <SelectTrigger className="w-44" aria-label="Lọc theo loại đồ án">
+          <SelectTrigger className="w-56" aria-label="Lọc theo loại đồ án">
             <SelectValue>
-              {(value) =>
-                projectTypes?.find((type) => type.id === value)?.name ??
-                'Mọi loại đồ án'
-              }
+              {(value) => {
+                if (value === MY_COHORT) return 'Khóa của bạn';
+                return (
+                  projectTypes?.find((type) => type.id === value)?.name ??
+                  'Mọi loại đồ án'
+                );
+              }}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value={MY_COHORT}>{myCohortLabel}</SelectItem>
             <SelectItem value={ANY}>Mọi loại đồ án</SelectItem>
             {projectTypes?.map((type) => (
               <SelectItem key={type.id} value={type.id}>
@@ -186,7 +222,9 @@ export default function StudentTopicsPage() {
             title={
               filtering
                 ? 'Không có đề tài nào khớp bộ lọc.'
-                : 'Chưa có đề tài nào được mở đăng ký.'
+                : projectTypeId === MY_COHORT
+                  ? 'Chưa có đề tài nào mở cho khóa của bạn. Chọn "Mọi loại đồ án" để xem toàn bộ.'
+                  : 'Chưa có đề tài nào được mở đăng ký.'
             }
           />
         </div>
@@ -240,14 +278,17 @@ export default function StudentTopicsPage() {
                     </p>
                   </div>
 
-                  {/* The action if there is one, and the "this is a link"
-                      affordance if there is not. Both would be two things
-                      competing for the same corner. */}
-                  {topic.canRegister || topic.canJoin ? (
-                    <TopicRegisterButton topic={topic} />
-                  ) : (
-                    <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
-                  )}
+                  {/* The action if there is one, the "this is a link"
+                      affordance if there is not. Chosen inside the component
+                      rather than here: picking between the two at this level
+                      would unmount it the moment a registration succeeds, and
+                      take the confirmation dialog with it. */}
+                  <TopicRegisterButton
+                    topic={topic}
+                    idle={
+                      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+                    }
+                  />
                 </div>
               </div>
             </li>

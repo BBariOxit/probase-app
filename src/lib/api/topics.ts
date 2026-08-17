@@ -16,6 +16,8 @@ export interface TopicQuery {
   status?: TopicStatus;
   q?: string;
   mine?: boolean;
+  /** Narrow to the project types this caller's intake may take. */
+  forMyCohort?: boolean;
   page?: number;
   limit?: number;
 }

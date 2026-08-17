@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { CircleCheck, Loader2 } from 'lucide-react';
-import { useJoinTopic, useRegisterTopic } from '@/lib/api/registration';
-import type { RegistrationGroup, TopicAvailability } from '@/lib/api/types';
+import {
+  useJoinTopic,
+  useMyGroup,
+  useRegisterTopic,
+} from '@/lib/api/registration';
+import type { TopicAvailability } from '@/lib/api/types';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -43,71 +47,88 @@ interface TopicLike extends TopicAvailability {
  */
 export function TopicRegisterButton({
   topic,
+  idle,
   className,
 }: {
   topic: TopicLike;
+  /**
+   * What occupies this spot when there is nothing to press.
+   *
+   * Passed in rather than decided by the caller, because the caller choosing
+   * between this component and something else would unmount it — and with it the
+   * dialog that is mid-conversation with the student.
+   */
+  idle?: React.ReactNode;
   className?: string;
 }) {
   const register = useRegisterTopic();
   const join = useJoinTopic();
-  const [group, setGroup] = useState<RegistrationGroup | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   const pending = register.isPending || join.isPending;
   const error = register.error ?? join.error;
-
-  if (!topic.canRegister && !topic.canJoin) return null;
-
   const registering = topic.canRegister;
+
+  /**
+   * The button goes when there is nothing to press, but the component stays.
+   *
+   * Returning null on unavailability would unmount the dialog at the worst
+   * moment: success invalidates the topic list, the refetched row reports the
+   * topic as taken — correctly, by this very caller — and the confirmation the
+   * student is reading would vanish along with the button that produced it.
+   */
+  const showButton = topic.canRegister || topic.canJoin;
 
   function act() {
     if (registering) {
       register.mutate(
         // Every seat, so nothing is exposed while the leader decides.
         { topicId: topic.id, declaredSize: topic.maxStudents },
-        { onSuccess: setGroup },
+        { onSuccess: () => setConfirming(true) },
       );
       return;
     }
 
-    join.mutate(topic.id, { onSuccess: setGroup });
+    join.mutate(topic.id, { onSuccess: () => setConfirming(true) });
   }
 
   return (
     <>
+      {!showButton && !error && idle}
+
       {/* z-10 lifts this above the link overlay stretched across the card. */}
-      <div className={className}>
-        <Button
-          type="button"
-          size="sm"
-          onClick={act}
-          disabled={pending}
-          className="relative z-10"
-        >
-          {pending && <Loader2 className="size-4 animate-spin" />}
-          {registering ? 'Đăng ký' : 'Tham gia'}
-        </Button>
+      {(showButton || error) && (
+        <div className={className}>
+          {showButton && (
+            <Button
+              type="button"
+              size="sm"
+              onClick={act}
+              disabled={pending}
+              className="relative z-10"
+            >
+              {pending && <Loader2 className="size-4 animate-spin" />}
+              {registering ? 'Đăng ký' : 'Tham gia'}
+            </Button>
+          )}
 
-        {/*
-          The refused message is the useful part of a failure here — "Đề tài vừa
-          có nhóm khác nhận" is exactly what someone needs to read, and the
-          mutation has already invalidated the list, so the badge beside it
-          corrects itself at the same time.
-        */}
-        {error && (
-          <p className="relative z-10 mt-1.5 text-xs text-destructive">
-            {error.message}
-          </p>
-        )}
-      </div>
+          {/*
+            The refused message is the useful part of a failure here — "Đề tài
+            vừa có nhóm khác nhận" is exactly what someone needs to read, and the
+            mutation has already invalidated the list, so the badge beside it
+            corrects itself at the same time.
+          */}
+          {error && (
+            <p className="relative z-10 mt-1.5 text-xs text-destructive">
+              {error.message}
+            </p>
+          )}
+        </div>
+      )}
 
-      <Dialog
-        open={group !== null}
-        onOpenChange={(open) => {
-          if (!open) setGroup(null);
-        }}
-      >
+      <Dialog open={confirming} onOpenChange={setConfirming}>
         <DialogContent className="sm:max-w-md">
-          {group && <Result group={group} />}
+          <Result />
         </DialogContent>
       </Dialog>
     </>
@@ -121,8 +142,36 @@ export function TopicRegisterButton({
  * allocation the topic is theirs from the moment the request returns, and the
  * anxiety the old model created came entirely from nobody saying so — so this
  * says it before anything else, and before asking them for anything.
+ *
+ * The group is read from the query rather than from the mutation's response.
+ * Adjusting the seat claim from in here changes the group, and a snapshot taken
+ * at the moment of success would keep reporting the seats it held back then —
+ * the one number this dialog exists to let them change.
  */
-function Result({ group }: { group: RegistrationGroup }) {
+function Result() {
+  const { data: group, isPending } = useMyGroup();
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center py-8">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Only reachable if the group vanished between succeeding and being read,
+  // which in practice means another tab left or disbanded it.
+  if (!group) {
+    return (
+      <DialogHeader>
+        <DialogTitle>Không tìm thấy nhóm của bạn</DialogTitle>
+        <DialogDescription>
+          Có thể nhóm vừa bị thay đổi ở nơi khác. Mở lại trang nhóm để xem.
+        </DialogDescription>
+      </DialogHeader>
+    );
+  }
+
   return (
     <>
       <DialogHeader>

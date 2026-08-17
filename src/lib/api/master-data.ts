@@ -31,3 +31,22 @@ export function useActiveSemester(): Semester | undefined {
   const { data } = useSemesters();
   return data?.find((semester) => semester.isActive);
 }
+
+/**
+ * The kinds of project this caller's intake may take in a semester.
+ *
+ * What the browse screen defaults its filter to. Without it a student sees the
+ * whole catalogue and every register button on a project type their cohort is not
+ * open for fails on press — the rule lives at the API, so the screen has to ask
+ * rather than guess. Staff get the full catalogue: the rule exists to steer
+ * students, not to hide the list from the people running it.
+ */
+export function useMyEligibleProjectTypes(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: ['semesters', semesterId, 'eligibility', 'mine'],
+    queryFn: () =>
+      api<ProjectType[]>(`/semesters/${semesterId!}/eligibility/mine`),
+    enabled: semesterId !== undefined,
+    staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
