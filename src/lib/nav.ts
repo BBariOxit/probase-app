@@ -42,7 +42,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
     {
       items: [
         { href: '/student', label: 'Đề tài', icon: BookOpen, ready: true },
-        { href: '/student/nhom', label: 'Nhóm của tôi', icon: Users },
+        {
+          href: '/student/nhom',
+          label: 'Nhóm của tôi',
+          icon: Users,
+          ready: true,
+        },
         { href: '/student/de-xuat', label: 'Đề xuất của tôi', icon: Lightbulb },
         { href: '/student/nop-bai', label: 'Nộp báo cáo', icon: FileUp },
         { href: '/student/ket-qua', label: 'Kết quả', icon: GraduationCap },
@@ -134,6 +139,17 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
 };
 
 /** The title the header shows for a path, taken from the navigation itself. */
+/**
+ * Screens reachable without being a destination in the sidebar.
+ *
+ * A join link is followed from a chat message, so it has no nav entry to take a
+ * title from — and falling through to the product name told the reader nothing
+ * about the page they had just been sent to.
+ */
+const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
+  { prefix: '/join/', label: 'Tham gia nhóm' },
+];
+
 export function titleFor(role: Role, pathname: string): string {
   const items = NAV_BY_ROLE[role].flatMap((group) => group.items);
   const match = items
@@ -144,5 +160,11 @@ export function titleFor(role: Role, pathname: string): string {
     // longest match is the specific one.
     .sort((a, b) => b.href.length - a.href.length)[0];
 
-  return match?.label ?? 'ProBase';
+  if (match) return match.label;
+
+  const offNav = TITLE_BY_PREFIX.find((entry) =>
+    pathname.startsWith(entry.prefix),
+  );
+
+  return offNav?.label ?? 'ProBase';
 }

@@ -16,6 +16,8 @@ export interface TopicQuery {
   status?: TopicStatus;
   q?: string;
   mine?: boolean;
+  /** Narrow to the project types this caller's intake may take. */
+  forMyCohort?: boolean;
   page?: number;
   limit?: number;
 }
@@ -51,11 +53,18 @@ export const topicKeys = {
   detail: (id: number) => [...topicKeys.all, 'detail', id] as const,
 };
 
-export function useTopics(query: TopicQuery) {
+/**
+ * `enabled` exists for the screens whose filters depend on something still
+ * loading — the active semester, most often. Without it the list fetches once
+ * unfiltered, then again with the semester the moment it arrives: a wasted
+ * request, and a flicker of other semesters' topics in between.
+ */
+export function useTopics(query: TopicQuery, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: topicKeys.list(query),
     queryFn: () =>
       api<Paginated<TopicListItem>>(`/topics${toSearchParams(query)}`),
+    enabled: options?.enabled ?? true,
     // Keep the previous page on screen while the next one loads. Without this
     // the table empties and the page jumps every time someone types a letter
     // into the search box.

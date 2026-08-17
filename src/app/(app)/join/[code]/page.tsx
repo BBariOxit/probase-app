@@ -1,0 +1,153 @@
+'use client';
+
+import { use } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { GraduationCap, Layers, Loader2, Users } from 'lucide-react';
+import { useJoinByCode, useJoinPreview } from '@/lib/api/registration';
+import { useRequireRole } from '@/lib/auth/use-require-role';
+import { Button } from '@/components/ui/button';
+import { SeatDots } from '@/components/seat-indicator';
+
+/**
+ * Where a group's join link lands.
+ *
+ * Two taps, not one. Joining spends a student's single registration for the whole
+ * semester, and a link pasted into a class group chat gets forwarded — so if
+ * following it were the act that spent it, one curious tap would cost somebody
+ * their place, recoverable only by asking a stranger to remove them. This screen
+ * is the second tap, and it shows what is being joined so the decision is an
+ * informed one.
+ */
+export default function JoinByCodePage({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  const { code } = use(params);
+  const router = useRouter();
+  const allowed = useRequireRole('STUDENT');
+  const { data, isPending, error } = useJoinPreview(code);
+  const join = useJoinByCode();
+
+  if (!allowed) return null;
+
+  if (isPending) {
+    return (
+      <div className="flex justify-center py-16">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // A dead link and a mistyped one answer alike, and there is nothing to do
+  // about either except go and look at the list.
+  if (error || !data) {
+    return (
+      <Card>
+        <h1 className="font-heading text-lg font-semibold tracking-tight">
+          Link này không còn dùng được
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Nhóm có thể đã giải tán, hoặc link bị sai. Hỏi lại bạn đã gửi cho bạn,
+          hoặc tự chọn một đề tài khác.
+        </p>
+        <Button render={<Link href="/student" />}>Xem danh sách đề tài</Button>
+      </Card>
+    );
+  }
+
+  const { group, topic } = data;
+  const leader = group.members.find((member) => member.isLeader);
+
+  return (
+    <Card>
+      <header className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          {leader
+            ? `${leader.fullName} mời bạn vào nhóm`
+            : 'Bạn được mời vào nhóm'}
+        </p>
+        <h1 className="font-heading text-xl leading-tight font-semibold tracking-tight">
+          {topic.title}
+        </h1>
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <GraduationCap className="size-3.5 shrink-0" />
+            {topic.lecturer.academicTitle
+              ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
+              : topic.lecturer.fullName}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Layers className="size-3.5 shrink-0" />
+            {topic.projectType.name}
+          </span>
+        </div>
+      </header>
+
+      <div className="flex items-center gap-3 rounded-lg border px-3 py-2.5">
+        <Users className="size-4 shrink-0 text-muted-foreground" />
+        <p className="min-w-0 flex-1 truncate text-sm">
+          {group.members.map((member) => member.fullName).join(', ')}
+        </p>
+        <SeatDots
+          occupied={group.occupiedSeats}
+          capacity={group.capacity}
+          className="shrink-0"
+        />
+        <span className="shrink-0 text-sm text-muted-foreground">
+          {group.occupiedSeats}/{group.capacity}
+        </span>
+      </div>
+
+      {data.alreadyMember ? (
+        <>
+          <p className="text-sm text-muted-foreground">
+            Bạn đã ở trong nhóm này rồi.
+          </p>
+          <Button render={<Link href="/student/nhom" />}>
+            Xem nhóm của tôi
+          </Button>
+        </>
+      ) : data.canJoin ? (
+        <>
+          <Button
+            onClick={() =>
+              join.mutate(code, {
+                onSuccess: () => router.push('/student/nhom'),
+              })
+            }
+            disabled={join.isPending}
+          >
+            {join.isPending && <Loader2 className="size-4 animate-spin" />}
+            Tham gia nhóm
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Mỗi học kỳ bạn chỉ tham gia được một nhóm.
+          </p>
+          {join.error && (
+            <p className="text-sm text-destructive">{join.error.message}</p>
+          )}
+        </>
+      ) : (
+        <>
+          {/* The API's own words. Each blocker calls for something different —
+              full, closed, wrong intake, gate shut — and a single line saying
+              "không tham gia được" would hide which one it is. */}
+          <p className="text-sm text-destructive">{data.blockedReason}</p>
+          <Button variant="outline" render={<Link href="/student" />}>
+            Xem danh sách đề tài
+          </Button>
+        </>
+      )}
+    </Card>
+  );
+}
+
+function Card({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto flex max-w-md flex-col items-start gap-4 rounded-xl border bg-card p-5">
+      {children}
+    </div>
+  );
+}

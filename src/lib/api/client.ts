@@ -23,11 +23,14 @@ export class ApiError extends Error {
  * Statuses where the server has nothing useful to add, so it must not be
  * quoted.
  *
- * A rate limit comes back from Nest as "ThrottlerException: Too Many
- * Requests" — a framework class name, in English, in the middle of a
- * Vietnamese screen. Nobody reading it learns that they should wait a minute.
- * A 5xx is worse: whatever it says is about our server, not about anything the
- * person can do.
+ * Whatever a 5xx says is about our server, not about anything the person
+ * reading it can do.
+ *
+ * 429 used to be listed here, because Nest answered a rate limit with
+ * "ThrottlerException: Too Many Requests" — a framework class name, in English,
+ * on a Vietnamese screen. The API now words that itself, and a 429 can also mean
+ * "sai mật khẩu nhiều lần, thử lại sau 8 giây", which carries a number that a
+ * canned sentence about waiting a minute would have thrown away.
  *
  * Everything else still shows what the API said, because those messages are
  * ours and they carry the actual reason — "Đề tài vừa có nhóm khác nhận" is
@@ -35,7 +38,6 @@ export class ApiError extends Error {
  * would be throwing away the only useful part of the response.
  */
 const STATUS_MESSAGES: Record<number, string> = {
-  429: 'Bạn thao tác quá nhanh. Đợi khoảng một phút rồi thử lại.',
   500: 'Máy chủ gặp sự cố. Thử lại sau ít phút.',
   502: 'Không kết nối được máy chủ.',
   503: 'Máy chủ đang bảo trì. Thử lại sau ít phút.',
@@ -137,5 +139,15 @@ export async function api<T>(
     throw new ApiError(response.status, await errorMessage(response));
   }
 
-  return (await response.json()) as T;
+  // An empty body is an answer, not malformed JSON.
+  //
+  // Nest replies to a controller that returns null with 200 and no content at
+  // all, which is exactly what "you have no group this semester" looks like.
+  // Handing that to response.json() throws a SyntaxError, and a SyntaxError here
+  // is indistinguishable from the network having failed — so the request gets
+  // retried, three times, with backoff, and the query still ends in an error
+  // state. The screen then reports a failure for a request that succeeded.
+  const payload = await response.text();
+
+  return (payload ? JSON.parse(payload) : null) as T;
 }

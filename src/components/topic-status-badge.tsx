@@ -71,11 +71,12 @@ export function TopicStatusBadge({
  *
  * One column rather than two, because the group only says anything new while
  * the topic is OPEN: before that no group can exist, and afterwards there is
- * always exactly one approved. A second column would be empty on most rows and
- * repeat the first on the rest.
+ * always exactly one settled.
  *
- * "Chờ xác nhận" is the whole point — it is the only state here that is
- * waiting on the lecturer, and the plain status badge never said it.
+ * Nothing here waits on the lecturer any more. Per-group approval is gone — a
+ * group that fills up is simply done, and the faculty office settles the whole
+ * semester at once after the gate closes — so SUBMITTED reads as "đã đủ người"
+ * rather than as a queue with the lecturer at the head of it.
  */
 export function TopicOwnerBadge({
   status,
@@ -89,7 +90,7 @@ export function TopicOwnerBadge({
   if (status === 'OPEN' && activeGroup) {
     const owned =
       activeGroup.status === 'SUBMITTED'
-        ? ({ label: 'Chờ xác nhận', tone: 'waiting' } as const)
+        ? ({ label: 'Đã đủ người', tone: 'success' } as const)
         : ({ label: 'Đang lập nhóm', tone: 'active' } as const);
 
     return <Badge {...owned} className={className} />;

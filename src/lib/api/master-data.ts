@@ -7,8 +7,14 @@ import type { ProjectType, Semester } from '@/lib/api/types';
 /**
  * Master data changes a few times a year at most. Refetching it on every
  * navigation would be pure noise, so it is held for a long while.
+ *
+ * Half an hour rather than the five minutes this used to be. Five did not match
+ * the sentence above it, and the gap was visible: React Query refetches every
+ * stale query when the window regains focus, so coming back to a tab after lunch
+ * fired the whole set again — semesters, project types and cohort eligibility
+ * together — for data that had not moved since term started.
  */
-const MASTER_DATA_STALE_TIME = 5 * 60_000;
+const MASTER_DATA_STALE_TIME = 30 * 60_000;
 
 export function useSemesters() {
   return useQuery({
@@ -30,4 +36,23 @@ export function useProjectTypes() {
 export function useActiveSemester(): Semester | undefined {
   const { data } = useSemesters();
   return data?.find((semester) => semester.isActive);
+}
+
+/**
+ * The kinds of project this caller's intake may take in a semester.
+ *
+ * What the browse screen defaults its filter to. Without it a student sees the
+ * whole catalogue and every register button on a project type their cohort is not
+ * open for fails on press — the rule lives at the API, so the screen has to ask
+ * rather than guess. Staff get the full catalogue: the rule exists to steer
+ * students, not to hide the list from the people running it.
+ */
+export function useMyEligibleProjectTypes(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: ['semesters', semesterId, 'eligibility', 'mine'],
+    queryFn: () =>
+      api<ProjectType[]>(`/semesters/${semesterId!}/eligibility/mine`),
+    enabled: semesterId !== undefined,
+    staleTime: MASTER_DATA_STALE_TIME,
+  });
 }

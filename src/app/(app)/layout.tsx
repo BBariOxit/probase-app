@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { api } from '@/lib/api/client';
+import { nextParam } from '@/lib/auth/next-path';
 import { useSession } from '@/lib/auth/session';
 import { AppHeader } from '@/components/app-header';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -24,17 +25,23 @@ function storedSidebarOpen(): boolean {
  */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { status, user, signOut } = useSession();
   const [defaultOpen] = useState(storedSidebarOpen);
 
   useEffect(() => {
-    if (status === 'unauthenticated') router.replace('/login');
+    // The destination travels with the redirect. Someone following a join link
+    // from a chat message almost never has a live session, and dropping them on
+    // /student after signing in loses the only thing they were trying to do.
+    if (status === 'unauthenticated') {
+      router.replace(`/login${nextParam(pathname)}`);
+    }
     // A temporary password gets you exactly one destination. The API enforces
     // this too, since a redirect only steers a browser.
     else if (status === 'authenticated' && user?.mustChangePassword) {
       router.replace('/change-password');
     }
-  }, [status, user, router]);
+  }, [status, user, router, pathname]);
 
   async function handleSignOut() {
     // Best effort: the server drops the refresh tokens, but the local session
