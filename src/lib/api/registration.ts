@@ -107,6 +107,11 @@ export function useJoinByCode() {
 export interface GroupPatch {
   name?: string | null;
   openForJoin?: boolean;
+  /**
+   * How many of the topic's seats to claim. Between the members already in the
+   * group and the topic's capacity; null gives the claim up entirely.
+   */
+  declaredSize?: number | null;
   /** `true` only — the API will not push a hold further out, just end it. */
   releaseHold?: true;
   /** A student profile id already in the group. */

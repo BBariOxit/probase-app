@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useTopic } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { TopicDetailView } from '@/components/topic-detail-view';
+import { TopicRegisterButton } from '@/components/topic-register-button';
 import { Button } from '@/components/ui/button';
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
@@ -53,17 +54,31 @@ export default function StudentTopicDetailPage({
         topic={topic}
         actions={
           <div className="space-y-2">
-            {/* Registration is disabled because the module behind it does not
-                exist yet. An enabled button that does nothing would be worse
-                than one that plainly cannot be pressed. */}
-            <Button disabled>Đăng ký đề tài</Button>
-            {!topic.isRegistrationOpen && (
+            <TopicRegisterButton topic={topic} />
+
+            {/*
+              Three different silences, and each calls for different words. The
+              window not being open is about the calendar; a topic already taken
+              is about somebody else being quicker; a full one is neither. Only
+              the first is worth spelling out with dates — the badge on the list
+              already said the other two.
+            */}
+            {!topic.isRegistrationOpen ? (
               <p className="text-xs text-muted-foreground">
                 Ngoài thời hạn đăng ký ({' '}
                 {dateFormat.format(new Date(topic.semester.registrationStart))}
                 {' – '}
                 {dateFormat.format(new Date(topic.semester.registrationEnd))} ).
               </p>
+            ) : (
+              !topic.canRegister &&
+              !topic.canJoin && (
+                <p className="text-xs text-muted-foreground">
+                  {topic.isFull
+                    ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
+                    : 'Đề tài này đã có nhóm nhận.'}
+                </p>
+              )
             )}
           </div>
         }

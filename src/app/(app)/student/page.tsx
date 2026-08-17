@@ -17,6 +17,7 @@ import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { EmptyState } from '@/components/empty-state';
 import { PaginationBar } from '@/components/pagination-bar';
 import { SeatBadge } from '@/components/seat-indicator';
+import { TopicRegisterButton } from '@/components/topic-register-button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -225,7 +226,14 @@ export default function StudentTopicsPage() {
                     </p>
                   </div>
 
-                  <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+                  {/* The action if there is one, and the "this is a link"
+                      affordance if there is not. Both would be two things
+                      competing for the same corner. */}
+                  {topic.canRegister || topic.canJoin ? (
+                    <TopicRegisterButton topic={topic} />
+                  ) : (
+                    <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+                  )}
                 </div>
               </div>
             </li>
