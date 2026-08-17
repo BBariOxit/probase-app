@@ -30,8 +30,19 @@ import { SeatDots } from '@/components/seat-indicator';
  * come first because a leader returns for those, and the ways to break the group
  * up sit behind a menu. Putting "giải tán" beside "copy link" would be putting
  * the most destructive control next to the most used one.
+ *
+ * `canEdit` is false once the gate has closed. Every control here is refused by
+ * the API from that point on, and showing a live button in front of a certain
+ * refusal is worse than showing none — the group is still worth reading, so it is
+ * the controls that go rather than the panel.
  */
-export function MyGroupPanel({ group }: { group: RegistrationGroup }) {
+export function MyGroupPanel({
+  group,
+  canEdit = true,
+}: {
+  group: RegistrationGroup;
+  canEdit?: boolean;
+}) {
   const [confirming, setConfirming] = useState<'disband' | 'leave' | null>(
     null,
   );
@@ -68,48 +79,50 @@ export function MyGroupPanel({ group }: { group: RegistrationGroup }) {
               {group.occupiedSeats}/{topic.maxStudents}
             </span>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Thao tác với nhóm"
-                  />
-                }
-              >
-                <EllipsisVertical />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {group.isLeader ? (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        update.mutate({ openForJoin: !group.openForJoin })
-                      }
-                    >
-                      {group.openForJoin
-                        ? 'Đóng nhóm, không nhận thêm'
-                        : 'Mở lại cho người khác vào'}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+            {canEdit && (
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label="Thao tác với nhóm"
+                    />
+                  }
+                >
+                  <EllipsisVertical />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {group.isLeader ? (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          update.mutate({ openForJoin: !group.openForJoin })
+                        }
+                      >
+                        {group.openForJoin
+                          ? 'Đóng nhóm, không nhận thêm'
+                          : 'Mở lại cho người khác vào'}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => setConfirming('disband')}
+                      >
+                        Giải tán nhóm
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
                     <DropdownMenuItem
                       variant="destructive"
-                      onClick={() => setConfirming('disband')}
+                      onClick={() => setConfirming('leave')}
                     >
-                      Giải tán nhóm
+                      Rời nhóm
                     </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => setConfirming('leave')}
-                  >
-                    Rời nhóm
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
@@ -132,7 +145,7 @@ export function MyGroupPanel({ group }: { group: RegistrationGroup }) {
           <MemberRow
             key={member.id}
             member={member}
-            canRemove={group.isLeader && !member.isLeader}
+            canRemove={canEdit && group.isLeader && !member.isLeader}
             onRemove={() => removeMember.mutate(member.student.id)}
             removing={removeMember.isPending}
           />
@@ -143,9 +156,11 @@ export function MyGroupPanel({ group }: { group: RegistrationGroup }) {
         <p className="text-xs text-destructive">{removeMember.error.message}</p>
       )}
 
-      {group.isLeader && !group.isFull && <GroupSeatClaim group={group} />}
+      {canEdit && group.isLeader && !group.isFull && (
+        <GroupSeatClaim group={group} />
+      )}
 
-      {group.isLeader && group.joinCode && !group.isFull && (
+      {canEdit && group.isLeader && group.joinCode && !group.isFull && (
         <div className="space-y-1.5">
           <p className="text-sm font-medium">Mời bạn vào nhóm</p>
           <JoinLinkField code={group.joinCode} />

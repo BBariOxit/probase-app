@@ -18,6 +18,7 @@ import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { EmptyState } from '@/components/empty-state';
 import { MyGroupBanner } from '@/components/my-group-banner';
 import { PaginationBar } from '@/components/pagination-bar';
+import { RegistrationPhaseNotice } from '@/components/registration-phase-notice';
 import { SeatBadge } from '@/components/seat-indicator';
 import { TopicRegisterButton } from '@/components/topic-register-button';
 import { Input } from '@/components/ui/input';
@@ -76,6 +77,14 @@ export default function StudentTopicsPage() {
         where the list is the whole point.
       */}
       {myGroup && <MyGroupBanner group={myGroup} />}
+
+      {activeSemester && (
+        <RegistrationPhaseNotice
+          phase={activeSemester.phase}
+          registrationStart={activeSemester.registrationStart}
+          hasGroup={myGroup != null}
+        />
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-52 flex-1 sm:max-w-xs">

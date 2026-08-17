@@ -18,14 +18,32 @@ function daysUntil(iso: string): number {
   return Math.ceil((new Date(iso).getTime() - Date.now()) / DAY_MS);
 }
 
+/**
+ * Keyed on the phase, not on the dates.
+ *
+ * The dates are what moves the phase, but they are not the same thing: the office
+ * can open the gate early or hold it shut, and RECONCILING carries on after
+ * `registrationEnd` has passed and says something the calendar cannot — that the
+ * faculty is placing the students who ended up without a group. Only inside OPEN
+ * is the remaining time worth counting, because that is the only phase where
+ * anyone can still act on it.
+ */
 function registrationLine(semester: Semester): string {
-  const opensIn = daysUntil(semester.registrationStart);
-  const closesIn = daysUntil(semester.registrationEnd);
-
-  if (opensIn > 0) return `Mở đăng ký sau ${opensIn} ngày`;
-  if (closesIn < 0) return 'Đã đóng đăng ký';
-  if (closesIn === 0) return 'Hôm nay là hạn đăng ký';
-  return `Còn ${closesIn} ngày đăng ký`;
+  switch (semester.phase) {
+    case 'PREP': {
+      const opensIn = daysUntil(semester.registrationStart);
+      return opensIn > 0 ? `Mở đăng ký sau ${opensIn} ngày` : 'Chưa mở đăng ký';
+    }
+    case 'OPEN': {
+      const closesIn = daysUntil(semester.registrationEnd);
+      if (closesIn <= 0) return 'Hôm nay là hạn đăng ký';
+      return `Còn ${closesIn} ngày đăng ký`;
+    }
+    case 'RECONCILING':
+      return 'Đã đóng đăng ký · khoa đang phân bổ';
+    case 'FINALIZED':
+      return 'Đã chốt phân bổ';
+  }
 }
 
 /**

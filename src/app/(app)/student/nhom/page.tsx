@@ -2,14 +2,17 @@
 
 import Link from 'next/link';
 import { Loader2, Users } from 'lucide-react';
+import { useActiveSemester } from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { EmptyState } from '@/components/empty-state';
 import { MyGroupPanel } from '@/components/my-group-panel';
+import { RegistrationPhaseNotice } from '@/components/registration-phase-notice';
 import { Button } from '@/components/ui/button';
 
 export default function StudentGroupPage() {
   const allowed = useRequireRole('STUDENT');
+  const semester = useActiveSemester();
   const { data: group, isPending, error } = useMyGroup();
 
   if (!allowed) return null;
@@ -48,8 +51,15 @@ export default function StudentGroupPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <MyGroupPanel group={group} />
+    <div className="max-w-2xl space-y-4">
+      {semester && semester.phase !== 'OPEN' && (
+        <RegistrationPhaseNotice
+          phase={semester.phase}
+          registrationStart={semester.registrationStart}
+          hasGroup
+        />
+      )}
+      <MyGroupPanel group={group} canEdit={semester?.phase === 'OPEN'} />
     </div>
   );
 }
