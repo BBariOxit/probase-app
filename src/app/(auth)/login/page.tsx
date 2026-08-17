@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api/client';
-import type { LoginResponse } from '@/lib/api/types';
+import type { LoginResponse, Role } from '@/lib/api/types';
+import { safeNextPath } from '@/lib/auth/next-path';
 import { homePathFor, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -30,10 +31,37 @@ const LoginSchema = z.object({
 
 type LoginValues = z.infer<typeof LoginSchema>;
 
+/**
+ * The form reads `?next`, which Next cannot know at build time — so the page is
+ * the Suspense boundary and the form is what waits behind it. Without one the
+ * whole route refuses to prerender.
+ */
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<Card className="h-72 px-6 py-7" />}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { status, user, signIn } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Where they were headed before the session ran out or the link was followed.
+  // Validated rather than trusted: an unchecked value here is an open redirect.
+  const next = safeNextPath(searchParams.get('next'));
+
+  /** A temporary password overrides everything, including where they were going. */
+  function destinationFor(signedIn: {
+    mustChangePassword: boolean;
+    role: Role;
+  }) {
+    if (signedIn.mustChangePassword) return '/change-password';
+    return next ?? homePathFor(signedIn.role);
+  }
 
   const {
     register,
@@ -50,12 +78,11 @@ export default function LoginPage() {
 
   // Someone already signed in has no business on this screen.
   useEffect(() => {
-    if (status === 'authenticated' && user) {
-      router.replace(
-        user.mustChangePassword ? '/change-password' : homePathFor(user.role),
-      );
-    }
-  }, [status, user, router]);
+    if (status === 'authenticated' && user)
+      router.replace(destinationFor(user));
+    // destinationFor closes over `next`, which is what actually varies here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, user, router, next]);
 
   async function onSubmit(values: LoginValues) {
     setFormError(null);
@@ -67,11 +94,7 @@ export default function LoginPage() {
       });
 
       signIn(result, result.user);
-      router.replace(
-        result.user.mustChangePassword
-          ? '/change-password'
-          : homePathFor(result.user.role),
-      );
+      router.replace(destinationFor(result.user));
     } catch (err) {
       // The API answers a wrong address and a wrong password identically, on
       // purpose. Being more helpful here would confirm which emails exist.
