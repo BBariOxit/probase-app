@@ -30,11 +30,26 @@ function useInvalidateRegistration() {
   };
 }
 
-/** The caller's group this semester, or null when they have none yet. */
+/**
+ * The caller's group this semester, or null when they have none yet.
+ *
+ * Read by the banner, the group screen and the confirmation dialog, so it is
+ * mounted and unmounted often as the student moves around. Every path that can
+ * change it goes through a mutation here and invalidates it explicitly, which
+ * makes refetching on each remount and on every window focus pure noise — a
+ * navigation between two screens that both show the group was costing three
+ * requests for data that had not moved.
+ *
+ * A long staleTime rather than Infinity: the group can also change from another
+ * member's browser, and coming back to a tab minutes later should not show a
+ * roster from before lunch.
+ */
 export function useMyGroup() {
   return useQuery({
     queryKey: groupKeys.mine(),
     queryFn: () => api<RegistrationGroup | null>('/registration-groups/me'),
+    staleTime: 2 * 60_000,
+    refetchOnWindowFocus: false,
   });
 }
 

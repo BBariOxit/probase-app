@@ -126,6 +126,15 @@ export interface TopicAvailability {
   canRegister: boolean;
   /** A group holds it and has a seat this viewer could take right now. */
   canJoin: boolean;
+  /**
+   * Whether this reader's intake may take this kind of project. Null for staff,
+   * to whom the question does not apply.
+   *
+   * Separate from the two booleans above because "not yours to take" and "someone
+   * else already took it" are different facts — with only canRegister/canJoin to
+   * go on, a screen would end up calling an unclaimed topic taken.
+   */
+  eligibleForMe: boolean | null;
 }
 
 export interface TopicListItem extends TopicAvailability {

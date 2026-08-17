@@ -15,17 +15,20 @@ const TONE_CLASS = {
  * Whether a student can still get onto this topic — the first thing they need
  * from a list of forty, and so the loudest thing on a card after the title.
  *
- * Three states, not five. A topic can be unavailable because it is full, because
- * the group has closed its door, or because seats are being held for people the
- * leader is bringing — and to somebody looking at it those are the same fact.
- * Naming the reason would invite them to wait for a seat that has a name on it
- * already, which is the interface telling a lie.
+ * The three ways a *claimed* topic can be unavailable — full, the group shut its
+ * door, seats held for people the leader is bringing — are deliberately one
+ * state. To somebody outside they are the same fact, and naming the reason would
+ * invite them to wait for a seat that already has a name on it.
+ *
+ * But "somebody has it" and "it is not yours to take" are not the same fact, and
+ * collapsing those two is how this badge came to announce "Đã có nhóm" over a
+ * topic nobody had registered at all.
  */
 export function SeatBadge({
   topic,
   className,
 }: {
-  topic: TopicAvailability & { maxStudents: number };
+  topic: TopicAvailability & { maxStudents: number; activeGroup: unknown };
   className?: string;
 }) {
   const { label, tone } = describe(topic);
@@ -43,7 +46,9 @@ export function SeatBadge({
   );
 }
 
-function describe(topic: TopicAvailability & { maxStudents: number }): {
+function describe(
+  topic: TopicAvailability & { maxStudents: number; activeGroup: unknown },
+): {
   label: string;
   tone: keyof typeof TONE_CLASS;
 } {
@@ -64,7 +69,17 @@ function describe(topic: TopicAvailability & { maxStudents: number }): {
     };
   }
 
-  return { label: 'Đã có nhóm', tone: 'idle' };
+  // Somebody holds it and is not taking anyone else.
+  if (topic.activeGroup) return { label: 'Đã có nhóm', tone: 'idle' };
+
+  // Nobody holds it, so the reason has to be about the reader rather than the
+  // topic: either their intake is not opened for this kind of project, or the
+  // gate is not open to anyone yet.
+  if (topic.eligibleForMe === false) {
+    return { label: 'Không đúng khóa', tone: 'idle' };
+  }
+
+  return { label: 'Chưa mở đăng ký', tone: 'idle' };
 }
 
 /**

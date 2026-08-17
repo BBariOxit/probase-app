@@ -128,7 +128,12 @@ export function TopicRegisterButton({
 
       <Dialog open={confirming} onOpenChange={setConfirming}>
         <DialogContent className="sm:max-w-md">
-          <Result />
+          {/*
+            Mounted only while open. Result reads the group, and a closed dialog
+            on every card in the list would each subscribe to that query for a
+            confirmation nobody has asked to see.
+          */}
+          {confirming && <Result />}
         </DialogContent>
       </Dialog>
     </>

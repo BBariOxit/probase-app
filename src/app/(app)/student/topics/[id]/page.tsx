@@ -76,7 +76,11 @@ export default function StudentTopicDetailPage({
                 <p className="text-xs text-muted-foreground">
                   {topic.isFull
                     ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
-                    : 'Đề tài này đã có nhóm nhận.'}
+                    : topic.activeGroup
+                      ? 'Đề tài này đã có nhóm nhận.'
+                      : topic.eligibleForMe === false
+                        ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
+                        : 'Đề tài này chưa mở đăng ký.'}
                 </p>
               )
             )}

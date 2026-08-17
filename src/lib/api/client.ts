@@ -137,5 +137,15 @@ export async function api<T>(
     throw new ApiError(response.status, await errorMessage(response));
   }
 
-  return (await response.json()) as T;
+  // An empty body is an answer, not malformed JSON.
+  //
+  // Nest replies to a controller that returns null with 200 and no content at
+  // all, which is exactly what "you have no group this semester" looks like.
+  // Handing that to response.json() throws a SyntaxError, and a SyntaxError here
+  // is indistinguishable from the network having failed — so the request gets
+  // retried, three times, with backoff, and the query still ends in an error
+  // state. The screen then reports a failure for a request that succeeded.
+  const payload = await response.text();
+
+  return (payload ? JSON.parse(payload) : null) as T;
 }

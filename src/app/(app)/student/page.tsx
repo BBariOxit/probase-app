@@ -64,19 +64,24 @@ export default function StudentTopicsPage() {
   const [lecturerId, setLecturerId] = useState(ANY);
   const debouncedSearch = useDebouncedValue(search);
 
-  const { data, isPending, error } = useTopics({
-    status: 'OPEN',
-    semesterId: activeSemester?.id,
-    forMyCohort: projectTypeId === MY_COHORT,
-    projectTypeId:
-      projectTypeId === ANY || projectTypeId === MY_COHORT
-        ? undefined
-        : projectTypeId,
-    lecturerId: lecturerId === ANY ? undefined : lecturerId,
-    q: debouncedSearch || undefined,
-    page,
-    limit: PAGE_SIZE,
-  });
+  const { data, isPending, error } = useTopics(
+    {
+      status: 'OPEN',
+      semesterId: activeSemester?.id,
+      forMyCohort: projectTypeId === MY_COHORT,
+      projectTypeId:
+        projectTypeId === ANY || projectTypeId === MY_COHORT
+          ? undefined
+          : projectTypeId,
+      lecturerId: lecturerId === ANY ? undefined : lecturerId,
+      q: debouncedSearch || undefined,
+      page,
+      limit: PAGE_SIZE,
+    },
+    // Every filter on this screen is scoped to the active semester, so asking
+    // before it is known fetches a page that is about to be thrown away.
+    { enabled: activeSemester !== undefined },
+  );
 
   if (!allowed) return null;
 
@@ -89,11 +94,16 @@ export default function StudentTopicsPage() {
     (projectTypeId !== ANY && projectTypeId !== MY_COHORT) ||
     lecturerId !== ANY;
 
-  /** How the default reads, once we know what it resolves to. */
-  const myCohortLabel =
-    myTypes && myTypes.length > 0
-      ? `Dành cho khóa của bạn (${myTypes.map((type) => type.name).join(', ')})`
-      : 'Dành cho khóa của bạn';
+  /**
+   * What the default resolves to, as a second line rather than a parenthetical.
+   *
+   * Select items do not wrap — the primitive sets whitespace-nowrap so an option
+   * cannot break mid-phrase — so "Dành cho khóa của bạn (Đồ án Tốt nghiệp)" ran
+   * past the edge of the popup and was clipped. Two short lines fit, and the
+   * resolved project type is worth showing: it answers what this student is meant
+   * to be doing this semester.
+   */
+  const myCohortTypes = myTypes?.map((type) => type.name).join(', ');
 
   /** Every filter change invalidates the current page number. */
   function resetPage() {
@@ -152,7 +162,16 @@ export default function StudentTopicsPage() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={MY_COHORT}>{myCohortLabel}</SelectItem>
+            <SelectItem value={MY_COHORT}>
+              <span className="flex flex-col items-start">
+                <span>Dành cho khóa của bạn</span>
+                {myCohortTypes && (
+                  <span className="text-xs text-muted-foreground">
+                    {myCohortTypes}
+                  </span>
+                )}
+              </span>
+            </SelectItem>
             <SelectItem value={ANY}>Mọi loại đồ án</SelectItem>
             {projectTypes?.map((type) => (
               <SelectItem key={type.id} value={type.id}>
