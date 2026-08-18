@@ -2,50 +2,13 @@
 
 import { CalendarClock } from 'lucide-react';
 import { useActiveSemester, useMyRounds } from '@/lib/api/master-data';
-import type { RegistrationRound } from '@/lib/api/types';
+import { describeRound } from '@/lib/round-status';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useSidebar } from '@/components/ui/sidebar';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/** Whole days from now until `iso`, rounded up; negative once it has passed. */
-function daysUntil(iso: string): number {
-  return Math.ceil((new Date(iso).getTime() - Date.now()) / DAY_MS);
-}
-
-/**
- * Keyed on the phase, not on the dates.
- *
- * The dates are what moves the phase, but they are not the same thing: the office
- * can open the gate early or hold it shut, and RECONCILING carries on after
- * `registrationEnd` has passed and says something the calendar cannot — that the
- * faculty is placing the students who ended up without a group. Only inside the
- * two open phases is the remaining time worth counting, because those are the
- * only ones where anybody can still act on it.
- */
-function registrationLine(round: RegistrationRound): string {
-  switch (round.phase) {
-    case 'PREP': {
-      const opensIn = daysUntil(round.registrationStart);
-      return opensIn > 0 ? `Mở đăng ký sau ${opensIn} ngày` : 'Chưa mở đăng ký';
-    }
-    case 'OPEN':
-    case 'EXTENDED': {
-      const closesIn = daysUntil(round.registrationEnd);
-      const label = round.phase === 'EXTENDED' ? 'gia hạn' : 'đăng ký';
-      if (closesIn <= 0) return `Hôm nay là hạn ${label}`;
-      return `Còn ${closesIn} ngày ${label}`;
-    }
-    case 'RECONCILING':
-      return 'Đã đóng đăng ký · khoa đang phân bổ';
-    case 'FINALIZED':
-      return 'Đã chốt phân bổ';
-  }
-}
 
 /**
  * The registration window governs almost everything a user can do — students
@@ -58,6 +21,9 @@ function registrationLine(round: RegistrationRound): string {
  * reader's own round, or the one closing soonest. Where there is more than one,
  * the kind of project is named, because a countdown with no subject is worse
  * than none.
+ *
+ * The wording is `describeRound`'s, so this line and the one at the top of the
+ * group screen cannot disagree about the same round.
  */
 export function SemesterContext() {
   const { state, isMobile } = useSidebar();
@@ -71,7 +37,10 @@ export function SemesterContext() {
   // something nobody asked to see.
   if (!active || !round) return null;
 
-  const line = registrationLine(round);
+  // Only the headline: the foot of the sidebar is where this is kept in view,
+  // not where it is explained. The screen that has room for the rest says it
+  // there, in the same words.
+  const line = describeRound(round, false).headline;
   const subject =
     rounds && rounds.length > 1 ? `${round.projectType.name} · ` : '';
 

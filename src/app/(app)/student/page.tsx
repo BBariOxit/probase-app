@@ -134,9 +134,7 @@ export default function StudentTopicsPage() {
         <RegistrationPhaseNotice
           key={round.id}
           subject={rounds.length > 1 ? round.projectType.name : undefined}
-          phase={round.phase}
-          registrationStart={round.registrationStart}
-          registrationEnd={round.registrationEnd}
+          round={round}
           hasGroup={myGroup != null}
         />
       ))}
