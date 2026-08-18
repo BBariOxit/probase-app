@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
-import type { ProjectType, Semester } from '@/lib/api/types';
+import type { ProjectType, RegistrationRound, Semester } from '@/lib/api/types';
 
 /**
  * Master data changes a few times a year at most. Refetching it on every
@@ -36,6 +36,40 @@ export function useProjectTypes() {
 export function useActiveSemester(): Semester | undefined {
   const { data } = useSemesters();
   return data?.find((semester) => semester.isActive);
+}
+
+/**
+ * The rounds this caller may take part in, soonest deadline first.
+ *
+ * The API does the ordering, and it is not arbitrary: a student already in a
+ * group gets that round first, and one who is not gets the round they are about
+ * to miss. A screen picking `[0]` therefore lands on the right one without
+ * knowing either rule.
+ */
+export function useMyRounds(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: ['rounds', semesterId, 'mine'],
+    queryFn: () =>
+      api<RegistrationRound[]>(`/rounds?semesterId=${semesterId!}&mine=true`),
+    enabled: semesterId !== undefined,
+    // Shorter than the rest of the master data: this is the countdown a student
+    // reads before deciding whether they still have time, and the phase can move
+    // between two page loads.
+    staleTime: 60_000,
+  });
+}
+
+/**
+ * The one round a student's screens follow.
+ *
+ * Almost every student has exactly one — their intake is opened for a single
+ * kind of project — so this is the whole answer for them. Where a faculty opens
+ * two for the same intake, the API's ordering decides which comes first.
+ */
+export function useMyRound(semesterId: number | undefined) {
+  const { data } = useMyRounds(semesterId);
+
+  return data?.[0];
 }
 
 /**

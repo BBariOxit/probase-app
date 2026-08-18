@@ -1,9 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
 import { CalendarClock } from 'lucide-react';
-import { api } from '@/lib/api/client';
-import type { Semester } from '@/lib/api/types';
+import { useActiveSemester, useMyRounds } from '@/lib/api/master-data';
+import type { RegistrationRound } from '@/lib/api/types';
 import {
   Tooltip,
   TooltipContent,
@@ -24,20 +23,22 @@ function daysUntil(iso: string): number {
  * The dates are what moves the phase, but they are not the same thing: the office
  * can open the gate early or hold it shut, and RECONCILING carries on after
  * `registrationEnd` has passed and says something the calendar cannot — that the
- * faculty is placing the students who ended up without a group. Only inside OPEN
- * is the remaining time worth counting, because that is the only phase where
- * anyone can still act on it.
+ * faculty is placing the students who ended up without a group. Only inside the
+ * two open phases is the remaining time worth counting, because those are the
+ * only ones where anybody can still act on it.
  */
-function registrationLine(semester: Semester): string {
-  switch (semester.phase) {
+function registrationLine(round: RegistrationRound): string {
+  switch (round.phase) {
     case 'PREP': {
-      const opensIn = daysUntil(semester.registrationStart);
+      const opensIn = daysUntil(round.registrationStart);
       return opensIn > 0 ? `Mở đăng ký sau ${opensIn} ngày` : 'Chưa mở đăng ký';
     }
-    case 'OPEN': {
-      const closesIn = daysUntil(semester.registrationEnd);
-      if (closesIn <= 0) return 'Hôm nay là hạn đăng ký';
-      return `Còn ${closesIn} ngày đăng ký`;
+    case 'OPEN':
+    case 'EXTENDED': {
+      const closesIn = daysUntil(round.registrationEnd);
+      const label = round.phase === 'EXTENDED' ? 'gia hạn' : 'đăng ký';
+      if (closesIn <= 0) return `Hôm nay là hạn ${label}`;
+      return `Còn ${closesIn} ngày ${label}`;
     }
     case 'RECONCILING':
       return 'Đã đóng đăng ký · khoa đang phân bổ';
@@ -51,26 +52,28 @@ function registrationLine(semester: Semester): string {
  * cannot register outside it, lecturers cannot open topics, grades lock after
  * it. It belongs somewhere permanently visible but quiet, which is what the
  * foot of the sidebar is for.
+ *
+ * A semester runs several rounds and they do not share a deadline, so this shows
+ * one: the API returns them in the order that makes `[0]` the right one — the
+ * reader's own round, or the one closing soonest. Where there is more than one,
+ * the kind of project is named, because a countdown with no subject is worse
+ * than none.
  */
 export function SemesterContext() {
   const { state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed' && !isMobile;
 
-  const { data } = useQuery({
-    queryKey: ['semesters'],
-    queryFn: () => api<Semester[]>('/semesters'),
-    // The active semester changes a few times a year; refetching it on every
-    // navigation would be noise.
-    staleTime: 5 * 60_000,
-  });
-
-  const active = data?.find((semester) => semester.isActive);
+  const active = useActiveSemester();
+  const { data: rounds } = useMyRounds(active?.id);
+  const round = rounds?.[0];
 
   // Nothing to say yet, and a skeleton here would be a loading state for
   // something nobody asked to see.
-  if (!active) return null;
+  if (!active || !round) return null;
 
-  const line = registrationLine(active);
+  const line = registrationLine(round);
+  const subject =
+    rounds && rounds.length > 1 ? `${round.projectType.name} · ` : '';
 
   if (collapsed) {
     return (
@@ -83,7 +86,8 @@ export function SemesterContext() {
           }
         />
         <TooltipContent side="right">
-          {active.name} · {line}
+          {active.name} · {subject}
+          {line}
         </TooltipContent>
       </Tooltip>
     );
@@ -95,7 +99,10 @@ export function SemesterContext() {
         <CalendarClock className="size-3.5 shrink-0 text-muted-foreground" />
         <span className="truncate">{active.name}</span>
       </p>
-      <p className="mt-0.5 pl-5 text-xs text-muted-foreground">{line}</p>
+      <p className="mt-0.5 pl-5 text-xs text-muted-foreground">
+        {subject}
+        {line}
+      </p>
     </div>
   );
 }

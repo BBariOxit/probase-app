@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Loader2, Users } from 'lucide-react';
-import { useActiveSemester } from '@/lib/api/master-data';
+import { useActiveSemester, useMyRound } from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { EmptyState } from '@/components/empty-state';
@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 export default function StudentGroupPage() {
   const allowed = useRequireRole('STUDENT');
   const semester = useActiveSemester();
+  const round = useMyRound(semester?.id);
   const { data: group, isPending, error } = useMyGroup();
 
   if (!allowed) return null;
@@ -52,14 +53,20 @@ export default function StudentGroupPage() {
 
   return (
     <div className="max-w-2xl space-y-4">
-      {semester && semester.phase !== 'OPEN' && (
+      {round && round.phase !== 'OPEN' && (
         <RegistrationPhaseNotice
-          phase={semester.phase}
-          registrationStart={semester.registrationStart}
+          phase={round.phase}
+          registrationStart={round.registrationStart}
+          registrationEnd={round.registrationEnd}
           hasGroup
         />
       )}
-      <MyGroupPanel group={group} canEdit={semester?.phase === 'OPEN'} />
+      {/*
+        Editable only while the gate is genuinely open. An extension does not
+        count: it reopens registration for students who ended up without a group,
+        and leaves every group already formed exactly as it is.
+      */}
+      <MyGroupPanel group={group} canEdit={round?.phase === 'OPEN'} />
     </div>
   );
 }
