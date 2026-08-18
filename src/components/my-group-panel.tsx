@@ -54,7 +54,7 @@ export function MyGroupPanel({
   const { topic } = group;
 
   return (
-    <section className="space-y-4 rounded-xl border bg-card p-4">
+    <section className="space-y-5 rounded-xl border bg-card p-5">
       <header className="space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
@@ -162,7 +162,7 @@ export function MyGroupPanel({
 
       {canEdit && group.isLeader && group.joinCode && !group.isFull && (
         <div className="space-y-1.5">
-          <p className="text-sm font-medium">Mời bạn vào nhóm</p>
+          <p className="text-sm font-medium">Link mời</p>
           <JoinLinkField code={group.joinCode} />
         </div>
       )}

@@ -18,9 +18,16 @@ function hoursLeft(holdUntil: string): number {
  *
  * A row of the topic's seat counts rather than a yes/no, because on a topic for
  * three a group that turns out to be two wants to free exactly one seat. The
- * counts below the group's own size are disabled instead of hidden: the reason
- * they are unavailable is that people are already sitting there, and a number
- * that quietly disappears looks like a bug rather than an explanation.
+ * counts below the group's own size stay in place and disabled: the reason they
+ * are unavailable is that people are already sitting there, and a number that
+ * quietly disappears looks like a bug rather than an explanation.
+ *
+ * Drawn as one segmented control rather than three separate buttons. As buttons
+ * the unselected two carried a faint border, which reads as *disabled* rather
+ * than as *not chosen* — and the chosen one, filled with the brand colour,
+ * became the loudest thing on a dialog where it is not the point. A single track
+ * with the chosen segment raised out of it says the same thing using position
+ * and elevation, and leaves the accent colour for something worth pressing.
  *
  * Nothing here is required. Registration already holds every seat, so a leader
  * who ignores this keeps what they were given until the hold lapses on its own.
@@ -35,13 +42,13 @@ export function GroupSeatClaim({ group }: { group: RegistrationGroup }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Nhóm đi mấy người?</span>
+        <span className="text-sm font-medium">Số thành viên dự kiến</span>
         {update.isPending && (
           <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
         )}
       </div>
 
-      <div className="flex gap-1.5">
+      <div className="flex gap-1 rounded-lg bg-muted p-1">
         {Array.from({ length: capacity }, (_, index) => index + 1).map(
           (size) => {
             const tooFew = size < group.occupiedSeats;
@@ -55,10 +62,10 @@ export function GroupSeatClaim({ group }: { group: RegistrationGroup }) {
                 onClick={() => update.mutate({ declaredSize: size })}
                 aria-pressed={active}
                 className={cn(
-                  'h-9 flex-1 rounded-md border text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
+                  'h-8 flex-1 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
                   active
-                    ? 'border-primary bg-primary text-primary-foreground'
-                    : 'bg-card hover:bg-muted',
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {size}
@@ -69,8 +76,13 @@ export function GroupSeatClaim({ group }: { group: RegistrationGroup }) {
       </div>
 
       <p className="text-xs text-muted-foreground">
+        {/*
+          Says what the hold *does*, not only that it exists. "Giữ 2 chỗ" alone
+          leaves a leader wondering how a friend is supposed to get in; the rule
+          is the half that makes the link below make sense.
+        */}
         {group.holdActive && group.heldSeats > 0
-          ? `Đang giữ ${group.heldSeats} chỗ cho bạn của bạn · còn ${hoursLeft(group.holdUntil!)} giờ`
+          ? `Giữ ${group.heldSeats} chỗ trong ${hoursLeft(group.holdUntil!)} giờ — chỉ người có link mới vào được.`
           : group.isFull
             ? 'Nhóm đã đủ người.'
             : 'Không giữ chỗ — ai cũng có thể vào nhóm.'}
