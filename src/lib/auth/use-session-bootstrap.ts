@@ -50,6 +50,14 @@ export function useSessionBootstrap() {
             email: me.email,
             role: me.role,
             mustChangePassword: me.mustChangePassword,
+            // Null rather than the address as a fallback: the header wants to
+            // know that there is no name on file, not to be handed an email
+            // dressed up as one.
+            fullName:
+              me.studentProfile?.fullName ??
+              me.lecturerProfile?.fullName ??
+              null,
+            avatarUrl: me.avatarUrl,
           },
         });
       } catch (err) {

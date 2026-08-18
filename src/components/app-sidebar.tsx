@@ -6,7 +6,6 @@ import type { SessionUser } from '@/lib/api/types';
 import { NAV_BY_ROLE, type NavItem } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 import { Brand } from '@/components/brand';
-import { NavUser } from '@/components/nav-user';
 import { SemesterContext } from '@/components/semester-context';
 import {
   Sidebar,
@@ -20,7 +19,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 
 function NavEntry({ item }: { item: NavItem }) {
@@ -71,13 +69,7 @@ function NavEntry({ item }: { item: NavItem }) {
   );
 }
 
-export function AppSidebar({
-  user,
-  onSignOut,
-}: {
-  user: SessionUser;
-  onSignOut: () => void;
-}) {
+export function AppSidebar({ user }: { user: SessionUser }) {
   return (
     <Sidebar variant="inset" collapsible="icon">
       {/*
@@ -119,10 +111,15 @@ export function AppSidebar({
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="gap-3 px-3 pb-3">
+      {/*
+        The account block used to sit here under a separator. It has moved to
+        the header, beside the theme toggle: it was the widest string in the
+        product living in the narrowest column, and it became an unreadable stub
+        whenever the sidebar collapsed. What is left is the one thing that has
+        to stay in view on every screen — where the semester is.
+      */}
+      <SidebarFooter className="px-3 pb-3">
         <SemesterContext />
-        <SidebarSeparator className="mx-0" />
-        <NavUser user={user} onSignOut={onSignOut} />
       </SidebarFooter>
 
       {/* Drag the edge to open or close, for anyone who never finds Ctrl+B. */}

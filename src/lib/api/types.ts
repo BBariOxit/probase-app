@@ -6,6 +6,9 @@ export interface SessionUser {
   email: string;
   role: Role;
   mustChangePassword: boolean;
+  /** Null for an admin, who has neither profile row to carry a name. */
+  fullName: string | null;
+  avatarUrl: string | null;
 }
 
 export interface TokenPair {
@@ -28,6 +31,7 @@ export interface MeResponse {
   role: Role;
   isActive: boolean;
   mustChangePassword: boolean;
+  avatarUrl: string | null;
   studentProfile: { fullName: string; studentCode: string } | null;
   lecturerProfile: { fullName: string; lecturerCode: string } | null;
 }
@@ -273,6 +277,7 @@ export interface GroupMember {
     cohort: string | null;
     major: { id: number; name: string; code: string } | null;
     email: string;
+    avatarUrl: string | null;
   };
 }
 
@@ -334,4 +339,80 @@ export interface JoinPreview {
   canJoin: boolean;
   /** The very message the POST would answer with, or null when it would succeed. */
   blockedReason: string | null;
+}
+
+/**
+ * GET /me/profile — the account and the one role block that belongs to it.
+ *
+ * Split rather than flattened: identity is the same for all three roles and is
+ * what every screen greeting somebody wants, while the rest differs entirely by
+ * role. The block for the other role is null rather than missing, so a client
+ * can tell "this account has no lecturer profile" from "the API did not send
+ * one".
+ *
+ * Almost everything here is read-only to its owner — see UpdateMyProfileInput
+ * for the short list that is not, and why.
+ */
+export interface MyProfile {
+  id: number;
+  email: string;
+  role: Role;
+  avatarUrl: string | null;
+  mustChangePassword: boolean;
+  createdAt: string;
+  fullName: string | null;
+  student: {
+    studentCode: string;
+    fullName: string;
+    class: string | null;
+    cohort: string | null;
+    phone: string | null;
+    bio: string | null;
+    major: { id: number; name: string; code: string } | null;
+  } | null;
+  lecturer: {
+    id: number;
+    lecturerCode: string;
+    fullName: string;
+    academicTitle: string | null;
+    phone: string | null;
+    bio: string | null;
+    researchInterests: string | null;
+    maxMentoringQuota: number | null;
+  } | null;
+}
+
+/**
+ * The whole of what a person may change about themselves.
+ *
+ * Name, student code, class, cohort and major are absent because the faculty
+ * office owns them and the system reasons with them — cohort decides which
+ * round an intake may enter. `academicTitle` is here and `maxMentoringQuota` is
+ * not: a title is a fact about the person, a mentoring quota is the faculty's
+ * policy about how much work they may be given.
+ */
+export interface UpdateMyProfileInput {
+  phone?: string | null;
+  bio?: string | null;
+  /** Lecturers only — the API refuses these from a student rather than ignoring them. */
+  academicTitle?: string | null;
+  researchInterests?: string | null;
+}
+
+/**
+ * GET /lecturers/:id — a supervisor as the rest of the faculty may see them.
+ *
+ * `email` and `phone` are null unless the reader is staff or is in a group on
+ * one of this lecturer's topics. A student browsing topics has no business
+ * ringing anyone; a student they actually supervise does.
+ */
+export interface PublicLecturer {
+  id: number;
+  fullName: string;
+  academicTitle: string | null;
+  bio: string | null;
+  researchInterests: string | null;
+  avatarUrl: string | null;
+  email: string | null;
+  phone: string | null;
 }

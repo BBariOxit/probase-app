@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { GraduationCap, Layers, Users } from 'lucide-react';
 import type { TopicDetail } from '@/lib/api/types';
 import { TopicStatusBadge } from '@/components/topic-status-badge';
@@ -57,9 +58,14 @@ export function TopicDetailView({
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <Meta icon={GraduationCap}>
-            {topic.lecturer.academicTitle
-              ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
-              : topic.lecturer.fullName}
+            <Link
+              href={`/giang-vien/${topic.lecturer.id}`}
+              className="rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              {topic.lecturer.academicTitle
+                ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
+                : topic.lecturer.fullName}
+            </Link>
           </Meta>
           <Meta icon={Layers}>{topic.projectType.name}</Meta>
           <Meta icon={Users}>Tối đa {topic.maxStudents} sinh viên</Meta>

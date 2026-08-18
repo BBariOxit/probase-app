@@ -117,12 +117,17 @@ export function MyGroupPanel({
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
+          {/* The supervisor is a person you will be working with for a term,
+              so their name goes where their name is: to their page. */}
+          <Link
+            href={`/giang-vien/${topic.lecturer.id}`}
+            className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
             <GraduationCap className="size-3.5 shrink-0" />
             {topic.lecturer.academicTitle
               ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
               : topic.lecturer.fullName}
-          </span>
+          </Link>
           <span className="inline-flex items-center gap-1.5">
             <Layers className="size-3.5 shrink-0" />
             {topic.projectType.name}

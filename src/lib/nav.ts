@@ -151,7 +151,32 @@ const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   // Reached from the bell rather than the sidebar, so it needs a title here or
   // the header would fall back to the product name on a real screen.
   { prefix: '/thong-bao', label: 'Thông báo' },
+  // Same again for the two screens the account menu opens. Not "/tai-khoan":
+  // the admin's user-management screen is already called that, and two
+  // different pages answering to the same word is how a support question
+  // becomes unanswerable.
+  { prefix: '/ca-nhan', label: 'Trang cá nhân' },
+  { prefix: '/giang-vien/', label: 'Giảng viên' },
 ];
+
+/**
+ * Where a topic is read, for the person reading it.
+ *
+ * The same topic has three screens — a student registers on it, its supervisor
+ * edits it, an admin moderates it — and each one is guarded by role, so a link
+ * built without knowing who is following it lands somebody on a page that
+ * bounces them straight back out.
+ */
+export function topicHref(role: Role, topicId: number): string {
+  switch (role) {
+    case 'STUDENT':
+      return `/student/topics/${topicId}`;
+    case 'LECTURER':
+      return `/lecturer/topics/${topicId}`;
+    case 'ADMIN':
+      return `/admin/topics/${topicId}`;
+  }
+}
 
 export function titleFor(role: Role, pathname: string): string {
   const items = NAV_BY_ROLE[role].flatMap((group) => group.items);

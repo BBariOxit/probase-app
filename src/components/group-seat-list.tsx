@@ -9,6 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { UserAvatar } from '@/components/user-avatar';
 import { cn } from '@/lib/utils';
 
 /** Whole hours left on the hold, rounded up. */
@@ -171,12 +172,11 @@ function MemberSeat({
 
   return (
     <li className="flex items-center gap-3 px-3.5 py-3">
-      <span
-        aria-hidden
-        className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium"
-      >
-        {initial(student.fullName)}
-      </span>
+      <UserAvatar
+        name={student.fullName}
+        src={student.avatarUrl}
+        className="size-8 shrink-0"
+      />
 
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-center gap-x-2 text-sm font-medium">
@@ -273,12 +273,6 @@ function EmptySeat({
       )}
     </li>
   );
-}
-
-/** First letter of the last word — the name people are called by here. */
-function initial(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  return (parts.at(-1) ?? fullName).charAt(0).toUpperCase();
 }
 
 /**
