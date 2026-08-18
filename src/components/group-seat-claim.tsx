@@ -1,6 +1,6 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
+import { Loader2, UserRound, UserRoundPlus } from 'lucide-react';
 import { useUpdateGroup } from '@/lib/api/registration';
 import type { RegistrationGroup } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
@@ -13,95 +13,135 @@ function hoursLeft(holdUntil: string): number {
   );
 }
 
+type SeatState = 'taken' | 'held' | 'free';
+
+const SEAT_STYLE: Record<SeatState, string> = {
+  taken: 'border-transparent bg-muted text-foreground',
+  held: 'border-primary/40 bg-primary/10 text-primary',
+  free: 'border-dashed border-border text-muted-foreground/60',
+};
+
+const SEAT_LABEL: Record<SeatState, string> = {
+  taken: 'đã có người',
+  held: 'đang giữ, chỉ người có link vào được',
+  free: 'còn trống, ai cũng vào được',
+};
+
 /**
- * How many of the topic's seats the group is claiming.
+ * The topic's seats, and which of them this group is holding.
  *
- * A row of the topic's seat counts rather than a yes/no, because on a topic for
- * three a group that turns out to be two wants to free exactly one seat. The
- * counts below the group's own size stay in place and disabled: the reason they
- * are unavailable is that people are already sitting there, and a number that
- * quietly disappears looks like a bug rather than an explanation.
+ * Drawn as the seats themselves rather than as a count of them, because seats
+ * are what the data is: the API answers in occupied, held and open-to-anyone,
+ * and a number makes the reader convert that back. It also removes a control
+ * that did nothing — in a count, choosing "1" holds no seat and is identical to
+ * never touching it, while here the first seat is simply not a control at all.
+ * It is the leader, sitting down.
  *
- * Drawn as one segmented control rather than three separate buttons. As buttons
- * the unselected two carried a faint border, which reads as *disabled* rather
- * than as *not chosen* — and the chosen one, filled with the brand colour,
- * became the loudest thing on a dialog where it is not the point.
+ * The hold is a count under the covers — `declaredSize` reserves the first N
+ * seats and cannot skip one — so the row fills from the left: pressing a seat
+ * holds up to it, pressing the last held seat gives it back. That is how every
+ * seat picker behaves anyway; what it must not do is let somebody hold the third
+ * seat while leaving the second open, because the model has no way to say it.
  *
- * The chosen segment is marked with a translucent wash of the accent rather than
- * a lighter surface, because a surface cannot do it in both themes: light mode
- * stacks background above muted, dark mode stacks it below, so the same pair of
- * tokens reads as raised on one and as a hole punched in the track on the other.
- * A tint over whatever is underneath behaves the same either way — and at this
- * strength it says "chosen" without competing with the one control here that is
- * worth pressing.
- *
- * Nothing here is required. Registration already holds every seat, so a leader
- * who ignores this keeps what they were given until the hold lapses on its own.
+ * Nothing here is required. Registration already holds every seat for the first
+ * 24 hours, so a leader who ignores this keeps what they were given until the
+ * window lapses on its own — and once it has, these are read-only. Setting a
+ * number after that changes a column and nothing else.
  */
 export function GroupSeatClaim({ group }: { group: RegistrationGroup }) {
   const update = useUpdateGroup(group.id);
   const capacity = group.topic.maxStudents;
-  const claimed = group.declaredSize ?? group.occupiedSeats;
+  const occupied = group.occupiedSeats;
+  const claimed = group.holdActive
+    ? (group.declaredSize ?? occupied)
+    : occupied;
+  const editable = group.holdActive && !group.isFull;
 
   if (capacity < 2) return null;
+
+  function stateOf(seat: number): SeatState {
+    if (seat <= occupied) return 'taken';
+    return seat <= claimed ? 'held' : 'free';
+  }
+
+  /** Pressing a seat holds up to it; pressing the last held one gives it back. */
+  function toggle(seat: number) {
+    const releasing = seat === claimed;
+    const next = releasing ? seat - 1 : seat;
+
+    update.mutate({ declaredSize: next <= occupied ? null : next });
+  }
 
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Số thành viên dự kiến</span>
+        <span className="text-sm font-medium">Chỗ trong nhóm</span>
         {update.isPending && (
           <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
         )}
       </div>
 
-      {/*
-        Sized to its content, not to the container. Stretched across a card this
-        wide, three segments holding one digit each became slabs the width of a
-        paragraph.
-      */}
-      <div className="inline-flex w-fit gap-1 rounded-lg bg-muted p-1">
+      <div className="flex gap-2">
         {Array.from({ length: capacity }, (_, index) => index + 1).map(
-          (size) => {
-            const tooFew = size < group.occupiedSeats;
-            const active = size === claimed && group.holdActive;
+          (seat) => {
+            const state = stateOf(seat);
+            const Icon = state === 'free' ? UserRoundPlus : UserRound;
+            // The leader's own seat, and everybody else's, are facts rather
+            // than choices — there is nothing to press on a seat somebody is
+            // already sitting in.
+            const pressable = editable && state !== 'taken';
 
             return (
               <button
-                key={size}
+                key={seat}
                 type="button"
-                disabled={tooFew || update.isPending}
-                onClick={() => update.mutate({ declaredSize: size })}
-                aria-pressed={active}
+                disabled={!pressable || update.isPending}
+                onClick={() => toggle(seat)}
+                aria-pressed={state === 'held'}
+                aria-label={`Chỗ ${seat}: ${SEAT_LABEL[state]}`}
                 className={cn(
-                  'h-8 min-w-14 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
-                  active
-                    ? 'bg-primary/15 text-foreground ring-1 ring-primary/40'
-                    : 'text-muted-foreground hover:text-foreground',
+                  'flex size-11 items-center justify-center rounded-lg border transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                  SEAT_STYLE[state],
+                  pressable
+                    ? 'cursor-pointer hover:border-primary/60'
+                    : 'cursor-default',
+                  update.isPending && 'opacity-60',
                 )}
               >
-                {size}
+                <Icon className="size-5" />
               </button>
             );
           },
         )}
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        {/*
-          Says what the hold *does*, not only that it exists. "Giữ 2 chỗ" alone
-          leaves a leader wondering how a friend is supposed to get in; the rule
-          is the half that makes the link below make sense.
-        */}
-        {group.holdActive && group.heldSeats > 0
-          ? `Giữ ${group.heldSeats} chỗ trong ${hoursLeft(group.holdUntil!)} giờ — chỉ người có link mới vào được.`
-          : group.isFull
-            ? 'Nhóm đã đủ người.'
-            : 'Không giữ chỗ — ai cũng có thể vào nhóm.'}
-      </p>
+      <p className="text-xs text-muted-foreground">{hint(group)}</p>
 
       {update.error && (
         <p className="text-xs text-destructive">{update.error.message}</p>
       )}
     </div>
   );
+}
+
+/**
+ * The rule behind the seats, which the seats themselves cannot show.
+ *
+ * How many are held is now visible; what being held *means* is not, and that is
+ * the half a leader needs in order to understand why they were handed a link.
+ */
+function hint(group: RegistrationGroup): string {
+  if (group.isFull) return 'Nhóm đã đủ người.';
+
+  if (!group.holdActive) {
+    return 'Đã hết hạn giữ chỗ — những chỗ còn trống giờ mở cho tất cả.';
+  }
+
+  const hours = hoursLeft(group.holdUntil!);
+
+  if (group.heldSeats > 0) {
+    return `Chỗ đang giữ chỉ mở cho người có link, trong ${hours} giờ nữa.`;
+  }
+
+  return `Chưa giữ chỗ nào — ai cũng vào được. Bấm vào một chỗ để giữ trong ${hours} giờ tới.`;
 }
