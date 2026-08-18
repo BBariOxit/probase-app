@@ -70,9 +70,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar user={user} onSignOut={handleSignOut} />
+      <AppSidebar user={user} />
       <SidebarInset>
-        <AppHeader role={user.role} />
+        <AppHeader user={user} onSignOut={handleSignOut} />
         {/* min-w-0 so a wide table scrolls inside the panel instead of pushing
             the page sideways. */}
         <div className="min-w-0 flex-1 p-4 md:p-6">{children}</div>

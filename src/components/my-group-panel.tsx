@@ -2,14 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { EllipsisVertical, GraduationCap, Layers, X } from 'lucide-react';
+import { EllipsisVertical, GraduationCap, Layers } from 'lucide-react';
 import {
   useDisbandGroup,
   useLeaveGroup,
-  useRemoveMember,
   useUpdateGroup,
 } from '@/lib/api/registration';
-import type { GroupMember, RegistrationGroup } from '@/lib/api/types';
+import type { RegistrationGroup } from '@/lib/api/types';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -19,22 +18,27 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ConfirmDialog } from '@/components/confirm-dialog';
-import { GroupSeatClaim } from '@/components/group-seat-claim';
+import { GroupSeatList } from '@/components/group-seat-list';
 import { JoinLinkField } from '@/components/join-link-field';
-import { SeatDots } from '@/components/seat-indicator';
 
 /**
  * The group a student belongs to, and everything they can do to it.
  *
- * Ordered by how often each thing is wanted: the seat count and the join link
- * come first because a leader returns for those, and the ways to break the group
- * up sit behind a menu. Putting "giải tán" beside "copy link" would be putting
- * the most destructive control next to the most used one.
+ * Ordered by how often each thing is wanted: the seats and the join link come
+ * first because a leader returns for those, and the ways to break the group up
+ * sit behind a menu. Putting "giải tán" beside "copy link" would be putting the
+ * most destructive control next to the most used one.
+ *
+ * The header is the topic and nothing else. It carried a "Nhóm của bạn" label
+ * directly under a page titled "Nhóm của tôi" — the same words twice inside
+ * forty pixels — and a "1/3" that sat close enough to the menu button to read as
+ * part of it. Both are now in the one place the seat count belongs: the list of
+ * seats.
  *
  * `canEdit` is false once the gate has closed. Every control here is refused by
  * the API from that point on, and showing a live button in front of a certain
- * refusal is worse than showing none — the group is still worth reading, so it is
- * the controls that go rather than the panel.
+ * refusal is worse than showing none — the group is still worth reading, so it
+ * is the controls that go rather than the panel.
  */
 export function MyGroupPanel({
   group,
@@ -49,90 +53,81 @@ export function MyGroupPanel({
   const update = useUpdateGroup(group.id);
   const disband = useDisbandGroup(group.id);
   const leave = useLeaveGroup(group.id);
-  const removeMember = useRemoveMember(group.id);
 
   const { topic } = group;
 
   return (
-    <section className="space-y-4 rounded-xl border bg-card p-4">
+    <section className="space-y-5 rounded-xl border bg-card p-5">
       <header className="space-y-2">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <p className="text-xs text-muted-foreground">Nhóm của bạn</p>
-            <h2 className="font-heading text-lg leading-tight font-semibold tracking-tight">
-              <Link
-                href={`/student/topics/${topic.id}`}
-                className="rounded-sm hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          <h2 className="font-heading min-w-0 text-lg leading-tight font-semibold tracking-tight">
+            <Link
+              href={`/student/topics/${topic.id}`}
+              className="rounded-sm hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              {topic.title}
+            </Link>
+          </h2>
+
+          {canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Thao tác với nhóm"
+                    className="shrink-0"
+                  />
+                }
               >
-                {topic.title}
-              </Link>
-            </h2>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2">
-            <SeatDots
-              occupied={group.occupiedSeats}
-              capacity={topic.maxStudents}
-              held={group.heldSeats}
-            />
-            <span className="text-sm text-muted-foreground">
-              {group.occupiedSeats}/{topic.maxStudents}
-            </span>
-
-            {canEdit && (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label="Thao tác với nhóm"
-                    />
-                  }
-                >
-                  <EllipsisVertical />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {group.isLeader ? (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          update.mutate({ openForJoin: !group.openForJoin })
-                        }
-                      >
-                        {group.openForJoin
-                          ? 'Đóng nhóm, không nhận thêm'
-                          : 'Mở lại cho người khác vào'}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setConfirming('disband')}
-                      >
-                        Giải tán nhóm
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
+                <EllipsisVertical />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {group.isLeader ? (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        update.mutate({ openForJoin: !group.openForJoin })
+                      }
+                    >
+                      {group.openForJoin
+                        ? 'Đóng nhóm, không nhận thêm'
+                        : 'Mở lại cho người khác vào'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       variant="destructive"
-                      onClick={() => setConfirming('leave')}
+                      onClick={() => setConfirming('disband')}
                     >
-                      Rời nhóm
+                      Giải tán nhóm
                     </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+                  </>
+                ) : (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => setConfirming('leave')}
+                  >
+                    Rời nhóm
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
+          {/* The supervisor is a person you will be working with for a term,
+              so their name goes where their name is: to their page. */}
+          <Link
+            href={`/giang-vien/${topic.lecturer.id}`}
+            className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
             <GraduationCap className="size-3.5 shrink-0" />
             {topic.lecturer.academicTitle
               ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
               : topic.lecturer.fullName}
-          </span>
+          </Link>
           <span className="inline-flex items-center gap-1.5">
             <Layers className="size-3.5 shrink-0" />
             {topic.projectType.name}
@@ -140,29 +135,11 @@ export function MyGroupPanel({
         </div>
       </header>
 
-      <ul className="divide-y rounded-lg border">
-        {group.members.map((member) => (
-          <MemberRow
-            key={member.id}
-            member={member}
-            canRemove={canEdit && group.isLeader && !member.isLeader}
-            onRemove={() => removeMember.mutate(member.student.id)}
-            removing={removeMember.isPending}
-          />
-        ))}
-      </ul>
-
-      {removeMember.error && (
-        <p className="text-xs text-destructive">{removeMember.error.message}</p>
-      )}
-
-      {canEdit && group.isLeader && !group.isFull && (
-        <GroupSeatClaim group={group} />
-      )}
+      <GroupSeatList group={group} canEdit={canEdit} />
 
       {canEdit && group.isLeader && group.joinCode && !group.isFull && (
         <div className="space-y-1.5">
-          <p className="text-sm font-medium">Mời bạn vào nhóm</p>
+          <p className="text-sm font-medium">Link mời</p>
           <JoinLinkField code={group.joinCode} />
         </div>
       )}
@@ -189,63 +166,5 @@ export function MyGroupPanel({
         onConfirm={() => leave.mutateAsync()}
       />
     </section>
-  );
-}
-
-/**
- * `joinSource` is only shown for ASSIGNED. That somebody joined by link rather
- * than by pressing the button is invisible to how the group works, whereas
- * having been placed by the faculty office is something the group can see for
- * itself — and the person concerned did not choose to be here.
- */
-function MemberRow({
-  member,
-  canRemove,
-  onRemove,
-  removing,
-}: {
-  member: GroupMember;
-  canRemove: boolean;
-  onRemove: () => void;
-  removing: boolean;
-}) {
-  const { student } = member;
-
-  return (
-    <li className="flex items-center gap-3 px-3 py-2.5">
-      <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-center gap-x-2 text-sm font-medium">
-          <span className="truncate">{student.fullName}</span>
-          {member.isLeader && (
-            <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-normal text-muted-foreground">
-              Trưởng nhóm
-            </span>
-          )}
-          {member.joinSource === 'ASSIGNED' && (
-            <span className="rounded-md bg-status-waiting-bg px-1.5 py-0.5 text-xs font-normal text-status-waiting">
-              Khoa xếp vào
-            </span>
-          )}
-        </p>
-        <p className="truncate text-xs text-muted-foreground">
-          {[student.studentCode, student.class, student.major?.name]
-            .filter(Boolean)
-            .join(' · ')}
-        </p>
-      </div>
-
-      {canRemove && (
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          disabled={removing}
-          onClick={onRemove}
-          aria-label={`Xoá ${student.fullName} khỏi nhóm`}
-          className="shrink-0 text-muted-foreground hover:text-destructive"
-        >
-          <X />
-        </Button>
-      )}
-    </li>
   );
 }

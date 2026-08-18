@@ -43,19 +43,25 @@ export function JoinLinkField({ code }: { code: string }) {
 
   return (
     <div className="flex gap-2">
+      {/*
+        Muted and borderless: this is a value to be taken, not a field to be
+        filled in, and an input-shaped box invites people to type into it. It
+        stays a real input so the text is still selectable where the clipboard
+        is blocked.
+      */}
       <Input
         value={url}
         readOnly
         onFocus={(event) => event.currentTarget.select()}
         aria-label="Link mời vào nhóm"
-        className="font-mono text-xs"
+        className="border-transparent bg-muted font-mono text-xs shadow-none"
       />
-      <Button
-        type="button"
-        variant="outline"
-        onClick={copy}
-        className="shrink-0"
-      >
+      {/*
+        The one filled button wherever this appears. Sending the link is the
+        whole reason a leader is on this screen, so it gets the accent — the
+        control that merely closes a dialog does not.
+      */}
+      <Button type="button" onClick={copy} className="shrink-0">
         {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
         {copied ? 'Đã copy' : 'Copy'}
       </Button>

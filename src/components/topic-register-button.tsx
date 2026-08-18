@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CircleCheck, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import {
   useJoinTopic,
   useMyGroup,
@@ -18,9 +18,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { GroupSeatClaim } from '@/components/group-seat-claim';
+import { GroupSeatList } from '@/components/group-seat-list';
 import { JoinLinkField } from '@/components/join-link-field';
-import { SeatDots } from '@/components/seat-indicator';
 
 interface TopicLike extends TopicAvailability {
   id: number;
@@ -179,39 +178,44 @@ function Result() {
 
   return (
     <>
+      {/*
+        No success tick. The title already says it happened, and a third accent
+        colour in a box this small only competes with the one control worth
+        pressing. The topic is named underneath because it is what was just
+        claimed — and because a group belongs to a topic, which "đề tài này giờ
+        là của bạn" quietly got wrong: it belongs to the group, not the person.
+      */}
       <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <CircleCheck className="size-4.5 text-status-success" />
-          {group.isLeader ? 'Đề tài này giờ là của bạn' : 'Bạn đã vào nhóm'}
+        <DialogTitle>
+          {group.isLeader ? 'Đăng ký thành công' : 'Đã vào nhóm'}
         </DialogTitle>
         <DialogDescription>{group.topic.title}</DialogDescription>
       </DialogHeader>
 
+      {/*
+        Two steps, in the order they are done: say how many are coming, then
+        send the link. The same list of seats as on the group screen, so the
+        first thing a new group sees is the shape it will keep.
+      */}
       <div className="space-y-4">
-        <div className="flex items-center gap-2 text-sm">
-          <SeatDots
-            occupied={group.occupiedSeats}
-            capacity={group.topic.maxStudents}
-            held={group.heldSeats}
-          />
-          <span className="text-muted-foreground">
-            {group.occupiedSeats}/{group.topic.maxStudents}
-          </span>
-        </div>
+        {group.topic.maxStudents > 1 && <GroupSeatList group={group} />}
 
-        {group.isLeader && <GroupSeatClaim group={group} />}
-
-        {group.isLeader && group.joinCode && (
+        {/*
+          A topic for one student can never take a second, so an invite link
+          there leads only to a refusal — and a list of one seat holding the
+          person reading it is not worth drawing either.
+        */}
+        {group.isLeader && group.joinCode && group.topic.maxStudents > 1 && (
           <div className="space-y-1.5">
-            <p className="text-sm font-medium">Mời bạn vào nhóm</p>
+            <p className="text-sm font-medium">Link mời</p>
             <JoinLinkField code={group.joinCode} />
           </div>
         )}
       </div>
 
       {/* Just closes: the group panel is already on the page behind this. */}
-      <DialogFooter>
-        <DialogClose render={<Button />}>Xong</DialogClose>
+      <DialogFooter className="pt-2">
+        <DialogClose render={<Button variant="outline" />}>Xong</DialogClose>
       </DialogFooter>
     </>
   );

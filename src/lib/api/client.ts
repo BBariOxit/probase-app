@@ -102,6 +102,12 @@ function refreshAccessToken(): Promise<string | null> {
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  /**
+   * JSON by default. A `FormData` is sent as it is, with no `Content-Type` of
+   * ours: the browser has to write that header itself so it can append the
+   * multipart boundary, and setting it here would produce a body the server
+   * cannot split.
+   */
   body?: unknown;
   /** Skip the Authorization header — login and refresh are public. */
   anonymous?: boolean;
@@ -111,14 +117,23 @@ export async function api<T>(
   path: string,
   { method = 'GET', body, anonymous = false }: RequestOptions = {},
 ): Promise<T> {
+  const multipart = body instanceof FormData;
+
   const send = (token: string | null) =>
     fetch(`${API_URL}${path}`, {
       method,
       headers: {
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        ...(body === undefined || multipart
+          ? {}
+          : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body:
+        body === undefined
+          ? undefined
+          : multipart
+            ? (body as FormData)
+            : JSON.stringify(body),
     });
 
   const token = anonymous ? null : useSession.getState().accessToken;
