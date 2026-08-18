@@ -148,6 +148,9 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
  */
 const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   { prefix: '/join/', label: 'Tham gia nhóm' },
+  // Reached from the bell rather than the sidebar, so it needs a title here or
+  // the header would fall back to the product name on a real screen.
+  { prefix: '/thong-bao', label: 'Thông báo' },
 ];
 
 export function titleFor(role: Role, pathname: string): string {

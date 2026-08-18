@@ -74,13 +74,20 @@ export default function StudentTopicDetailPage({
               !topic.canRegister &&
               !topic.canJoin && (
                 <p className="text-xs text-muted-foreground">
-                  {topic.isFull
-                    ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
-                    : topic.activeGroup
-                      ? 'Đề tài này đã có nhóm nhận.'
-                      : topic.eligibleForMe === false
-                        ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
-                        : 'Đề tài này chưa mở đăng ký.'}
+                  {/*
+                    Already having a group comes first, and not by accident:
+                    whether this particular topic is full or taken is beside the
+                    point for a reader who cannot take any topic at all.
+                  */}
+                  {topic.alreadyInAGroup
+                    ? 'Bạn đã có nhóm trong học kỳ này. Mỗi học kỳ chỉ tham gia được một nhóm.'
+                    : topic.isFull
+                      ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
+                      : topic.activeGroup
+                        ? 'Đề tài này đã có nhóm nhận.'
+                        : topic.eligibleForMe === false
+                          ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
+                          : 'Đề tài này chưa mở đăng ký.'}
                 </p>
               )
             )}

@@ -169,6 +169,48 @@ export interface TopicAvailability {
    * go on, a screen would end up calling an unclaimed topic taken.
    */
   eligibleForMe: boolean | null;
+  /**
+   * Whether this reader already holds a place this semester. Null for staff.
+   *
+   * The other reason `canRegister` can be false while a topic sits there
+   * plainly unclaimed — and without it a screen can only grey the button out
+   * and say nothing, which reads as a fault rather than as the reader already
+   * having what the button offers.
+   */
+  alreadyInAGroup: boolean | null;
+}
+
+/** What a notice is about, so the reader can be sent somewhere useful. */
+export type NotificationType =
+  | 'PROPOSAL_ACCEPTED'
+  | 'PROPOSAL_REJECTED'
+  | 'GROUP_MEMBER_JOINED'
+  | 'GROUP_MEMBER_REMOVED'
+  | 'GROUP_DISBANDED'
+  | 'ROUND_EXTENDED'
+  | 'SUBMISSION_FEEDBACK'
+  | 'GRADE_PUBLISHED'
+  | 'DEADLINE_REMINDER';
+
+export interface AppNotification {
+  id: number;
+  type: NotificationType;
+  title: string;
+  content: string;
+  /** Primary key of the record this is about, read together with `type`. */
+  targetId: number | null;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface NotificationPage {
+  items: AppNotification[];
+  total: number;
+  /** Unread across the whole inbox, not just this page — it is the badge. */
+  unreadCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface TopicListItem extends TopicAvailability {

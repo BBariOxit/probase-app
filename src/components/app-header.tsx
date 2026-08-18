@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import type { Role } from '@/lib/api/types';
 import { titleFor } from '@/lib/nav';
+import { NotificationBell } from '@/components/notification-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -25,6 +26,7 @@ export function AppHeader({ role }: { role: Role }) {
       </h1>
 
       <div className="ml-auto flex items-center gap-1.5">
+        <NotificationBell role={role} />
         <ThemeToggle />
       </div>
     </header>

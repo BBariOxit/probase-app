@@ -1,0 +1,140 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { BellOff, Check, Loader2 } from 'lucide-react';
+import {
+  useMarkAllNotificationsRead,
+  useMarkNotificationRead,
+  useNotifications,
+} from '@/lib/api/notifications';
+import type { AppNotification } from '@/lib/api/types';
+import { useSession } from '@/lib/auth/session';
+import { notificationHref, timeAgo } from '@/lib/notifications';
+import { EmptyState } from '@/components/empty-state';
+import { PaginationBar } from '@/components/pagination-bar';
+import { Button } from '@/components/ui/button';
+
+const PAGE_SIZE = 20;
+
+/**
+ * The whole inbox, for the notices that have scrolled past the bell.
+ *
+ * Not in the sidebar on purpose: the bell is where anyone looks for this, and a
+ * permanent nav entry for a screen visited after a badge appears would be one
+ * more line in a list whose job is to show the shape of a role's work.
+ */
+export default function NotificationsPage() {
+  const router = useRouter();
+  const user = useSession((state) => state.user);
+  const [page, setPage] = useState(1);
+  const [unreadOnly, setUnreadOnly] = useState(false);
+
+  const { data, isPending, error } = useNotifications({
+    page,
+    limit: PAGE_SIZE,
+    unreadOnly,
+  });
+  const markRead = useMarkNotificationRead();
+  const markAllRead = useMarkAllNotificationsRead();
+
+  if (error) {
+    return (
+      <p className="text-sm text-destructive">Không tải được thông báo.</p>
+    );
+  }
+
+  const items = data?.items ?? [];
+  const unread = data?.unreadCount ?? 0;
+
+  function open(notice: AppNotification) {
+    if (!notice.isRead) markRead.mutate(notice.id);
+
+    const href = user ? notificationHref(notice, user.role) : null;
+    if (href) router.push(href);
+  }
+
+  function toggleFilter() {
+    setUnreadOnly((current) => !current);
+    // The page number belongs to the old filter; keeping it lands the reader on
+    // an empty page of a shorter list.
+    setPage(1);
+  }
+
+  return (
+    <div className="max-w-2xl space-y-4">
+      <div className="flex items-center gap-2">
+        <Button
+          variant={unreadOnly ? 'default' : 'outline'}
+          size="sm"
+          onClick={toggleFilter}
+        >
+          Chưa đọc{unread > 0 && ` (${unread})`}
+        </Button>
+
+        {/* Only offered when it would do something. A permanently visible
+            button that does nothing most of the time is furniture. */}
+        {unread > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto"
+            disabled={markAllRead.isPending}
+            onClick={() => markAllRead.mutate()}
+          >
+            <Check />
+            Đánh dấu đã đọc hết
+          </Button>
+        )}
+      </div>
+
+      {isPending ? (
+        <div className="flex justify-center py-16">
+          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : items.length === 0 ? (
+        <div className="rounded-xl border">
+          <EmptyState
+            icon={BellOff}
+            title={
+              unreadOnly
+                ? 'Bạn đã đọc hết thông báo.'
+                : 'Chưa có thông báo nào.'
+            }
+          />
+        </div>
+      ) : (
+        <ul className="divide-y rounded-xl border">
+          {items.map((notice) => (
+            <li key={notice.id}>
+              <button
+                type="button"
+                className="flex w-full flex-col items-start gap-1 px-4 py-3 text-left transition-colors hover:bg-muted/50"
+                onClick={() => open(notice)}
+              >
+                <div className="flex w-full items-center gap-2">
+                  {!notice.isRead && (
+                    <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+                  )}
+                  <span className="text-sm font-medium">{notice.title}</span>
+                  <span className="ml-auto shrink-0 text-xs text-muted-foreground">
+                    {timeAgo(notice.createdAt)}
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {notice.content}
+                </p>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <PaginationBar
+        page={page}
+        totalPages={data?.totalPages ?? 1}
+        onPageChange={setPage}
+      />
+    </div>
+  );
+}

@@ -19,11 +19,18 @@ const dateFormat = new Intl.DateTimeFormat('vi-VN', {
  * makes people think they have been forgotten.
  */
 export function RegistrationPhaseNotice({
+  subject,
   phase,
   registrationStart,
   registrationEnd,
   hasGroup,
 }: {
+  /**
+   * Which round this is about, when the reader has more than one and the
+   * sentence would otherwise be ambiguous. Left out when there is only one:
+   * naming the single thing on screen is noise.
+   */
+  subject?: string;
   phase: RoundPhase;
   registrationStart: string;
   registrationEnd: string;
@@ -37,7 +44,9 @@ export function RegistrationPhaseNotice({
     <div className="flex items-start gap-2.5 rounded-xl border bg-muted/40 px-4 py-3">
       <notice.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
       <div className="space-y-0.5 text-sm">
-        <p className="font-medium">{notice.title}</p>
+        <p className="font-medium">
+          {subject ? `${subject} · ${notice.title}` : notice.title}
+        </p>
         <p className="text-muted-foreground">{notice.body}</p>
       </div>
     </div>

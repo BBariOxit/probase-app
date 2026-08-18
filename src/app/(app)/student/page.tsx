@@ -13,7 +13,7 @@ import {
 import {
   useActiveSemester,
   useMyEligibleProjectTypes,
-  useMyRound,
+  useMyRounds,
   useProjectTypes,
 } from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
@@ -54,7 +54,7 @@ const MY_COHORT = -1;
 export default function StudentTopicsPage() {
   const allowed = useRequireRole('STUDENT');
   const activeSemester = useActiveSemester();
-  const round = useMyRound(activeSemester?.id);
+  const { data: rounds } = useMyRounds(activeSemester?.id);
   const { data: projectTypes } = useProjectTypes();
   const { data: myTypes } = useMyEligibleProjectTypes(activeSemester?.id);
   const { data: lecturers } = useTopicLecturers(activeSemester?.id);
@@ -122,14 +122,24 @@ export default function StudentTopicsPage() {
       */}
       {myGroup && <MyGroupBanner group={myGroup} />}
 
-      {round && (
+      {/*
+        One notice per round the reader takes part in, rather than one selector
+        that makes them pick which round the screen is about. A student eligible
+        for two of them is looking at both lists at once anyway, and the only
+        thing that genuinely differs is what each gate is doing — so that is the
+        only thing worth saying twice. The component draws nothing for a round
+        that is simply open, so the usual case stays a single line or none.
+      */}
+      {rounds?.map((round) => (
         <RegistrationPhaseNotice
+          key={round.id}
+          subject={rounds.length > 1 ? round.projectType.name : undefined}
           phase={round.phase}
           registrationStart={round.registrationStart}
           registrationEnd={round.registrationEnd}
           hasGroup={myGroup != null}
         />
-      )}
+      ))}
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-52 flex-1 sm:max-w-xs">
