@@ -24,6 +24,11 @@ const ACCEPTED = 'image/png,image/jpeg,image/webp';
  * not a field: it saves the moment it is chosen, and a picture that waited for a
  * "Lưu" button at the bottom of another card would be the only control on the
  * page whose effect you cannot see immediately.
+ *
+ * The formats and the size cap are not printed under the button. The file
+ * picker is already limited to the three types by `accept`, and the one person
+ * who needs to hear about two megabytes is the one who just chose four — who is
+ * told so, in the error line, at the moment it means something.
  */
 export function ProfileAvatarCard({ profile }: { profile: MyProfile }) {
   const fileInput = useRef<HTMLInputElement>(null);
@@ -117,10 +122,6 @@ export function ProfileAvatarCard({ profile }: { profile: MyProfile }) {
           </Button>
         )}
       </div>
-
-      <p className="text-xs text-muted-foreground">
-        PNG, JPEG hoặc WebP, tối đa 2MB. Ảnh sẽ được cắt vuông.
-      </p>
 
       {error && <p className="text-xs text-destructive">{error}</p>}
     </section>

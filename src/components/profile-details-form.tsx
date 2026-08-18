@@ -91,12 +91,7 @@ export function ProfileDetailsForm({ profile }: { profile: MyProfile }) {
       className="space-y-4 rounded-xl border bg-card p-5"
       noValidate
     >
-      <div>
-        <h2 className="text-sm font-medium">Thông tin bạn tự cập nhật</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Chỉ bạn sửa được những mục này. Để trống là xoá.
-        </p>
-      </div>
+      <h2 className="text-sm font-medium">Thông tin bạn tự cập nhật</h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Số điện thoại" htmlFor="phone">

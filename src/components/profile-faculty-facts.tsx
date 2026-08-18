@@ -21,12 +21,10 @@ export function ProfileFacultyFacts({ profile }: { profile: MyProfile }) {
 
   return (
     <section className="space-y-4 rounded-xl border bg-card p-5">
-      <div>
-        <h2 className="text-sm font-medium">Thông tin do khoa quản lý</h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Sai thông tin? Liên hệ giáo vụ khoa — bạn không tự sửa được ở đây.
-        </p>
-      </div>
+      {/* The heading is the whole explanation: what the faculty manages is not
+          yours to edit, and a second line saying so was the same sentence
+          again. */}
+      <h2 className="text-sm font-medium">Thông tin do khoa quản lý</h2>
 
       {student && (
         <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">

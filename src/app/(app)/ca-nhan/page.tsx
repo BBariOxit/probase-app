@@ -49,21 +49,15 @@ export default function ProfilePage() {
       <div className="space-y-4">
         <ProfileAvatarCard profile={profile} />
 
+        {/*
+          One heading and one button. "Đặt lại mật khẩu" is a different thing
+          and does not belong on a screen you reached by being signed in — a
+          reset is for somebody who cannot get in, and it lives on the login
+          page and in the admin's hands — but saying so here was explaining an
+          absence to people who had not noticed one.
+        */}
         <section className="space-y-3 rounded-xl border bg-card p-5">
-          <div>
-            <h2 className="text-sm font-medium">Bảo mật</h2>
-            {/*
-              "Đặt lại mật khẩu" is a different thing and does not belong on a
-              screen you reached by being signed in: a reset is for somebody who
-              cannot get in, and it lives on the login page and in the admin's
-              hands. What you can do from inside a session is change a password
-              you already know.
-            */}
-            <p className="mt-1 text-xs text-muted-foreground">
-              Quên mật khẩu thì đăng xuất rồi dùng “Quên mật khẩu” ở trang đăng
-              nhập.
-            </p>
-          </div>
+          <h2 className="text-sm font-medium">Bảo mật</h2>
 
           <Button variant="outline" render={<Link href="/change-password" />}>
             <KeyRound />
