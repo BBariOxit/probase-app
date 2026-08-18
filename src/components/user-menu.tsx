@@ -13,12 +13,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { UserAvatar } from '@/components/user-avatar';
 
-const ROLE_LABELS: Record<SessionUser['role'], string> = {
-  ADMIN: 'Quản trị viên',
-  LECTURER: 'Giảng viên',
-  STUDENT: 'Sinh viên',
-};
-
 /**
  * The account, in the top right corner where people look for it.
  *
@@ -30,9 +24,14 @@ const ROLE_LABELS: Record<SessionUser['role'], string> = {
  * the address is where it belongs — inside the menu, once, next to the name it
  * identifies.
  *
- * There is no "Cài đặt" entry. The only account setting this system has is the
- * password, and it is named here directly; a settings item that opens a page
- * containing one link to another page is a corridor, not a room.
+ * Three lines and nothing else. It carried a name and an address at the top,
+ * which doubled the height of the menu to state two facts nobody opens a menu
+ * to read — and they are the first two lines of the account page one click
+ * away, so the menu was quoting a page it exists to lead to.
+ *
+ * There is no "Cài đặt" entry either. The only account setting this system has
+ * is the password, and it is named here directly; a settings item that opens a
+ * page containing one link to another page is a corridor, not a room.
  */
 export function UserMenu({
   user,
@@ -61,21 +60,7 @@ export function UserMenu({
         />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="min-w-60">
-        {/*
-          Not a DropdownMenuLabel: Base UI requires labels to sit inside a
-          Menu.Group, and a bare one crashes the menu outright. This is a
-          heading, not a menu entry, so it is a plain block.
-        */}
-        <div className="px-2 py-1.5">
-          <p className="truncate text-sm font-medium">
-            {user.fullName ?? ROLE_LABELS[user.role]}
-          </p>
-          <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-        </div>
-
-        <DropdownMenuSeparator />
-
+      <DropdownMenuContent align="end" className="min-w-48">
         <DropdownMenuItem render={<Link href="/ca-nhan" />}>
           <UserRound />
           Trang cá nhân
