@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { GroupSeatClaim } from '@/components/group-seat-claim';
+import { GroupSeatList } from '@/components/group-seat-list';
 import { JoinLinkField } from '@/components/join-link-field';
 
 interface TopicLike extends TopicAvailability {
@@ -194,17 +194,16 @@ function Result() {
 
       {/*
         Two steps, in the order they are done: say how many are coming, then
-        send the link. The seat count that used to sit on top said the same
-        thing as the control below it — on a group one minute old it could only
-        ever read "1 of N" — so it was a row of dots restating its own heading.
+        send the link. The same list of seats as on the group screen, so the
+        first thing a new group sees is the shape it will keep.
       */}
       <div className="space-y-4">
-        {group.isLeader && <GroupSeatClaim group={group} />}
+        {group.topic.maxStudents > 1 && <GroupSeatList group={group} />}
 
         {/*
           A topic for one student can never take a second, so an invite link
-          there leads only to a refusal. `GroupSeatClaim` already bows out at
-          that capacity; this block used not to.
+          there leads only to a refusal — and a list of one seat holding the
+          person reading it is not worth drawing either.
         */}
         {group.isLeader && group.joinCode && group.topic.maxStudents > 1 && (
           <div className="space-y-1.5">
