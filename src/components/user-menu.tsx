@@ -60,7 +60,14 @@ export function UserMenu({
         />
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="min-w-48">
+      {/* Centred rather than flush left: three short entries against a menu
+          sized by its widest one left a column of dead space down the right,
+          and an icon-plus-label pair reads as one object, so centring the pair
+          balances the block instead of scattering it. */}
+      <DropdownMenuContent
+        align="end"
+        className="min-w-48 [&_[role=menuitem]]:justify-center"
+      >
         <DropdownMenuItem render={<Link href="/ca-nhan" />}>
           <UserRound />
           Trang cá nhân

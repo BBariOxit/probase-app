@@ -33,10 +33,24 @@ const ChangePasswordSchema = z
 
 type ChangePasswordValues = z.infer<typeof ChangePasswordSchema>;
 
+/**
+ * Two arrivals, one form.
+ *
+ * The screen was built for the forced change — an admin-created account holding
+ * a temporary password — and it kicked out anybody without that flag, which was
+ * right while the only way here was being sent. It is now also the destination
+ * of "Đổi mật khẩu" in the account menu, so a person who simply wants a new
+ * password was bounced back to their landing page a frame after arriving.
+ *
+ * What differs between the two is a label, a sentence and where you go
+ * afterwards. What must not differ is the form.
+ */
 export default function ChangePasswordPage() {
   const router = useRouter();
   const { status, user, setAccessToken, patchUser } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
+
+  const forced = user?.mustChangePassword ?? false;
 
   const {
     register,
@@ -54,11 +68,7 @@ export default function ChangePasswordPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
-    // Reaching this screen without the flag means it is already done.
-    else if (status === 'authenticated' && user && !user.mustChangePassword) {
-      router.replace(homePathFor(user.role));
-    }
-  }, [status, user, router]);
+  }, [status, router]);
 
   async function onSubmit(values: ChangePasswordValues) {
     setFormError(null);
@@ -80,7 +90,9 @@ export default function ChangePasswordPage() {
       setAccessToken(result.accessToken);
       patchUser({ mustChangePassword: false });
 
-      if (user) router.replace(homePathFor(user.role));
+      // Forced: onward to where they were trying to go in the first place.
+      // Voluntary: back to the page whose button sent them here.
+      if (user) router.replace(forced ? homePathFor(user.role) : '/ca-nhan');
     } catch (err) {
       setFormError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
@@ -98,18 +110,23 @@ export default function ChangePasswordPage() {
         <h1 className="font-heading text-xl font-semibold tracking-tight">
           Đổi mật khẩu
         </h1>
-        {/* Unlike the login screen, this line earns its place: it is the only
-            thing explaining why the user cannot go anywhere else. */}
-        <p className="text-sm text-muted-foreground">
-          Tài khoản đang dùng mật khẩu tạm. Đặt mật khẩu mới để tiếp tục.
-        </p>
+        {/* Only in the forced case, where it is the one thing explaining why
+            they cannot go anywhere else. Somebody who chose this screen from a
+            menu already knows what it is for. */}
+        {forced && (
+          <p className="text-sm text-muted-foreground">
+            Tài khoản đang dùng mật khẩu tạm. Đặt mật khẩu mới để tiếp tục.
+          </p>
+        )}
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         <FormError message={formError} />
 
         <div className="space-y-2">
-          <Label htmlFor="currentPassword">Mật khẩu tạm</Label>
+          <Label htmlFor="currentPassword">
+            {forced ? 'Mật khẩu tạm' : 'Mật khẩu hiện tại'}
+          </Label>
           <PasswordInput
             id="currentPassword"
             autoComplete="current-password"
@@ -154,10 +171,28 @@ export default function ChangePasswordPage() {
           )}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
-          Cập nhật mật khẩu
-        </Button>
+        {/* A way out, for the arrival that has one. The forced flow gets no
+            cancel button because there is nowhere else to go. */}
+        <div className="flex gap-2">
+          {!forced && (
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => router.replace('/ca-nhan')}
+            >
+              Huỷ
+            </Button>
+          )}
+          <Button
+            type="submit"
+            className={forced ? 'w-full' : 'flex-1'}
+            disabled={isSubmitting}
+          >
+            {isSubmitting && <Loader2 className="size-4 animate-spin" />}
+            Cập nhật mật khẩu
+          </Button>
+        </div>
       </form>
     </Card>
   );

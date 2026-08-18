@@ -33,8 +33,13 @@ function draftFrom(profile: MyProfile): Draft {
  *
  * Deliberately not a form over the whole profile. Name, student code, class,
  * cohort and major come from the faculty office's import and the system reasons
- * with them, so they are shown elsewhere on this page as text — an input that
- * refuses to save is worse than a line that never offered to.
+ * with them, so they sit above this as text — an input that refuses to save is
+ * worse than a line that never offered to.
+ *
+ * It carries no heading of its own. It is the lower half of "Thông tin cá
+ * nhân", divided from the fixed half by a rule: which fields you may edit is
+ * shown by which ones are boxes, and a sentence saying so was one more line to
+ * read on the way to the same conclusion.
  *
  * Nothing here is required, and an empty box means the field is cleared rather
  * than left alone: `phone: ''` and `phone: null` would otherwise be two ways of
@@ -86,13 +91,7 @@ export function ProfileDetailsForm({ profile }: { profile: MyProfile }) {
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className="space-y-4 rounded-xl border bg-card p-5"
-      noValidate
-    >
-      <h2 className="text-sm font-medium">Thông tin bạn tự cập nhật</h2>
-
+    <form onSubmit={submit} className="space-y-4" noValidate>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Số điện thoại" htmlFor="phone">
           <Input

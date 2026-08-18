@@ -5,7 +5,7 @@ import { KeyRound, Loader2 } from 'lucide-react';
 import { useMyProfile } from '@/lib/api/me';
 import { ProfileAvatarCard } from '@/components/profile-avatar-card';
 import { ProfileDetailsForm } from '@/components/profile-details-form';
-import { ProfileFacultyFacts } from '@/components/profile-faculty-facts';
+import { ProfileFacts } from '@/components/profile-facts';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -66,10 +66,22 @@ export default function ProfilePage() {
         </section>
       </div>
 
-      <div className="space-y-4">
-        <ProfileFacultyFacts profile={profile} />
-        {editable && <ProfileDetailsForm profile={profile} />}
-      </div>
+      {/*
+        One card, one heading. The fixed half and the editable half are the same
+        subject — this is you — so the rule between them is all the separation
+        they need; two titled cards made the page argue about who owns which
+        field before it had shown a single one.
+      */}
+      <section className="space-y-5 rounded-xl border bg-card p-5">
+        <ProfileFacts profile={profile} />
+
+        {editable && (
+          <>
+            <hr className="border-border" />
+            <ProfileDetailsForm profile={profile} />
+          </>
+        )}
+      </section>
     </div>
   );
 }

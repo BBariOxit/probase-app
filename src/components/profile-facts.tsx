@@ -3,7 +3,7 @@ import { ExternalLink } from 'lucide-react';
 import type { MyProfile } from '@/lib/api/types';
 
 /**
- * What the faculty office holds about you, as text rather than as inputs.
+ * The person, as the office recorded them — text rather than inputs.
  *
  * These are not read-only because of a permission: they are read-only because
  * the system computes with them. A student's cohort comes out of their student
@@ -16,15 +16,17 @@ import type { MyProfile } from '@/lib/api/types';
  * The name is in this list for the same reason, and it is the entry people ask
  * about: it is the name that goes onto the defence minutes and the grade sheet.
  */
-export function ProfileFacultyFacts({ profile }: { profile: MyProfile }) {
+export function ProfileFacts({ profile }: { profile: MyProfile }) {
   const { student, lecturer } = profile;
 
   return (
-    <section className="space-y-4 rounded-xl border bg-card p-5">
-      {/* The heading is the whole explanation: what the faculty manages is not
-          yours to edit, and a second line saying so was the same sentence
-          again. */}
-      <h2 className="text-sm font-medium">Thông tin do khoa quản lý</h2>
+    <div className="space-y-4">
+      {/*
+        "Thông tin cá nhân", not "Thông tin do khoa quản lý". Who administers a
+        field is our problem, not the reader's — they came to look at themselves,
+        and the fields that cannot be typed into are visibly not typed into.
+      */}
+      <h2 className="text-sm font-medium">Thông tin cá nhân</h2>
 
       {student && (
         <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
@@ -67,7 +69,7 @@ export function ProfileFacultyFacts({ profile }: { profile: MyProfile }) {
           nên ở đây chỉ có địa chỉ đăng nhập và ảnh đại diện.
         </p>
       )}
-    </section>
+    </div>
   );
 }
 
