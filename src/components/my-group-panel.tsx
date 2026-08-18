@@ -21,7 +21,6 @@ import {
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { GroupSeatClaim } from '@/components/group-seat-claim';
 import { JoinLinkField } from '@/components/join-link-field';
-import { SeatDots } from '@/components/seat-indicator';
 
 /**
  * The group a student belongs to, and everything they can do to it.
@@ -70,12 +69,12 @@ export function MyGroupPanel({
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <SeatDots
-              occupied={group.occupiedSeats}
-              capacity={topic.maxStudents}
-              held={group.heldSeats}
-            />
-            <span className="text-sm text-muted-foreground">
+            {/*
+              The number alone. Dots beside "1/3" were the same fact drawn
+              twice, and their green was the only second accent left in a card
+              whose roster sits three lines below saying exactly who is in it.
+            */}
+            <span className="text-sm text-muted-foreground tabular-nums">
               {group.occupiedSeats}/{topic.maxStudents}
             </span>
 

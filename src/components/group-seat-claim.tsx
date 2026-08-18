@@ -25,9 +25,15 @@ function hoursLeft(holdUntil: string): number {
  * Drawn as one segmented control rather than three separate buttons. As buttons
  * the unselected two carried a faint border, which reads as *disabled* rather
  * than as *not chosen* — and the chosen one, filled with the brand colour,
- * became the loudest thing on a dialog where it is not the point. A single track
- * with the chosen segment raised out of it says the same thing using position
- * and elevation, and leaves the accent colour for something worth pressing.
+ * became the loudest thing on a dialog where it is not the point.
+ *
+ * The chosen segment is marked with a translucent wash of the accent rather than
+ * a lighter surface, because a surface cannot do it in both themes: light mode
+ * stacks background above muted, dark mode stacks it below, so the same pair of
+ * tokens reads as raised on one and as a hole punched in the track on the other.
+ * A tint over whatever is underneath behaves the same either way — and at this
+ * strength it says "chosen" without competing with the one control here that is
+ * worth pressing.
  *
  * Nothing here is required. Registration already holds every seat, so a leader
  * who ignores this keeps what they were given until the hold lapses on its own.
@@ -48,7 +54,12 @@ export function GroupSeatClaim({ group }: { group: RegistrationGroup }) {
         )}
       </div>
 
-      <div className="flex gap-1 rounded-lg bg-muted p-1">
+      {/*
+        Sized to its content, not to the container. Stretched across a card this
+        wide, three segments holding one digit each became slabs the width of a
+        paragraph.
+      */}
+      <div className="inline-flex w-fit gap-1 rounded-lg bg-muted p-1">
         {Array.from({ length: capacity }, (_, index) => index + 1).map(
           (size) => {
             const tooFew = size < group.occupiedSeats;
@@ -62,9 +73,9 @@ export function GroupSeatClaim({ group }: { group: RegistrationGroup }) {
                 onClick={() => update.mutate({ declaredSize: size })}
                 aria-pressed={active}
                 className={cn(
-                  'h-8 flex-1 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
+                  'h-8 min-w-14 rounded-md text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
                   active
-                    ? 'bg-background text-foreground shadow-sm'
+                    ? 'bg-primary/15 text-foreground ring-1 ring-primary/40'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >
