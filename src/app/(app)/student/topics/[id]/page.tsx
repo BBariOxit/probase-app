@@ -66,9 +66,9 @@ export default function StudentTopicDetailPage({
             {!topic.isRegistrationOpen ? (
               <p className="text-xs text-muted-foreground">
                 Ngoài thời hạn đăng ký ({' '}
-                {dateFormat.format(new Date(topic.semester.registrationStart))}
+                {dateFormat.format(new Date(topic.round.registrationStart))}
                 {' – '}
-                {dateFormat.format(new Date(topic.semester.registrationEnd))} ).
+                {dateFormat.format(new Date(topic.round.registrationEnd))} ).
               </p>
             ) : (
               !topic.canRegister &&

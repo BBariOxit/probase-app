@@ -47,20 +47,54 @@ export function displayName(me: MeResponse): string {
  * the API actually enforces — so a screen that decides from the dates can end up
  * offering a button the API refuses.
  */
-export type SemesterPhase = 'PREP' | 'OPEN' | 'RECONCILING' | 'FINALIZED';
+export type RoundPhase =
+  'PREP' | 'OPEN' | 'RECONCILING' | 'EXTENDED' | 'FINALIZED';
 
-/** Dates arrive as ISO strings; nothing parses them into Date on the way in. */
+/**
+ * Dates arrive as ISO strings; nothing parses them into Date on the way in.
+ *
+ * A semester carries no registration state. It runs one round per kind of
+ * project — Cơ sở, Chuyên ngành, Tốt nghiệp — and they open, close and settle on
+ * their own schedules, so there is no single phase or deadline at this level to
+ * report. Ask `/rounds` for those.
+ */
 export interface Semester {
   id: number;
   name: string;
   code: string;
-  phase: SemesterPhase;
   startDate: string;
   endDate: string;
-  registrationStart: string;
-  registrationEnd: string;
   gradeSubmissionDeadline: string | null;
   isActive: boolean;
+}
+
+/**
+ * One registration round: a semester crossed with a kind of project.
+ *
+ * The unit the faculty announces — "đợt Đồ án Cơ sở HK1" — and the unit every
+ * registration question has an answer in. `cohorts` are intake years (`"2022"`),
+ * not K-numbers.
+ */
+export interface RegistrationRound {
+  id: number;
+  semesterId: number;
+  projectTypeId: number;
+  phase: RoundPhase;
+  registrationStart: string;
+  registrationEnd: string;
+  allocationMode: 'FIRST_COME' | 'PREFERENCE_ROUND';
+  finalisedAt: string | null;
+  semester: { id: number; name: string; code: string };
+  projectType: ProjectType;
+  cohorts: string[];
+}
+
+/** As much of a topic's round as a topic response carries. */
+export interface TopicRound {
+  id: number;
+  phase: RoundPhase;
+  registrationStart: string;
+  registrationEnd: string;
 }
 
 export interface ProjectType {
@@ -144,6 +178,7 @@ export interface TopicListItem extends TopicAvailability {
   status: TopicStatus;
   createdAt: string;
   semester: { id: number; name: string; code: string };
+  round: TopicRound;
   projectType: { id: number; name: string; code: string };
   lecturer: { id: number; fullName: string; academicTitle: string | null };
   activeGroup: ActiveGroup | null;
@@ -160,13 +195,9 @@ export interface TopicDetail extends TopicAvailability {
   updatedAt: string;
   semesterId: number;
   projectTypeId: number;
-  semester: {
-    id: number;
-    name: string;
-    code: string;
-    registrationStart: string;
-    registrationEnd: string;
-  };
+  semester: { id: number; name: string; code: string };
+  /** The window and the phase live here — they are the round's, not the term's. */
+  round: TopicRound;
   projectType: { id: number; name: string; code: string };
   lecturer: {
     id: number;
@@ -175,8 +206,12 @@ export interface TopicDetail extends TopicAvailability {
     academicTitle: string | null;
   };
   activeGroup: ActiveGroup | null;
-  semesterPhase: SemesterPhase;
-  /** Computed server-side: the topic is OPEN *and* the semester phase is too. */
+  roundPhase: RoundPhase;
+  /**
+   * Computed server-side: the topic is OPEN *and* its round's gate is too. An
+   * extension counts as open — somebody may still walk through it, even though
+   * not everybody.
+   */
   isRegistrationOpen: boolean;
 }
 

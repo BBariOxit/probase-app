@@ -13,6 +13,7 @@ import {
 import {
   useActiveSemester,
   useMyEligibleProjectTypes,
+  useMyRound,
   useProjectTypes,
 } from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
@@ -53,6 +54,7 @@ const MY_COHORT = -1;
 export default function StudentTopicsPage() {
   const allowed = useRequireRole('STUDENT');
   const activeSemester = useActiveSemester();
+  const round = useMyRound(activeSemester?.id);
   const { data: projectTypes } = useProjectTypes();
   const { data: myTypes } = useMyEligibleProjectTypes(activeSemester?.id);
   const { data: lecturers } = useTopicLecturers(activeSemester?.id);
@@ -120,10 +122,11 @@ export default function StudentTopicsPage() {
       */}
       {myGroup && <MyGroupBanner group={myGroup} />}
 
-      {activeSemester && (
+      {round && (
         <RegistrationPhaseNotice
-          phase={activeSemester.phase}
-          registrationStart={activeSemester.registrationStart}
+          phase={round.phase}
+          registrationStart={round.registrationStart}
+          registrationEnd={round.registrationEnd}
           hasGroup={myGroup != null}
         />
       )}
