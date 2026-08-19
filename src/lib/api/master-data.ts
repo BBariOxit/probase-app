@@ -1,8 +1,14 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
-import type { ProjectType, RegistrationRound, Semester } from '@/lib/api/types';
+import type {
+  ProjectType,
+  ProjectTypeDetail,
+  RegistrationRound,
+  RoundPlanInput,
+  Semester,
+} from '@/lib/api/types';
 
 /**
  * Master data changes a few times a year at most. Refetching it on every
@@ -60,6 +66,25 @@ export function useMyRounds(semesterId: number | undefined) {
 }
 
 /**
+ * Every round in a semester, whoever is asking.
+ *
+ * The office's version of `useMyRounds`: an administrator belongs to no intake,
+ * so "mine" would answer with nothing at all — and the whole point of their
+ * screens is the rounds they are not personally in.
+ */
+export function useRoundsForSemester(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: ['rounds', semesterId, 'all'],
+    queryFn: () =>
+      api<RegistrationRound[]>(`/rounds?semesterId=${semesterId!}`),
+    enabled: semesterId !== undefined,
+    // The same minute as the student view, and for the same reason: this is
+    // where somebody reads which stage a round has reached before acting on it.
+    staleTime: 60_000,
+  });
+}
+
+/**
  * The one round a student's screens follow.
  *
  * Almost every student has exactly one — their intake is opened for a single
@@ -87,6 +112,154 @@ export function useMyEligibleProjectTypes(semesterId: number | undefined) {
     queryFn: () =>
       api<ProjectType[]>(`/semesters/${semesterId!}/eligibility/mine`),
     enabled: semesterId !== undefined,
+    staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
+
+// ── the office's side of the same data ──────────────────────
+
+/**
+ * Everything the master data can be changed by, kept beside the reads it
+ * invalidates. A catalogue is small enough that no mutation here tries to patch
+ * a cache by hand: the list is refetched, and the two can never disagree.
+ */
+function useInvalidate(key: readonly unknown[]) {
+  const queryClient = useQueryClient();
+
+  return () => queryClient.invalidateQueries({ queryKey: key });
+}
+
+export interface SemesterInput {
+  name: string;
+  code: string;
+  /** ISO strings; the API coerces them. */
+  startDate: string;
+  endDate: string;
+  gradeSubmissionDeadline?: string | null;
+}
+
+export function useCreateSemester() {
+  const invalidate = useInvalidate(['semesters']);
+
+  return useMutation({
+    mutationFn: (input: SemesterInput) =>
+      api<Semester>('/semesters', { method: 'POST', body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateSemester() {
+  const invalidate = useInvalidate(['semesters']);
+
+  return useMutation({
+    mutationFn: ({ id, ...patch }: Partial<SemesterInput> & { id: number }) =>
+      api<Semester>(`/semesters/${id}`, { method: 'PATCH', body: patch }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteSemester() {
+  const invalidate = useInvalidate(['semesters']);
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      api<{ message: string }>(`/semesters/${id}`, { method: 'DELETE' }),
+    onSuccess: invalidate,
+  });
+}
+
+/**
+ * Making one semester active makes every other one inactive, so the whole list
+ * moves — and with it every screen that asks "which term is this".
+ */
+export function useActivateSemester() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      api<Semester>(`/semesters/${id}/activate`, { method: 'PATCH' }),
+    onSuccess: () => queryClient.invalidateQueries(),
+  });
+}
+
+/** Every round of a semester, for the office rather than for one reader. */
+export function useSemesterRounds(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: ['semesters', semesterId, 'rounds'],
+    queryFn: () => api<RegistrationRound[]>(`/semesters/${semesterId!}/rounds`),
+    enabled: semesterId !== undefined,
+  });
+}
+
+/**
+ * The whole registration plan, replaced in one call.
+ *
+ * Rounds that already carry topics are never dropped by omission — the API
+ * refuses rather than quietly deleting work a lecturer has done — so the screen
+ * can send what the office means without diffing it against what is there.
+ */
+export function useSetSemesterRounds() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      semesterId,
+      rounds,
+    }: {
+      semesterId: number;
+      rounds: RoundPlanInput[];
+    }) =>
+      api<RegistrationRound[]>(`/semesters/${semesterId}/rounds`, {
+        method: 'PUT',
+        body: { rounds },
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['rounds'] }),
+  });
+}
+
+export interface CatalogueInput {
+  name: string;
+  code: string;
+}
+
+export function useCreateProjectType() {
+  const invalidate = useInvalidate(['project-types']);
+
+  return useMutation({
+    mutationFn: (input: CatalogueInput) =>
+      api<ProjectType>('/project-types', { method: 'POST', body: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateProjectType() {
+  const invalidate = useInvalidate(['project-types']);
+
+  return useMutation({
+    mutationFn: ({ id, ...patch }: Partial<CatalogueInput> & { id: number }) =>
+      api<ProjectType>(`/project-types/${id}`, {
+        method: 'PATCH',
+        body: patch,
+      }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteProjectType() {
+  const invalidate = useInvalidate(['project-types']);
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      api<{ message: string }>(`/project-types/${id}`, { method: 'DELETE' }),
+    onSuccess: invalidate,
+  });
+}
+
+/** The catalogue with the counts that decide whether a row may be deleted. */
+export function useProjectTypeDetails() {
+  return useQuery({
+    queryKey: ['project-types'],
+    queryFn: () => api<ProjectTypeDetail[]>('/project-types'),
     staleTime: MASTER_DATA_STALE_TIME,
   });
 }

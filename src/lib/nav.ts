@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  BookUser,
   CalendarRange,
   ChartColumn,
   ClipboardCheck,
@@ -12,7 +13,7 @@ import {
   Lightbulb,
   MessageSquareText,
   ScrollText,
-  UserCheck,
+  Shuffle,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -48,8 +49,18 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: Users,
           ready: true,
         },
-        { href: '/student/de-xuat', label: 'Đề xuất của tôi', icon: Lightbulb },
-        { href: '/student/nop-bai', label: 'Nộp báo cáo', icon: FileUp },
+        {
+          href: '/student/de-xuat',
+          label: 'Đề xuất của tôi',
+          icon: Lightbulb,
+          ready: true,
+        },
+        {
+          href: '/student/nop-bai',
+          label: 'Nộp báo cáo',
+          icon: FileUp,
+          ready: true,
+        },
         { href: '/student/ket-qua', label: 'Kết quả', icon: GraduationCap },
       ],
     },
@@ -58,6 +69,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
   // Split because supervising and sitting on a council are two different
   // capacities of the same person. Flattened, a lecturer would confuse the
   // topics they mentor with the ones they have been assigned to review.
+  //
+  // "Duyệt nhóm" used to be the second entry here and has been removed rather
+  // than left disabled: per-group approval is gone from the design entirely —
+  // a group that fills up is simply done, and the faculty office settles the
+  // whole semester at once — so the item was promising a screen that is never
+  // going to be built.
   LECTURER: [
     {
       label: 'Hướng dẫn',
@@ -68,12 +85,17 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: BookOpen,
           ready: true,
         },
-        { href: '/lecturer/nhom', label: 'Duyệt nhóm', icon: UserCheck },
-        { href: '/lecturer/de-xuat', label: 'Đề xuất từ SV', icon: Lightbulb },
+        {
+          href: '/lecturer/de-xuat',
+          label: 'Đề xuất từ SV',
+          icon: Lightbulb,
+          ready: true,
+        },
         {
           href: '/lecturer/bao-cao',
           label: 'Báo cáo & nhận xét',
           icon: MessageSquareText,
+          ready: true,
         },
         { href: '/lecturer/cham-diem', label: 'Chấm điểm', icon: ClipboardPen },
       ],
@@ -99,25 +121,66 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: ClipboardCheck,
           ready: true,
         },
+        // Between approving topics and running councils, which is where it sits
+        // in the term as well: it is the work that turns a closed registration
+        // window into the list everything afterwards is built on.
+        {
+          href: '/admin/phan-bo',
+          label: 'Phân bổ đề tài',
+          icon: Shuffle,
+          ready: true,
+        },
         { href: '/admin/hoi-dong', label: 'Hội đồng bảo vệ', icon: Gavel },
       ],
     },
     {
       label: 'Người dùng',
-      // Importing a roster is a button inside this screen, not a destination:
-      // it is something you do, not somewhere you go.
-      items: [{ href: '/admin/tai-khoan', label: 'Tài khoản', icon: Users }],
+      // Importing a roster is a button inside a screen, not a destination: it is
+      // something you do, not somewhere you go.
+      //
+      // Two entries rather than one, because they answer different questions.
+      // Tài khoản is about logins — who may sign in, in which role. Sinh viên is
+      // about the term — who has a topic, under whom, and who is still waiting.
+      // The office opens the second one daily and the first one twice a year.
+      items: [
+        {
+          href: '/admin/sinh-vien',
+          label: 'Sinh viên',
+          // Not the graduation cap: Chuyên ngành two groups below already wears
+          // it, and two entries in one sidebar with the same glyph are two
+          // entries nobody can tell apart at a glance.
+          icon: BookUser,
+          ready: true,
+        },
+        {
+          href: '/admin/tai-khoan',
+          label: 'Tài khoản',
+          icon: Users,
+          ready: true,
+        },
+      ],
     },
     {
       label: 'Danh mục',
       items: [
-        { href: '/admin/hoc-ky', label: 'Học kỳ', icon: CalendarRange },
+        {
+          href: '/admin/hoc-ky',
+          label: 'Học kỳ',
+          icon: CalendarRange,
+          ready: true,
+        },
         {
           href: '/admin/chuyen-nganh',
           label: 'Chuyên ngành',
           icon: GraduationCap,
+          ready: true,
         },
-        { href: '/admin/loai-do-an', label: 'Loại đồ án', icon: Layers },
+        {
+          href: '/admin/loai-do-an',
+          label: 'Loại đồ án',
+          icon: Layers,
+          ready: true,
+        },
       ],
     },
     {
@@ -132,6 +195,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           href: '/admin/nhat-ky',
           label: 'Nhật ký hoạt động',
           icon: ScrollText,
+          ready: true,
         },
       ],
     },

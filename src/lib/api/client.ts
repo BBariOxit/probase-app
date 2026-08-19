@@ -113,10 +113,19 @@ interface RequestOptions {
   anonymous?: boolean;
 }
 
-export async function api<T>(
+/**
+ * One request, authenticated, with a single refresh retry — and the response
+ * unread.
+ *
+ * Split out from `api` because not everything the API answers with is JSON: a
+ * spreadsheet export is a file, and it needs exactly this handling of the token
+ * and exactly none of the parsing. Two copies of the refresh dance would be two
+ * places for a rotated token to be spent twice.
+ */
+async function request(
   path: string,
   { method = 'GET', body, anonymous = false }: RequestOptions = {},
-): Promise<T> {
+): Promise<Response> {
   const multipart = body instanceof FormData;
 
   const send = (token: string | null) =>
@@ -154,6 +163,15 @@ export async function api<T>(
     throw new ApiError(response.status, await errorMessage(response));
   }
 
+  return response;
+}
+
+export async function api<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
+  const response = await request(path, options);
+
   // An empty body is an answer, not malformed JSON.
   //
   // Nest replies to a controller that returns null with 200 and no content at
@@ -165,4 +183,38 @@ export async function api<T>(
   const payload = await response.text();
 
   return (payload ? JSON.parse(payload) : null) as T;
+}
+
+/**
+ * Ask for a file and hand it to the browser to save.
+ *
+ * A plain link cannot do this: the endpoint needs an Authorization header, and
+ * an anchor sends none — which is why the export is a fetch and a temporary
+ * object URL rather than an `href`.
+ *
+ * The filename comes from the server's own Content-Disposition when it sent one,
+ * because the server is what decided what the file is. The fallback is only for
+ * a deployment where a proxy has stripped the header.
+ */
+export async function download(
+  path: string,
+  fallbackName: string,
+): Promise<void> {
+  const response = await request(path);
+  const blob = await response.blob();
+
+  const disposition = response.headers.get('Content-Disposition') ?? '';
+  const match = /filename="?([^"\n]+)"?/.exec(disposition);
+
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = match?.[1] ?? fallbackName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+
+  // Released on the next tick rather than immediately: revoking before the
+  // browser has started reading the URL cancels the download it just began.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

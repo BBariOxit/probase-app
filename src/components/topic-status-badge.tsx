@@ -1,17 +1,5 @@
 import type { ActiveGroup, TopicStatus } from '@/lib/api/types';
-import { cn } from '@/lib/utils';
-
-/**
- * Class names are written out in full rather than composed from the tone name,
- * because Tailwind reads the source as text — a template literal would compile
- * to nothing.
- */
-const TONE_CLASS = {
-  waiting: 'bg-status-waiting-bg text-status-waiting',
-  active: 'bg-status-active-bg text-status-active',
-  success: 'bg-status-success-bg text-status-success',
-  idle: 'bg-status-idle-bg text-status-idle',
-} as const;
+import { StatusPill, type StatusLabel } from '@/components/status-pill';
 
 /**
  * Five topic states over four tones.
@@ -22,38 +10,13 @@ const TONE_CLASS = {
  * "running, nothing for you to do", and COMPLETED shares grey with APPROVED
  * since both mean the same to a reader: no action here.
  */
-const TOPIC_STATUS: Record<
-  TopicStatus,
-  { label: string; tone: keyof typeof TONE_CLASS }
-> = {
+const TOPIC_STATUS: Record<TopicStatus, StatusLabel> = {
   PENDING: { label: 'Chờ duyệt', tone: 'waiting' },
   APPROVED: { label: 'Đã duyệt', tone: 'idle' },
   OPEN: { label: 'Đang mở', tone: 'success' },
   IN_PROGRESS: { label: 'Đang thực hiện', tone: 'active' },
   COMPLETED: { label: 'Hoàn thành', tone: 'idle' },
 };
-
-function Badge({
-  label,
-  tone,
-  className,
-}: {
-  label: string;
-  tone: keyof typeof TONE_CLASS;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        'inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-xs font-medium',
-        TONE_CLASS[tone],
-        className,
-      )}
-    >
-      {label}
-    </span>
-  );
-}
 
 export function TopicStatusBadge({
   status,
@@ -62,7 +25,7 @@ export function TopicStatusBadge({
   status: TopicStatus;
   className?: string;
 }) {
-  return <Badge {...TOPIC_STATUS[status]} className={className} />;
+  return <StatusPill {...TOPIC_STATUS[status]} className={className} />;
 }
 
 /**
@@ -93,8 +56,8 @@ export function TopicOwnerBadge({
         ? ({ label: 'Đã đủ người', tone: 'success' } as const)
         : ({ label: 'Đang lập nhóm', tone: 'active' } as const);
 
-    return <Badge {...owned} className={className} />;
+    return <StatusPill {...owned} className={className} />;
   }
 
-  return <Badge {...TOPIC_STATUS[status]} className={className} />;
+  return <StatusPill {...TOPIC_STATUS[status]} className={className} />;
 }

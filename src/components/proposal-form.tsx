@@ -1,0 +1,294 @@
+'use client';
+
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Loader2 } from 'lucide-react';
+import { ApiError } from '@/lib/api/client';
+import type { ProposalInput } from '@/lib/api/proposals';
+import type { LecturerDirectoryEntry, ProjectType } from '@/lib/api/types';
+import { FormError } from '@/components/form-error';
+import { LecturerPicker, lecturerName } from '@/components/lecturer-picker';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+
+const ProposalSchema = z.object({
+  projectTypeId: z.number('Vui lòng chọn loại đồ án').int().positive(),
+  requestedLecturerId: z
+    .number('Vui lòng chọn giảng viên bạn muốn gửi đề xuất')
+    .int()
+    .positive(),
+  title: z.string().trim().min(1, 'Vui lòng nhập tên đề tài').max(255),
+  description: z.string().trim().min(1, 'Vui lòng mô tả đề tài bạn muốn làm'),
+  expectedOutcomes: z
+    .string()
+    .trim()
+    .min(1, 'Vui lòng nêu bạn định làm ra được gì'),
+});
+
+export type ProposalFormValues = z.infer<typeof ProposalSchema>;
+
+function Field({
+  label,
+  htmlFor,
+  hint,
+  error,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  hint?: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={htmlFor}>{label}</Label>
+      {/*
+        Above the control rather than below it. These say what to write, and a
+        hint read after the box has already been filled in is a hint that came
+        too late.
+      */}
+      {hint && <p className="-mt-1 text-xs text-muted-foreground">{hint}</p>}
+      {children}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+/**
+ * One form for writing a proposal and for editing one nobody has answered yet.
+ *
+ * The addressee and the kind of project are pickers when it is new and plain
+ * text when it is not, because the API refuses to move either on an existing
+ * proposal. That refusal is not fussiness: the lecturer has been told about this
+ * and may be reading it right now, so moving it to somebody else is not an edit —
+ * it is a withdrawal and a new proposal, which leaves both of them with a true
+ * story. The kind of project is fixed for a colder reason: it decides the round,
+ * and the round decides who may take the topic this becomes.
+ *
+ * `maxStudents` is deliberately absent. How many people an idea takes is a
+ * judgement about the work, made by whoever has to guide it, and it is the one
+ * field the lecturer supplies when they accept.
+ */
+export function ProposalForm({
+  projectTypes,
+  defaultValues,
+  fixed,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: {
+  /** The kinds of project this student's intake may take; ignored when `fixed`. */
+  projectTypes: ProjectType[];
+  defaultValues?: Partial<ProposalFormValues>;
+  /**
+   * The two choices already made, spelled out, when this is an edit. Their ids
+   * still travel in `defaultValues` so the schema has something to validate.
+   */
+  fixed?: { projectType: string; lecturer: string };
+  submitLabel: string;
+  onSubmit: (values: ProposalInput) => Promise<unknown>;
+  onCancel: () => void;
+}) {
+  const [formError, setFormError] = useState<string | null>(null);
+  // The picker needs the whole row to show a name; the form only carries the id.
+  const [lecturer, setLecturer] = useState<LecturerDirectoryEntry | null>(null);
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ProposalFormValues>({
+    resolver: zodResolver(ProposalSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      title: '',
+      description: '',
+      expectedOutcomes: '',
+      // One kind of project is the common case — an intake is usually opened for
+      // exactly one — and a select with a single option is a question with one
+      // answer. Choosing it here saves the student a click without hiding it.
+      projectTypeId: projectTypes.length === 1 ? projectTypes[0].id : undefined,
+      ...defaultValues,
+    },
+  });
+
+  async function submit(values: ProposalFormValues) {
+    setFormError(null);
+    try {
+      await onSubmit(values);
+    } catch (err) {
+      // The API's own message is the useful part of a refusal here — "Bạn đang
+      // có một đề xuất chờ trả lời" is exactly what the student needs to read,
+      // and it can arrive from a rule this screen cannot see.
+      setFormError(
+        err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
+      );
+    }
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="max-w-2xl space-y-5"
+      noValidate
+    >
+      <FormError message={formError} />
+
+      {fixed ? (
+        <dl className="grid gap-x-6 gap-y-3 rounded-xl border bg-muted/40 px-4 py-3 sm:grid-cols-2">
+          <Fact label="Loại đồ án" value={fixed.projectType} />
+          <Fact label="Gửi tới" value={fixed.lecturer} />
+        </dl>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="Loại đồ án"
+            htmlFor="projectTypeId"
+            error={errors.projectTypeId?.message}
+          >
+            <Controller
+              control={control}
+              name="projectTypeId"
+              render={({ field }) => (
+                <Select
+                  value={field.value ?? null}
+                  onValueChange={(value) => field.onChange(value)}
+                >
+                  <SelectTrigger
+                    id="projectTypeId"
+                    className="h-9 w-full"
+                    aria-invalid={!!errors.projectTypeId}
+                  >
+                    <SelectValue>
+                      {(value) =>
+                        projectTypes.find((type) => type.id === value)?.name ??
+                        'Chọn loại đồ án'
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projectTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </Field>
+
+          <Field
+            label="Giảng viên hướng dẫn"
+            htmlFor="requestedLecturerId"
+            error={errors.requestedLecturerId?.message}
+          >
+            <Controller
+              control={control}
+              name="requestedLecturerId"
+              render={({ field }) => (
+                <LecturerPicker
+                  id="requestedLecturerId"
+                  value={lecturer}
+                  invalid={!!errors.requestedLecturerId}
+                  onChange={(picked) => {
+                    setLecturer(picked);
+                    field.onChange(picked.id);
+                  }}
+                />
+              )}
+            />
+          </Field>
+        </div>
+      )}
+
+      {/*
+        The warning belongs next to the choice, not in the panel where it was
+        made: by the time this form is submitted the panel is long closed, and
+        this is the last moment the student can change their mind knowingly.
+      */}
+      {lecturer?.mentoring.atQuota && (
+        <p className="text-xs text-status-waiting">
+          {lecturerName(lecturer)} đã nhận đủ hạn mức hướng dẫn của học kỳ này,
+          nên có thể chưa nhận thêm được đề tài. Bạn vẫn gửi được — thầy/cô sẽ
+          trả lời kèm lý do.
+        </p>
+      )}
+
+      <Field label="Tên đề tài" htmlFor="title" error={errors.title?.message}>
+        <Input
+          id="title"
+          autoFocus
+          aria-invalid={!!errors.title}
+          {...register('title')}
+        />
+      </Field>
+
+      <Field
+        label="Mô tả"
+        htmlFor="description"
+        hint="Bài toán bạn muốn giải, và vì sao nó đáng làm. Đây là phần giảng viên đọc để quyết định."
+        error={errors.description?.message}
+      >
+        <Textarea
+          id="description"
+          rows={6}
+          aria-invalid={!!errors.description}
+          {...register('description')}
+        />
+      </Field>
+
+      <Field
+        label="Yêu cầu đầu ra"
+        htmlFor="expectedOutcomes"
+        hint="Cuối kỳ bạn nộp được những gì: sản phẩm, báo cáo, thực nghiệm…"
+        error={errors.expectedOutcomes?.message}
+      >
+        <Textarea
+          id="expectedOutcomes"
+          rows={4}
+          aria-invalid={!!errors.expectedOutcomes}
+          {...register('expectedOutcomes')}
+        />
+      </Field>
+
+      <div className="flex items-center gap-2 pt-1">
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="animate-spin" />}
+          {submitLabel}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={isSubmitting}
+          onClick={onCancel}
+        >
+          Huỷ
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs text-muted-foreground">{label}</dt>
+      <dd className="truncate text-sm">{value}</dd>
+    </div>
+  );
+}
