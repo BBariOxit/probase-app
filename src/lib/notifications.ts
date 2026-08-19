@@ -27,6 +27,11 @@ export function notificationHref(
 
       // The office put somebody on their topic. `targetId` is that topic, and
       // it is where the new roster is.
+      // Somebody handed something in on one of their topics, or they are being
+      // reminded of it. The queue is what they open it for.
+      case 'SUBMISSION_FEEDBACK':
+        return '/lecturer/bao-cao';
+
       case 'TOPIC_STUDENT_ASSIGNED':
         return notice.targetId
           ? `/lecturer/topics/${notice.targetId}`
@@ -70,6 +75,15 @@ export function notificationHref(
     */
     case 'ROUND_FINALIZED':
       return '/student/nhom';
+
+    /*
+      The supervisor answered a version of something the group handed in.
+      `targetId` is the group, which the submissions screen is already scoped to —
+      it shows that group's whole history, newest first, so the version just
+      answered is at the top of it.
+    */
+    case 'SUBMISSION_FEEDBACK':
+      return '/student/nop-bai';
 
     // The group is gone in both of these, so the topic is what is left to look
     // at — and `targetId` is the topic for exactly that reason.

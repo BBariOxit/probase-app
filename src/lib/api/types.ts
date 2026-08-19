@@ -218,6 +218,7 @@ export type NotificationType =
   | 'TOPIC_STUDENT_ASSIGNED'
   /** Allocation for a round is settled, including for the students it found nothing for. */
   | 'ROUND_FINALIZED'
+  /** The supervisor answered a version of something the group handed in. */
   | 'SUBMISSION_FEEDBACK'
   | 'GRADE_PUBLISHED'
   | 'DEADLINE_REMINDER';
@@ -755,6 +756,47 @@ export interface RoundPlanInput {
   /** Intake years, four digits — `"2022"`, never `"K46"`. At least one. */
   cohorts: string[];
   allocationMode?: 'FIRST_COME' | 'PREFERENCE_ROUND';
+}
+
+/** Which piece of work a submission is. */
+export type SubmissionType = 'MIDTERM' | 'FINAL' | 'SOURCE_CODE';
+
+/**
+ * One thing a group handed in, at one version.
+ *
+ * Nothing is ever overwritten: re-submitting writes a new row one version
+ * higher, because the previous one may already have been read and answered, and
+ * feedback pointing at a replaced file is feedback about something nobody can
+ * see any more.
+ *
+ * A file and a link are both optional and at least one is always present — a
+ * report is a file, source code is a repository, and the two are genuinely
+ * different things rather than two spellings of one.
+ */
+export interface Submission {
+  id: number;
+  submissionType: SubmissionType;
+  version: number;
+  fileUrl: string | null;
+  /** The uploader's own filename, for display only. */
+  fileName: string | null;
+  fileSize: number | null;
+  submissionUrl: string | null;
+  lecturerFeedback: string | null;
+  /** Null while nobody has looked at it — which is what the screen reads. */
+  feedbackAt: string | null;
+  submittedAt: string;
+  /** Null once that student's profile is gone; the work still belongs to the group. */
+  submittedBy: { id: number; fullName: string; studentCode: string } | null;
+  group: {
+    id: number;
+    name: string | null;
+    topic: {
+      id: number;
+      title: string;
+      lecturer: { id: number; fullName: string; academicTitle: string | null };
+    };
+  };
 }
 
 /** Where a proposal has got to. */
