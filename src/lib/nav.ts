@@ -134,9 +134,20 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
     },
     {
       label: 'Người dùng',
-      // Importing a roster is a button inside this screen, not a destination:
-      // it is something you do, not somewhere you go.
+      // Importing a roster is a button inside a screen, not a destination: it is
+      // something you do, not somewhere you go.
+      //
+      // Two entries rather than one, because they answer different questions.
+      // Tài khoản is about logins — who may sign in, in which role. Sinh viên is
+      // about the term — who has a topic, under whom, and who is still waiting.
+      // The office opens the second one daily and the first one twice a year.
       items: [
+        {
+          href: '/admin/sinh-vien',
+          label: 'Sinh viên',
+          icon: GraduationCap,
+          ready: true,
+        },
         {
           href: '/admin/tai-khoan',
           label: 'Tài khoản',

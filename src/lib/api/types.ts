@@ -758,6 +758,40 @@ export interface RoundPlanInput {
   allocationMode?: 'FIRST_COME' | 'PREFERENCE_ROUND';
 }
 
+/**
+ * One row of the faculty roster: a student, and what they are working on.
+ *
+ * Admin-only, and the reason is one field. `note` is the office's own remark
+ * about a student — "bảo lưu HK1", "gọi không nghe máy" — and it is the one
+ * thing in this system that must never reach the person it is about.
+ *
+ * `group` is null for a student who holds no place this term, which is exactly
+ * the set the allocation desk works from: the same query, asked with a filter.
+ */
+export interface StudentRosterRow {
+  id: number;
+  studentCode: string;
+  fullName: string;
+  class: string | null;
+  /** Read out of the student code by the API; never sent back as an input. */
+  cohort: string | null;
+  note: string | null;
+  major: { id: number; name: string; code: string } | null;
+  userId: number;
+  email: string;
+  isActive: boolean;
+  avatarUrl: string | null;
+  group: {
+    id: number;
+    name: string | null;
+    topic: {
+      id: number;
+      title: string;
+      projectType: ProjectType;
+      lecturer: { id: number; fullName: string; academicTitle: string | null };
+    };
+  } | null;
+}
 /** Which piece of work a submission is. */
 export type SubmissionType = 'MIDTERM' | 'FINAL' | 'SOURCE_CODE';
 
