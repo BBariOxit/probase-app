@@ -212,6 +212,12 @@ export type NotificationType =
   | 'GROUP_MEMBER_REMOVED'
   | 'GROUP_DISBANDED'
   | 'ROUND_EXTENDED'
+  /** The office placed somebody into a group — the reader, or somebody they now share a topic with. */
+  | 'GROUP_MEMBER_ASSIGNED'
+  /** The second one addressed to a lecturer: a student was put onto their topic. */
+  | 'TOPIC_STUDENT_ASSIGNED'
+  /** Allocation for a round is settled, including for the students it found nothing for. */
+  | 'ROUND_FINALIZED'
   | 'SUBMISSION_FEEDBACK'
   | 'GRADE_PUBLISHED'
   | 'DEADLINE_REMINDER';
@@ -464,6 +470,86 @@ export interface LecturerDirectoryEntry {
   researchInterests: string | null;
   avatarUrl: string | null;
   mentoring: MentoringLoad;
+}
+
+/**
+ * GET /rounds/:id/allocation — the faculty office's desk for one round.
+ *
+ * Three lists rather than two. The students with nowhere to be and the topics
+ * with room are the working pair; `placements` is what the desk has already
+ * done, and it exists because both of the others hide their own results — a
+ * placed student leaves the first list and a filled topic leaves the second, so
+ * without it a misclick would become invisible the moment it was made.
+ */
+export interface AllocationDesk {
+  round: {
+    id: number;
+    phase: RoundPhase;
+    semester: { id: number; name: string; code: string };
+    projectType: ProjectType;
+    /** Intake years this round is declared for, e.g. `["2022"]`. */
+    cohorts: string[];
+  };
+  /** Whether placing anybody is possible at all — true only in RECONCILING. */
+  canPlace: boolean;
+  /** Why it is not, in words for the person reading. Null while it is. */
+  blockedReason: string | null;
+  summary: {
+    unplacedCount: number;
+    openSeats: number;
+    /**
+     * Students there is provably nowhere to put. The number that decides
+     * whether this is an afternoon of clicking or a morning of phone calls.
+     */
+    shortfall: number;
+    /**
+     * Approved topics whose supervisor never opened them — the only slack left
+     * when the seats run out. Reported, never used: opening a topic belongs to
+     * the person who has to supervise it.
+     */
+    unopenedTopics: number;
+    unopenedSeats: number;
+  };
+  students: UnplacedStudent[];
+  topics: AllocationTopic[];
+  placements: Placement[];
+}
+
+export interface UnplacedStudent {
+  id: number;
+  studentCode: string;
+  fullName: string;
+  class: string | null;
+  cohort: string | null;
+  major: { id: number; name: string; code: string } | null;
+  userId: number;
+  email: string;
+  avatarUrl: string | null;
+}
+
+export interface AllocationTopic {
+  id: number;
+  title: string;
+  maxStudents: number;
+  status: TopicStatus;
+  lecturer: { id: number; fullName: string; academicTitle: string | null };
+  occupiedSeats: number;
+  freeSeats: number;
+  /** The group already on it, or null when this student would start one. */
+  group: { id: number; name: string | null } | null;
+}
+
+export interface Placement {
+  student: {
+    id: number;
+    studentCode: string;
+    fullName: string;
+    class: string | null;
+  };
+  groupId: number;
+  topicId: number;
+  topicTitle: string;
+  assignedAt: string | null;
 }
 
 /** Where a proposal has got to. */

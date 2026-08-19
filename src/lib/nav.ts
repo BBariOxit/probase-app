@@ -12,7 +12,7 @@ import {
   Lightbulb,
   MessageSquareText,
   ScrollText,
-  UserCheck,
+  Shuffle,
   Users,
   type LucideIcon,
 } from 'lucide-react';
@@ -63,6 +63,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
   // Split because supervising and sitting on a council are two different
   // capacities of the same person. Flattened, a lecturer would confuse the
   // topics they mentor with the ones they have been assigned to review.
+  //
+  // "Duyệt nhóm" used to be the second entry here and has been removed rather
+  // than left disabled: per-group approval is gone from the design entirely —
+  // a group that fills up is simply done, and the faculty office settles the
+  // whole semester at once — so the item was promising a screen that is never
+  // going to be built.
   LECTURER: [
     {
       label: 'Hướng dẫn',
@@ -73,7 +79,6 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: BookOpen,
           ready: true,
         },
-        { href: '/lecturer/nhom', label: 'Duyệt nhóm', icon: UserCheck },
         {
           href: '/lecturer/de-xuat',
           label: 'Đề xuất từ SV',
@@ -107,6 +112,15 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           href: '/admin',
           label: 'Duyệt đề tài',
           icon: ClipboardCheck,
+          ready: true,
+        },
+        // Between approving topics and running councils, which is where it sits
+        // in the term as well: it is the work that turns a closed registration
+        // window into the list everything afterwards is built on.
+        {
+          href: '/admin/phan-bo',
+          label: 'Phân bổ đề tài',
+          icon: Shuffle,
           ready: true,
         },
         { href: '/admin/hoi-dong', label: 'Hội đồng bảo vệ', icon: Gavel },

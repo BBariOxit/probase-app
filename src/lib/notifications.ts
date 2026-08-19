@@ -18,11 +18,23 @@ export function notificationHref(
   role: Role,
 ): string | null {
   if (role === 'LECTURER') {
-    // The only notice a lecturer is sent. It carries the proposal's id, which
-    // the inbox screen does not need: what they are opening it for is the queue,
-    // and the one they were told about is at the top of it — pending first is
-    // the order the API returns.
-    return notice.type === 'PROPOSAL_SUBMITTED' ? '/lecturer/de-xuat' : null;
+    switch (notice.type) {
+      // Carries the proposal's id, which the inbox screen does not need: what
+      // they are opening it for is the queue, and the one they were told about
+      // is at the top of it — pending first is the order the API returns.
+      case 'PROPOSAL_SUBMITTED':
+        return '/lecturer/de-xuat';
+
+      // The office put somebody on their topic. `targetId` is that topic, and
+      // it is where the new roster is.
+      case 'TOPIC_STUDENT_ASSIGNED':
+        return notice.targetId
+          ? `/lecturer/topics/${notice.targetId}`
+          : '/lecturer';
+
+      default:
+        return null;
+    }
   }
 
   if (role !== 'STUDENT') return null;
@@ -44,6 +56,19 @@ export function notificationHref(
       return '/student/de-xuat';
 
     case 'GROUP_MEMBER_JOINED':
+    // The office placed the reader, or placed somebody beside them. Either way
+    // the group screen is what changed, and `targetId` is that group.
+    case 'GROUP_MEMBER_ASSIGNED':
+      return '/student/nhom';
+
+    /*
+      The group screen again, and for the reader who ended up with nothing as
+      much as for the one who did. Its empty state is written for exactly this
+      moment — a settled round with no group reads "học kỳ này bạn không được
+      phân đề tài, liên hệ giáo vụ khoa nếu đây là sai sót" — so both halves of
+      the audience land somewhere that answers them.
+    */
+    case 'ROUND_FINALIZED':
       return '/student/nhom';
 
     // The group is gone in both of these, so the topic is what is left to look

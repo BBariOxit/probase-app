@@ -60,6 +60,25 @@ export function useMyRounds(semesterId: number | undefined) {
 }
 
 /**
+ * Every round in a semester, whoever is asking.
+ *
+ * The office's version of `useMyRounds`: an administrator belongs to no intake,
+ * so "mine" would answer with nothing at all — and the whole point of their
+ * screens is the rounds they are not personally in.
+ */
+export function useRoundsForSemester(semesterId: number | undefined) {
+  return useQuery({
+    queryKey: ['rounds', semesterId, 'all'],
+    queryFn: () =>
+      api<RegistrationRound[]>(`/rounds?semesterId=${semesterId!}`),
+    enabled: semesterId !== undefined,
+    // The same minute as the student view, and for the same reason: this is
+    // where somebody reads which stage a round has reached before acting on it.
+    staleTime: 60_000,
+  });
+}
+
+/**
  * The one round a student's screens follow.
  *
  * Almost every student has exactly one — their intake is opened for a single
