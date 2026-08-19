@@ -130,18 +130,36 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       label: 'Người dùng',
       // Importing a roster is a button inside this screen, not a destination:
       // it is something you do, not somewhere you go.
-      items: [{ href: '/admin/tai-khoan', label: 'Tài khoản', icon: Users }],
+      items: [
+        {
+          href: '/admin/tai-khoan',
+          label: 'Tài khoản',
+          icon: Users,
+          ready: true,
+        },
+      ],
     },
     {
       label: 'Danh mục',
       items: [
-        { href: '/admin/hoc-ky', label: 'Học kỳ', icon: CalendarRange },
+        {
+          href: '/admin/hoc-ky',
+          label: 'Học kỳ',
+          icon: CalendarRange,
+          ready: true,
+        },
         {
           href: '/admin/chuyen-nganh',
           label: 'Chuyên ngành',
           icon: GraduationCap,
+          ready: true,
         },
-        { href: '/admin/loai-do-an', label: 'Loại đồ án', icon: Layers },
+        {
+          href: '/admin/loai-do-an',
+          label: 'Loại đồ án',
+          icon: Layers,
+          ready: true,
+        },
       ],
     },
     {
@@ -156,6 +174,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           href: '/admin/nhat-ky',
           label: 'Nhật ký hoạt động',
           icon: ScrollText,
+          ready: true,
         },
       ],
     },

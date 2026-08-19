@@ -552,6 +552,137 @@ export interface Placement {
   assignedAt: string | null;
 }
 
+/**
+ * A catalogue entry the faculty office maintains, with the count that decides
+ * whether it may be deleted.
+ *
+ * The count is not decoration: both catalogue endpoints refuse to delete a row
+ * anything still points at, so a screen without it can only offer a button and
+ * let the refusal explain itself afterwards.
+ */
+export interface Major {
+  id: number;
+  name: string;
+  code: string;
+  _count: { students: number };
+}
+
+export interface ProjectTypeDetail extends ProjectType {
+  _count: { rounds: number; topicProposals: number };
+}
+
+/**
+ * One account as the office's list shows it.
+ *
+ * Both profile blocks are present and one of them is always null — an admin has
+ * neither. Nothing here is a credential: the API never sends the password hash,
+ * and a temporary password is emailed rather than returned.
+ */
+export interface UserAccount {
+  id: number;
+  email: string;
+  role: Role;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  studentProfile: {
+    id: number;
+    studentCode: string;
+    fullName: string;
+    class: string | null;
+    cohort: string | null;
+  } | null;
+  lecturerProfile: {
+    id: number;
+    lecturerCode: string;
+    fullName: string;
+    academicTitle: string | null;
+  } | null;
+}
+
+/**
+ * `GET /users` answers in its own envelope rather than the `Paginated<T>` every
+ * other list uses. Wrapped here rather than reshaped, so the difference stays
+ * visible instead of being papered over in one place and forgotten in the next.
+ */
+export interface UsersPage {
+  data: UserAccount[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+/** One row of a roster import, accepted or refused. */
+export interface ImportRowResult {
+  row: number;
+  email?: string;
+  role?: 'STUDENT' | 'LECTURER';
+  /** Why it was refused. Absent on accepted rows. */
+  reason?: string;
+  /** Accepted rows only: whether the credentials email actually went out. */
+  emailSent?: boolean;
+  /** Accepted, but with something worth looking at — an odd class code, say. */
+  warnings?: string[];
+}
+
+/**
+ * What came of a roster upload.
+ *
+ * `emailsFailedCount` is the one to read first and the reason it is a top-level
+ * number: those accounts exist but nobody can sign in to them, because the
+ * temporary password was never recoverable after it failed to send. Each needs
+ * the office to reset it by hand.
+ */
+export interface BulkImportResult {
+  total: number;
+  createdCount: number;
+  failedCount: number;
+  emailsFailedCount: number;
+  warnedCount: number;
+  created: ImportRowResult[];
+  failed: ImportRowResult[];
+}
+
+/**
+ * One line of the trail: who did what to which record, and what it looked like
+ * before and after.
+ *
+ * `oldValue` and `newValue` are whatever the service that wrote the entry chose
+ * to record, so they have no fixed shape — the screen shows them as they are
+ * rather than pretending to understand them.
+ */
+export interface AuditLogEntry {
+  id: number;
+  action: string;
+  targetTable: string;
+  targetId: string;
+  oldValue: unknown;
+  newValue: unknown;
+  createdAt: string;
+  user: {
+    id: number;
+    email: string;
+    role: Role;
+    /** Null for an admin, who has no profile row to carry a name. */
+    fullName: string | null;
+  };
+}
+
+/**
+ * One round in a semester's registration plan, as the office declares it.
+ *
+ * The whole plan is sent at once — declaring which intake takes which kind of
+ * project is a single announcement, and editing round by round would leave the
+ * screen responsible for working out the difference from what is already there.
+ */
+export interface RoundPlanInput {
+  projectTypeId: number;
+  /** Sent as ISO strings; the API coerces them to dates. */
+  registrationStart: string;
+  registrationEnd: string;
+  /** Intake years, four digits — `"2022"`, never `"K46"`. At least one. */
+  cohorts: string[];
+  allocationMode?: 'FIRST_COME' | 'PREFERENCE_ROUND';
+}
+
 /** Where a proposal has got to. */
 export type ProposalStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 
