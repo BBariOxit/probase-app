@@ -54,6 +54,19 @@ export default function StudentTopicDetailPage({
         topic={topic}
         actions={
           <div className="space-y-2">
+            {/*
+              Above the button rather than below it. This is the reader who
+              proposed the topic, and until they press register it is held for
+              them only while the gate is open — which is the one thing they
+              cannot see from anywhere else on the page.
+            */}
+            {topic.proposedByMe === true && topic.canRegister && (
+              <p className="text-xs text-status-success">
+                Đề tài này là từ đề xuất của bạn và đang được giữ cho bạn. Hãy
+                đăng ký trước khi đợt đăng ký đóng.
+              </p>
+            )}
+
             <TopicRegisterButton topic={topic} />
 
             {/*
@@ -85,9 +98,17 @@ export default function StudentTopicDetailPage({
                       ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
                       : topic.activeGroup
                         ? 'Đề tài này đã có nhóm nhận.'
-                        : topic.eligibleForMe === false
-                          ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
-                          : 'Đề tài này chưa mở đăng ký.'}
+                        : /*
+                            Said before the cohort line because both can be true
+                            and only one of them can change. A cohort may be
+                            opened for a project type next week; a topic somebody
+                            else proposed stays theirs until the gate shuts.
+                          */
+                          topic.proposedByMe === false
+                          ? 'Đề tài này do một sinh viên khác đề xuất, nên chỉ bạn ấy đăng ký được.'
+                          : topic.eligibleForMe === false
+                            ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
+                            : 'Đề tài này chưa mở đăng ký.'}
                 </p>
               )
             )}

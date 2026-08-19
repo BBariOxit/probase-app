@@ -182,10 +182,30 @@ export interface TopicAvailability {
    * having what the button offers.
    */
   alreadyInAGroup: boolean | null;
+  /**
+   * The topic exists because a student proposed it and a lecturer said yes.
+   *
+   * True for every reader, because it is a fact about the topic. Such a topic is
+   * held for its proposer while the gate is open, which is why the reader's own
+   * side of it is a separate field rather than the same one read two ways.
+   */
+  fromProposal: boolean;
+  /**
+   * Whether the reader is that proposer — null for staff, and null for anybody
+   * looking at a topic that came out of no proposal at all.
+   *
+   * The difference between "đề tài bạn đề xuất" and "do sinh viên khác đề xuất",
+   * which is the difference between a reservation held *for* you and one held
+   * *against* you. Collapsing them into `fromProposal` alone would leave a screen
+   * describing both in the same words.
+   */
+  proposedByMe: boolean | null;
 }
 
 /** What a notice is about, so the reader can be sent somewhere useful. */
 export type NotificationType =
+  /** The only one addressed to a lecturer: a student is waiting on their answer. */
+  | 'PROPOSAL_SUBMITTED'
   | 'PROPOSAL_ACCEPTED'
   | 'PROPOSAL_REJECTED'
   | 'GROUP_MEMBER_JOINED'
@@ -378,8 +398,25 @@ export interface MyProfile {
     phone: string | null;
     bio: string | null;
     researchInterests: string | null;
-    maxMentoringQuota: number | null;
+    mentoring: MentoringLoad;
   } | null;
+}
+
+/**
+ * How much supervising a lecturer has taken on this term, against the ceiling
+ * the faculty set them.
+ *
+ * `groups` is what they would count by hand. `reserved` is the part they would
+ * forget: a proposal they accepted becomes a topic held for one student who has
+ * not registered yet — no group exists, but the promise does, and the API counts
+ * both when it decides whether they may accept another.
+ */
+export interface MentoringLoad {
+  groups: number;
+  reserved: number;
+  /** Null when the faculty set none, in which case `atQuota` is always false. */
+  quota: number | null;
+  atQuota: boolean;
 }
 
 /**
@@ -387,9 +424,9 @@ export interface MyProfile {
  *
  * Name, student code, class, cohort and major are absent because the faculty
  * office owns them and the system reasons with them — cohort decides which
- * round an intake may enter. `academicTitle` is here and `maxMentoringQuota` is
- * not: a title is a fact about the person, a mentoring quota is the faculty's
- * policy about how much work they may be given.
+ * round an intake may enter. `academicTitle` is here and the mentoring quota is
+ * not: a title is a fact about the person, a quota is the faculty's policy about
+ * how much work they may be given.
  */
 export interface UpdateMyProfileInput {
   phone?: string | null;
@@ -406,13 +443,76 @@ export interface UpdateMyProfileInput {
  * one of this lecturer's topics. A student browsing topics has no business
  * ringing anyone; a student they actually supervise does.
  */
-export interface PublicLecturer {
+export interface PublicLecturer extends LecturerDirectoryEntry {
+  bio: string | null;
+  email: string | null;
+  phone: string | null;
+}
+
+/**
+ * GET /lecturers — a row in the staff directory the proposal form picks from.
+ *
+ * Deliberately not the same set as `/topics/lecturers`, which lists only people
+ * who already published a topic. A student writes their own idea precisely when
+ * the catalogue has nothing they want, and the person who would guide it is often
+ * the one with nothing in it.
+ */
+export interface LecturerDirectoryEntry {
   id: number;
   fullName: string;
   academicTitle: string | null;
-  bio: string | null;
   researchInterests: string | null;
   avatarUrl: string | null;
-  email: string | null;
-  phone: string | null;
+  mentoring: MentoringLoad;
+}
+
+/** Where a proposal has got to. */
+export type ProposalStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+/**
+ * One proposal, as both sides read it.
+ *
+ * The same shape serves the student's outbox and the lecturer's inbox — which of
+ * the two a caller gets is decided by their token, not by a parameter — so the
+ * student block is present even on a student's own row. A screen showing your own
+ * name back to you is a small waste; two payload shapes that drift apart is not.
+ */
+export interface TopicProposal {
+  id: number;
+  status: ProposalStatus;
+  title: string;
+  description: string;
+  expectedOutcomes: string;
+  /** Why it was turned down. Only ever set on a REJECTED one. */
+  lecturerFeedback: string | null;
+  createdAt: string;
+  updatedAt: string;
+  semester: { id: number; name: string; code: string };
+  projectType: ProjectType;
+  student: {
+    id: number;
+    fullName: string;
+    studentCode: string;
+    class: string | null;
+    avatarUrl: string | null;
+  };
+  requestedLecturer: {
+    id: number;
+    fullName: string;
+    academicTitle: string | null;
+  };
+  /** Who actually said yes — the same person, or null while nobody has. */
+  acceptedByLecturer: {
+    id: number;
+    fullName: string;
+    academicTitle: string | null;
+  } | null;
+  /**
+   * What the yes turned into, and how far it has got.
+   *
+   * The status matters as much as the id: a topic the lecturer accepted still
+   * waits on the faculty office, and a student looking for a register button that
+   * is not there deserves to know which of the two is holding it up.
+   */
+  convertedTopic: { id: number; title: string; status: TopicStatus } | null;
 }

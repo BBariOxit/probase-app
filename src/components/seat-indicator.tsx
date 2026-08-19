@@ -1,15 +1,6 @@
 import type { TopicAvailability } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
-
-/**
- * Written out in full rather than composed from the tone name: Tailwind reads
- * the source as text, so a template literal would compile to nothing.
- */
-const TONE_CLASS = {
-  success: 'bg-status-success-bg text-status-success',
-  active: 'bg-status-active-bg text-status-active',
-  idle: 'bg-status-idle-bg text-status-idle',
-} as const;
+import { StatusPill, type StatusLabel } from '@/components/status-pill';
 
 /**
  * Whether a student can still get onto this topic — the first thing they need
@@ -31,27 +22,19 @@ export function SeatBadge({
   topic: TopicAvailability & { maxStudents: number; activeGroup: unknown };
   className?: string;
 }) {
-  const { label, tone } = describe(topic);
-
-  return (
-    <span
-      className={cn(
-        'inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-xs font-medium whitespace-nowrap',
-        TONE_CLASS[tone],
-        className,
-      )}
-    >
-      {label}
-    </span>
-  );
+  return <StatusPill {...describe(topic)} className={className} />;
 }
 
 function describe(
   topic: TopicAvailability & { maxStudents: number; activeGroup: unknown },
-): {
-  label: string;
-  tone: keyof typeof TONE_CLASS;
-} {
+): StatusLabel {
+  // Held for the reader, and the only thing standing between them and it is
+  // them. Said before the seat count because "còn trống" would describe a topic
+  // anybody could take, and this is one only they can.
+  if (topic.proposedByMe === true && topic.canRegister) {
+    return { label: 'Chờ bạn đăng ký', tone: 'success' };
+  }
+
   if (topic.canRegister) return { label: 'Còn trống', tone: 'success' };
 
   if (topic.canJoin) {
@@ -71,6 +54,21 @@ function describe(
 
   // Somebody holds it and is not taking anyone else.
   if (topic.activeGroup) return { label: 'Đã có nhóm', tone: 'idle' };
+
+  /*
+    Nobody holds it, and it is still not on offer — which used to fall through
+    to "chưa mở đăng ký" and tell a plain lie about a topic whose round was
+    wide open. A topic written out of somebody else's proposal is theirs while
+    the gate is open, so it is never going to become available to this reader
+    and saying "not open yet" invites them to come back and check.
+
+    Ahead of the eligibility line because both can be true at once and this is
+    the one that will not change: a cohort can be opened for a project type, a
+    reservation belongs to a person.
+  */
+  if (topic.proposedByMe === false) {
+    return { label: 'SV khác đề xuất', tone: 'idle' };
+  }
 
   // Nobody holds it, so the reason has to be about the reader rather than the
   // topic: either their intake is not opened for this kind of project, or the

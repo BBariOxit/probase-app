@@ -48,7 +48,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: Users,
           ready: true,
         },
-        { href: '/student/de-xuat', label: 'Đề xuất của tôi', icon: Lightbulb },
+        {
+          href: '/student/de-xuat',
+          label: 'Đề xuất của tôi',
+          icon: Lightbulb,
+          ready: true,
+        },
         { href: '/student/nop-bai', label: 'Nộp báo cáo', icon: FileUp },
         { href: '/student/ket-qua', label: 'Kết quả', icon: GraduationCap },
       ],
@@ -69,7 +74,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           ready: true,
         },
         { href: '/lecturer/nhom', label: 'Duyệt nhóm', icon: UserCheck },
-        { href: '/lecturer/de-xuat', label: 'Đề xuất từ SV', icon: Lightbulb },
+        {
+          href: '/lecturer/de-xuat',
+          label: 'Đề xuất từ SV',
+          icon: Lightbulb,
+          ready: true,
+        },
         {
           href: '/lecturer/bao-cao',
           label: 'Báo cáo & nhận xét',

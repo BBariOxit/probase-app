@@ -43,12 +43,28 @@ export function ProfileFacts({ profile }: { profile: MyProfile }) {
           <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
             <Fact label="Họ và tên" value={lecturer.fullName} />
             <Fact label="Mã giảng viên" value={lecturer.lecturerCode} />
+            {/*
+              The load, not the ceiling. "Hạn mức 6 nhóm mỗi kỳ" was a number
+              nothing in the system acted on and nobody could place themselves
+              against — a lecturer had no way to tell whether they were at two of
+              six or at six. This says where they stand, and it is the same sum
+              the API now checks before letting them accept another proposal.
+            */}
             <Fact
-              label="Hạn mức hướng dẫn"
+              label="Hướng dẫn học kỳ này"
               value={
-                lecturer.maxMentoringQuota === null
-                  ? 'Không giới hạn'
-                  : `${lecturer.maxMentoringQuota} nhóm mỗi kỳ`
+                lecturer.mentoring.quota === null
+                  ? `${lecturer.mentoring.groups} nhóm`
+                  : `${lecturer.mentoring.groups}/${lecturer.mentoring.quota} nhóm`
+              }
+              hint={
+                // Named rather than folded into the count, because it is the
+                // part that would otherwise look like a mistake: a lecturer who
+                // has said yes to two proposals nobody has registered on yet
+                // reads "2 nhóm" and knows of none.
+                lecturer.mentoring.reserved > 0
+                  ? `${lecturer.mentoring.reserved} đề tài đã nhận, chờ sinh viên đăng ký`
+                  : undefined
               }
             />
           </dl>
@@ -73,7 +89,16 @@ export function ProfileFacts({ profile }: { profile: MyProfile }) {
   );
 }
 
-function Fact({ label, value }: { label: string; value: string | null }) {
+function Fact({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string | null;
+  /** A qualifier the value would be misread without. Wraps; the value does not. */
+  hint?: string;
+}) {
   return (
     <div className="min-w-0">
       <dt className="text-xs text-muted-foreground">{label}</dt>
@@ -82,6 +107,7 @@ function Fact({ label, value }: { label: string; value: string | null }) {
       <dd className="truncate text-sm">
         {value ?? <span className="text-muted-foreground">Chưa có</span>}
       </dd>
+      {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
