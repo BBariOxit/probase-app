@@ -63,7 +63,7 @@ export function JoinLinkField({ code }: { code: string }) {
       */}
       <Button type="button" onClick={copy} className="shrink-0">
         {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-        {copied ? 'Đã copy' : 'Copy'}
+        {copied ? 'Đã sao chép' : 'Sao chép'}
       </Button>
     </div>
   );

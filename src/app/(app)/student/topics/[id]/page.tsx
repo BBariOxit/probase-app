@@ -92,23 +92,30 @@ export default function StudentTopicDetailPage({
                     whether this particular topic is full or taken is beside the
                     point for a reader who cannot take any topic at all.
                   */}
-                  {topic.alreadyInAGroup
-                    ? 'Bạn đã có nhóm trong học kỳ này. Mỗi học kỳ chỉ tham gia được một nhóm.'
-                    : topic.isFull
-                      ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
-                      : topic.activeGroup
-                        ? 'Đề tài này đã có nhóm nhận.'
-                        : /*
+                  {/*
+                    Their own group comes first. Every line below describes a
+                    door closed by somebody else, and the reader standing behind
+                    this particular one is the person who opened it.
+                  */}
+                  {topic.isMyGroup
+                    ? 'Đây là đề tài nhóm bạn đang làm.'
+                    : topic.alreadyInAGroup
+                      ? 'Bạn đã có nhóm trong học kỳ này. Mỗi học kỳ chỉ tham gia được một nhóm.'
+                      : topic.isFull
+                        ? `Đề tài này đã đủ ${topic.occupiedSeats}/${topic.maxStudents} sinh viên.`
+                        : topic.activeGroup
+                          ? 'Đề tài này đã có nhóm nhận.'
+                          : /*
                             Said before the cohort line because both can be true
                             and only one of them can change. A cohort may be
                             opened for a project type next week; a topic somebody
                             else proposed stays theirs until the gate shuts.
                           */
-                          topic.proposedByMe === false
-                          ? 'Đề tài này do một sinh viên khác đề xuất, nên chỉ bạn ấy đăng ký được.'
-                          : topic.eligibleForMe === false
-                            ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
-                            : 'Đề tài này chưa mở đăng ký.'}
+                            topic.proposedByMe === false
+                            ? 'Đề tài này do một sinh viên khác đề xuất, nên chỉ bạn ấy đăng ký được.'
+                            : topic.eligibleForMe === false
+                              ? `${topic.projectType.name} không mở cho khóa của bạn trong học kỳ này.`
+                              : 'Đề tài này chưa mở đăng ký.'}
                 </p>
               )
             )}

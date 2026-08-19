@@ -23,6 +23,7 @@ import {
 import type { Semester } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { DateField } from '@/components/date-field';
 import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
 import { StatusPill } from '@/components/status-pill';
@@ -331,45 +332,34 @@ function SemesterDialog({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="semester-start">Bắt đầu</Label>
-              <Input
-                id="semester-start"
-                type="date"
-                value={startDate}
-                onChange={(event) => setStartDate(event.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="semester-end">Kết thúc</Label>
-              <Input
-                id="semester-end"
-                type="date"
-                value={endDate}
-                aria-invalid={endDate !== '' && !ordered}
-                onChange={(event) => setEndDate(event.target.value)}
-              />
-              {endDate !== '' && !ordered && (
-                <p className="text-xs text-destructive">
-                  Ngày kết thúc phải sau ngày bắt đầu.
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="semester-grade">Hạn nhập điểm</Label>
-            <p className="-mt-1 text-xs text-muted-foreground">
-              Không bắt buộc. Để trống nếu khoa chưa chốt.
-            </p>
-            <Input
-              id="semester-grade"
-              type="date"
-              className="w-48"
-              value={gradeDeadline}
-              onChange={(event) => setGradeDeadline(event.target.value)}
+            <DateField
+              id="semester-start"
+              label="Bắt đầu"
+              value={startDate}
+              onChange={setStartDate}
+            />
+            <DateField
+              id="semester-end"
+              label="Kết thúc"
+              value={endDate}
+              onChange={setEndDate}
+              invalid={endDate !== '' && !ordered}
+              error={
+                endDate !== '' && !ordered
+                  ? 'Ngày kết thúc phải sau ngày bắt đầu.'
+                  : undefined
+              }
             />
           </div>
+
+          <DateField
+            id="semester-grade"
+            label="Hạn nhập điểm"
+            hint="Không bắt buộc. Để trống nếu khoa chưa chốt."
+            className="w-48"
+            value={gradeDeadline}
+            onChange={setGradeDeadline}
+          />
         </div>
 
         <DialogFooter>

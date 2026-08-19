@@ -200,6 +200,16 @@ export interface TopicAvailability {
    * describing both in the same words.
    */
   proposedByMe: boolean | null;
+  /**
+   * The group already on this topic is the reader's own — null when there is no
+   * group, and null for staff.
+   *
+   * Separate from `alreadyInAGroup`, which is true against every topic once a
+   * student holds a place anywhere. This one is true for exactly the topic they
+   * hold, and it is what stops a student's own project being labelled as
+   * somebody else's.
+   */
+  isMyGroup: boolean | null;
 }
 
 /** What a notice is about, so the reader can be sent somewhere useful. */

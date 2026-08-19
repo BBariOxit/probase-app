@@ -253,7 +253,7 @@ export function ProposalForm({
       </Field>
 
       <Field
-        label="Kết quả mong đợi"
+        label="Yêu cầu đầu ra"
         htmlFor="expectedOutcomes"
         hint="Cuối kỳ bạn nộp được những gì: sản phẩm, báo cáo, thực nghiệm…"
         error={errors.expectedOutcomes?.message}

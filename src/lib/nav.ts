@@ -1,5 +1,6 @@
 import {
   BookOpen,
+  BookUser,
   CalendarRange,
   ChartColumn,
   ClipboardCheck,
@@ -145,7 +146,10 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
         {
           href: '/admin/sinh-vien',
           label: 'Sinh viên',
-          icon: GraduationCap,
+          // Not the graduation cap: Chuyên ngành two groups below already wears
+          // it, and two entries in one sidebar with the same glyph are two
+          // entries nobody can tell apart at a glance.
+          icon: BookUser,
           ready: true,
         },
         {

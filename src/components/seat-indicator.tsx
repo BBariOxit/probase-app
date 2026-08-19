@@ -52,6 +52,14 @@ function describe(
     };
   }
 
+  /*
+    The reader is in the group that holds it. Said before the two lines below
+    because both of those describe somebody else having taken the topic — which
+    is the same fact about the topic and the opposite fact about this reader,
+    and "đã có nhóm" over their own project reads as having lost it.
+  */
+  if (topic.isMyGroup) return { label: 'Nhóm của bạn', tone: 'active' };
+
   // Somebody holds it and is not taking anyone else.
   if (topic.activeGroup) return { label: 'Đã có nhóm', tone: 'idle' };
 

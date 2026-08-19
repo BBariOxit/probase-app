@@ -17,6 +17,7 @@ import type {
 } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
+import { DateField } from '@/components/date-field';
 import { FormError } from '@/components/form-error';
 import { StatusPill, type StatusTone } from '@/components/status-pill';
 import { Button } from '@/components/ui/button';
@@ -203,6 +204,17 @@ function PlanForm({
         </p>
       )}
 
+      {/*
+        Said once, above the list, rather than under each round. Three identical
+        sentences on one screen is three times the reading for the same fact, and
+        it teaches people that the small grey text is safe to skip.
+      */}
+      <p className="flex items-start gap-2 text-xs text-muted-foreground">
+        <Info className="mt-0.5 size-3.5 shrink-0" />
+        Khóa là năm nhập học gồm bốn chữ số — 2022, không phải K46. Nhiều khóa
+        thì cách nhau bằng dấu phẩy.
+      </p>
+
       <div className="space-y-3">
         {rows.map(({ type, row, round, cohorts, locked }) => (
           <section
@@ -237,37 +249,23 @@ function PlanForm({
 
             {row.enabled && (
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor={`start-${type.id}`} className="text-xs">
-                    Mở đăng ký
-                  </Label>
-                  <Input
-                    id={`start-${type.id}`}
-                    type="date"
-                    disabled={locked}
-                    value={row.start}
-                    onChange={(event) =>
-                      patch(type.id, { start: event.target.value })
-                    }
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor={`end-${type.id}`} className="text-xs">
-                    Hạn đăng ký
-                  </Label>
-                  <Input
-                    id={`end-${type.id}`}
-                    type="date"
-                    disabled={locked}
-                    value={row.end}
-                    aria-invalid={
-                      row.start !== '' && row.end !== '' && row.end <= row.start
-                    }
-                    onChange={(event) =>
-                      patch(type.id, { end: event.target.value })
-                    }
-                  />
-                </div>
+                <DateField
+                  id={`start-${type.id}`}
+                  label="Mở đăng ký"
+                  disabled={locked}
+                  value={row.start}
+                  onChange={(start) => patch(type.id, { start })}
+                />
+                <DateField
+                  id={`end-${type.id}`}
+                  label="Hạn đăng ký"
+                  disabled={locked}
+                  value={row.end}
+                  invalid={
+                    row.start !== '' && row.end !== '' && row.end <= row.start
+                  }
+                  onChange={(end) => patch(type.id, { end })}
+                />
                 <div className="space-y-1.5">
                   <Label htmlFor={`cohorts-${type.id}`} className="text-xs">
                     Khóa được đăng ký
@@ -283,19 +281,6 @@ function PlanForm({
                   />
                 </div>
               </div>
-            )}
-
-            {row.enabled && (
-              <p className="flex items-start gap-2 text-xs text-muted-foreground">
-                <Info className="mt-0.5 size-3.5 shrink-0" />
-                {/*
-                  The K-number is what everybody says out loud and the wrong
-                  thing to type: its offset differs between universities, while
-                  the year of admission is what a student code actually carries.
-                */}
-                Khóa là năm nhập học gồm bốn chữ số — 2022, không phải K46. Cách
-                nhau bằng dấu phẩy.
-              </p>
             )}
           </section>
         ))}

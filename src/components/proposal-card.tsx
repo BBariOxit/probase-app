@@ -80,7 +80,7 @@ export function ProposalCard({
       </div>
 
       <Prose label="Mô tả" body={proposal.description} clamp />
-      <Prose label="Kết quả mong đợi" body={proposal.expectedOutcomes} />
+      <Prose label="Yêu cầu đầu ra" body={proposal.expectedOutcomes} />
 
       {footer}
 

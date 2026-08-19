@@ -67,7 +67,9 @@ export function LecturerPicker({
         id={id}
         type="button"
         variant="outline"
-        size="lg"
+        // The default size, matching every Select in the product. `lg` made it
+        // four pixels taller than the project-type field beside it, which on a
+        // two-column row reads as one of them being broken.
         disabled={disabled}
         aria-invalid={invalid}
         aria-haspopup="dialog"
