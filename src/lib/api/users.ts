@@ -4,8 +4,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import type {
   BulkImportResult,
+  LecturerProfileDetail,
+  LecturerProfileInput,
   Role,
+  StudentProfileDetail,
+  StudentProfileInput,
   UserAccount,
+  UserDetail,
   UsersPage,
 } from '@/lib/api/types';
 
@@ -178,5 +183,62 @@ export function useBulkImportUsers() {
       });
     },
     onSuccess: invalidate,
+  });
+}
+
+/**
+ * One account in full, for the screen that edits its profile.
+ *
+ * Fetched rather than taken from the list row, because the list deliberately
+ * carries only what a table shows — the phone number, the research interests and
+ * the office's private note are none of a roster's business.
+ */
+export function useUser(id: number | undefined) {
+  return useQuery({
+    queryKey: [...userKeys.all, 'detail', id],
+    queryFn: () => api<UserDetail>(`/users/${id!}`),
+    enabled: id !== undefined,
+  });
+}
+
+/**
+ * The profile, replaced whole.
+ *
+ * Both endpoints are a PUT and take every field, so a partial edit has to send
+ * what it is not changing — the dialog loads the profile first for exactly that
+ * reason. They also refuse a profile whose role does not match the account, which
+ * is why there is one hook per role rather than one that guesses.
+ */
+export function useUpsertStudentProfile() {
+  const invalidate = useInvalidateUsers();
+
+  return useMutation({
+    mutationFn: ({ id, ...input }: StudentProfileInput & { id: number }) =>
+      api<StudentProfileDetail>(`/users/${id}/student-profile`, {
+        method: 'PUT',
+        body: input,
+      }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpsertLecturerProfile() {
+  const queryClient = useQueryClient();
+  const invalidate = useInvalidateUsers();
+
+  return useMutation({
+    mutationFn: ({ id, ...input }: LecturerProfileInput & { id: number }) =>
+      api<LecturerProfileDetail>(`/users/${id}/lecturer-profile`, {
+        method: 'PUT',
+        body: input,
+      }),
+    onSuccess: async () => {
+      await invalidate();
+      // The mentoring quota decides whether this lecturer may accept another
+      // proposal, and it is read by the directory the proposal form picks from
+      // and by their own profile screen.
+      await queryClient.invalidateQueries({ queryKey: ['lecturers'] });
+      await queryClient.invalidateQueries({ queryKey: ['me', 'profile'] });
+    },
   });
 }

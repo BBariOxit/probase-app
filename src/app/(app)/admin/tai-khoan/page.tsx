@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import {
+  IdCard,
   KeyRound,
   Loader2,
   Lock,
@@ -29,6 +30,7 @@ import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
 import { StatusPill } from '@/components/status-pill';
 import { UserImportDialog } from '@/components/user-import-dialog';
+import { UserProfileDialog } from '@/components/user-profile-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -120,6 +122,9 @@ export default function AccountsPage() {
 
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<UserAccount | null>(null);
+  const [editingProfile, setEditingProfile] = useState<UserAccount | null>(
+    null,
+  );
   const [locking, setLocking] = useState<UserAccount | null>(null);
   const [resetting, setResetting] = useState<UserAccount | null>(null);
 
@@ -289,6 +294,20 @@ export default function AccountsPage() {
                           <UserCog />
                           Sửa tài khoản
                         </DropdownMenuItem>
+                        {/*
+                          Two entries rather than one form, because they are two
+                          different things: the account is an address, a role and
+                          whether the door is open, while the profile is the
+                          person the system computes with.
+                        */}
+                        {user.role !== 'ADMIN' && (
+                          <DropdownMenuItem
+                            onClick={() => setEditingProfile(user)}
+                          >
+                            <IdCard />
+                            Sửa hồ sơ
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => setResetting(user)}>
                           <KeyRound />
                           Cấp lại mật khẩu
@@ -344,6 +363,12 @@ export default function AccountsPage() {
       )}
 
       {creating && <CreateUserDialog onClose={() => setCreating(false)} />}
+      {editingProfile && (
+        <UserProfileDialog
+          user={editingProfile}
+          onClose={() => setEditingProfile(null)}
+        />
+      )}
       {editing && (
         <EditUserDialog user={editing} onClose={() => setEditing(null)} />
       )}

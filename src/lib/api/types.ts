@@ -610,6 +610,80 @@ export interface UsersPage {
   meta: { total: number; page: number; limit: number; totalPages: number };
 }
 
+/**
+ * `GET /users/:id` — one account with its profile in full, for the screen that
+ * edits it.
+ *
+ * Richer than a list row on purpose, and admin-only: `note` is the faculty
+ * office's private remark about a student ("bảo lưu HK1", "gọi không nghe máy"),
+ * which is exactly the field that once leaked to the student themselves through
+ * `/auth/me`. It belongs here, where the office edits it, and nowhere a student
+ * can read.
+ */
+export interface UserDetail extends Omit<
+  UserAccount,
+  'studentProfile' | 'lecturerProfile'
+> {
+  studentProfile: StudentProfileDetail | null;
+  lecturerProfile: LecturerProfileDetail | null;
+}
+
+export interface StudentProfileDetail {
+  id: number;
+  userId: number;
+  majorId: number | null;
+  studentCode: string;
+  fullName: string;
+  class: string | null;
+  /** Derived from the student code by the API; never sent back as an input. */
+  cohort: string | null;
+  phone: string | null;
+  bio: string | null;
+  /** The office's own note. Never shown to the student it is about. */
+  note: string | null;
+}
+
+export interface LecturerProfileDetail {
+  id: number;
+  userId: number;
+  lecturerCode: string;
+  fullName: string;
+  academicTitle: string | null;
+  phone: string | null;
+  bio: string | null;
+  researchInterests: string | null;
+  /** Null means no ceiling. The number the API checks before a proposal may be accepted. */
+  maxMentoringQuota: number | null;
+}
+
+/**
+ * What the office may set on a student's profile.
+ *
+ * `cohort` is absent because the API reads it out of the student code — an
+ * editable cohort would let somebody fix the symptom and leave the code that
+ * produced it, and the two would disagree from then on.
+ */
+export interface StudentProfileInput {
+  studentCode: string;
+  fullName: string;
+  majorId?: number | null;
+  class?: string | null;
+  phone?: string | null;
+  bio?: string | null;
+  note?: string | null;
+}
+
+export interface LecturerProfileInput {
+  lecturerCode: string;
+  fullName: string;
+  academicTitle?: string | null;
+  phone?: string | null;
+  bio?: string | null;
+  researchInterests?: string | null;
+  /** Null clears the ceiling; the API refuses zero, so "take nobody new" is unsayable. */
+  maxMentoringQuota?: number | null;
+}
+
 /** One row of a roster import, accepted or refused. */
 export interface ImportRowResult {
   row: number;
