@@ -8,6 +8,7 @@ import type {
   RegistrationRound,
   RoundPlanInput,
   Semester,
+  SubmissionRequirement,
 } from '@/lib/api/types';
 
 /**
@@ -261,5 +262,62 @@ export function useProjectTypeDetails() {
     queryKey: ['project-types'],
     queryFn: () => api<ProjectTypeDetail[]>('/project-types'),
     staleTime: MASTER_DATA_STALE_TIME,
+  });
+}
+
+/**
+ * What one round requires its groups to hand in.
+ *
+ * Kept out of the round payload itself: the list is read by the one screen that
+ * edits it and by the group screen that shows a student what they owe, and both
+ * of those know which round they mean.
+ */
+export function useRoundRequirements(roundId: number | undefined) {
+  return useQuery({
+    queryKey: ['rounds', roundId, 'requirements'],
+    queryFn: () =>
+      api<SubmissionRequirement[]>(`/rounds/${roundId!}/requirements`),
+    enabled: roundId !== undefined,
+    staleTime: 60_000,
+  });
+}
+
+export interface RequirementInput {
+  /** Present for a row that already exists, absent for a new one. */
+  id?: number;
+  name: string;
+  /** ISO; the API reads it as a calendar day running to the end of that day. */
+  dueAt: string;
+  isRequired: boolean;
+}
+
+/**
+ * Replaces a round's list wholesale, the same way the semester plan is sent.
+ *
+ * The order of the array is the order the office meant, and becomes the order
+ * every screen shows.
+ */
+export function useSetRoundRequirements() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      roundId,
+      requirements,
+    }: {
+      roundId: number;
+      requirements: RequirementInput[];
+    }) =>
+      api<SubmissionRequirement[]>(`/rounds/${roundId}/requirements`, {
+        method: 'PUT',
+        body: { requirements },
+      }),
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['rounds', variables.roundId, 'requirements'],
+      });
+      // A student's own group screen carries the same list.
+      await queryClient.invalidateQueries({ queryKey: ['registration'] });
+    },
   });
 }

@@ -1,22 +1,8 @@
 'use client';
 
 import { ExternalLink, FileText, Link2, MessageSquareText } from 'lucide-react';
-import type { Submission, SubmissionType } from '@/lib/api/types';
+import type { Submission } from '@/lib/api/types';
 import { StatusPill, type StatusLabel } from '@/components/status-pill';
-
-/**
- * The three kinds, and what each is called on screen.
- *
- * Source code is described as a link rather than a file everywhere it appears,
- * because that is what it nearly always is — asking a student to zip a git
- * history in order to upload it is asking them for something worse than what
- * they already have.
- */
-export const SUBMISSION_LABEL: Record<SubmissionType, string> = {
-  MIDTERM: 'Báo cáo giữa kỳ',
-  FINAL: 'Báo cáo cuối kỳ',
-  SOURCE_CODE: 'Mã nguồn',
-};
 
 const dateTimeFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
@@ -66,7 +52,7 @@ export function SubmissionCard({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="text-sm font-medium">
-            {SUBMISSION_LABEL[submission.submissionType]}
+            {submission.requirement.name}
             <span className="ml-2 text-xs font-normal text-muted-foreground">
               lần {submission.version}
             </span>

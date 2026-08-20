@@ -86,15 +86,6 @@ export interface RegistrationRound {
   phase: RoundPhase;
   registrationStart: string;
   registrationEnd: string;
-  /**
-   * When each report is due, or null while the office has announced nothing.
-   *
-   * On the round rather than the semester because Tốt nghiệp hands in weeks
-   * before Cơ sở. Source code has no date of its own — it is due with the final
-   * report.
-   */
-  midtermDueAt: string | null;
-  finalDueAt: string | null;
   allocationMode: 'FIRST_COME' | 'PREFERENCE_ROUND';
   finalisedAt: string | null;
   semester: { id: number; name: string; code: string };
@@ -352,13 +343,13 @@ export interface RegistrationGroup {
     projectType: { id: number; name: string; code: string };
   };
   /**
-   * What the group owes and by when, lifted off the round.
+   * What this group has to hand in, as the office declared it for their round.
    *
    * Here rather than on a submission because this is the screen a group reads
    * *before* they have handed anything in, and until then there is no submission
-   * to hang a due date off.
+   * to hang a due date off. Empty while the office has declared nothing.
    */
-  deadlines: { midtermDueAt: string | null; finalDueAt: string | null };
+  requirements: SubmissionRequirement[];
   members: GroupMember[];
   occupiedSeats: number;
   /** Seats kept for people the leader is bringing; zero once the hold lapses. */
@@ -786,13 +777,6 @@ export interface RoundPlanInput {
   registrationEnd: string;
   /** Intake years, four digits — `"2022"`, never `"K46"`. At least one. */
   cohorts: string[];
-  /**
-   * Report deadlines. Null clears one — this payload replaces the term's whole
-   * arrangement, so a date left out is a date the office has taken back rather
-   * than one they forgot to resend.
-   */
-  midtermDueAt: string | null;
-  finalDueAt: string | null;
   allocationMode?: 'FIRST_COME' | 'PREFERENCE_ROUND';
 }
 
@@ -830,8 +814,22 @@ export interface StudentRosterRow {
     };
   } | null;
 }
-/** Which piece of work a submission is. */
-export type SubmissionType = 'MIDTERM' | 'FINAL' | 'SOURCE_CODE';
+/**
+ * One thing a round requires its groups to hand in.
+ *
+ * Declared by the faculty office per đợt rather than fixed in code: Cơ sở and
+ * Tốt nghiệp do not hand in the same documents, and a faculty adding one should
+ * not need a new release. The order is the order the office listed them in.
+ */
+export interface SubmissionRequirement {
+  id: number;
+  name: string;
+  /** The calendar day it is due; it runs to the end of that day. */
+  dueAt: string;
+  /** Optional items are still reminded about, but do not count towards "đủ". */
+  isRequired: boolean;
+  sortOrder: number;
+}
 
 /**
  * One thing a group handed in, at one version.
@@ -847,7 +845,8 @@ export type SubmissionType = 'MIDTERM' | 'FINAL' | 'SOURCE_CODE';
  */
 export interface Submission {
   id: number;
-  submissionType: SubmissionType;
+  /** Which declared document this is an attempt at. */
+  requirement: SubmissionRequirement;
   version: number;
   fileUrl: string | null;
   /** The uploader's own filename, for display only. */
@@ -984,8 +983,18 @@ export interface ProgressRow {
   roundId: number;
   projectType: ProjectType;
   groups: number;
-  midtermSubmitted: number;
-  finalSubmitted: number;
+  /** How many documents the office declared as required for this round. */
+  required: number;
+  /** Groups that have handed in every one of them. */
+  complete: number;
   /** Groups whose newest submission has not been answered yet. */
   awaitingFeedback: number;
+  /** Per document, so the office can see which one a round is stuck on. */
+  items: {
+    requirementId: number;
+    name: string;
+    dueAt: string;
+    isRequired: boolean;
+    submitted: number;
+  }[];
 }

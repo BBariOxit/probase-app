@@ -6,12 +6,12 @@ import { FileUp, Loader2, Upload, Users } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useMyGroup } from '@/lib/api/registration';
 import { useCreateSubmission, useSubmissions } from '@/lib/api/submissions';
-import type { SubmissionType } from '@/lib/api/types';
+import type { SubmissionRequirement } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
 import { PageWithRail } from '@/components/page-with-rail';
-import { SUBMISSION_LABEL, SubmissionCard } from '@/components/submission-card';
+import { SubmissionCard } from '@/components/submission-card';
 import { SubmissionDeadlines } from '@/components/submission-deadlines';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,8 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-const TYPES: SubmissionType[] = ['MIDTERM', 'FINAL', 'SOURCE_CODE'];
 
 /**
  * What the group has handed in, and the way to hand in more.
@@ -99,7 +97,7 @@ export default function StudentSubmissionsPage() {
           </section>
 
           <SubmissionDeadlines
-            deadlines={group.deadlines}
+            requirements={group.requirements}
             submissions={submissions}
           />
         </>
@@ -109,10 +107,18 @@ export default function StudentSubmissionsPage() {
         <h2 className="font-heading text-sm font-semibold tracking-tight">
           Đã nộp
         </h2>
-        <Button onClick={() => setSubmitting(true)}>
-          <Upload />
-          Nộp bài
-        </Button>
+        {/*
+          Nothing to hand in until the faculty has said what. The button is
+          hidden rather than disabled: a greyed control invites hunting for the
+          trick that enables it, and the empty deadline list beside it has
+          already given the reason.
+        */}
+        {group.requirements.length > 0 && (
+          <Button onClick={() => setSubmitting(true)}>
+            <Upload />
+            Nộp bài
+          </Button>
+        )}
       </div>
 
       {error && (
@@ -152,7 +158,12 @@ export default function StudentSubmissionsPage() {
         ))}
       </ul>
 
-      {submitting && <SubmitDialog onClose={() => setSubmitting(false)} />}
+      {submitting && (
+        <SubmitDialog
+          requirements={group.requirements}
+          onClose={() => setSubmitting(false)}
+        />
+      )}
     </PageWithRail>
   );
 }
@@ -160,14 +171,21 @@ export default function StudentSubmissionsPage() {
 /**
  * Handing something in.
  *
- * A file or a link, and the form says at least one is needed rather than
+ * What can be handed in is whatever the faculty declared for this round, so the
+ * choice is a list of their words rather than of three kinds the code knows
+ * about. A file or a link, and the form says at least one is needed rather than
  * silently disabling the button — a student who filled in neither should be told
- * which of the two they still owe. Source code defaults the wording towards a
- * link because that is what it nearly always is.
+ * which of the two they still owe.
  */
-function SubmitDialog({ onClose }: { onClose: () => void }) {
+function SubmitDialog({
+  requirements,
+  onClose,
+}: {
+  requirements: SubmissionRequirement[];
+  onClose: () => void;
+}) {
   const create = useCreateSubmission();
-  const [type, setType] = useState<SubmissionType>('MIDTERM');
+  const [requirementId, setRequirementId] = useState(requirements[0].id);
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -180,7 +198,7 @@ function SubmitDialog({ onClose }: { onClose: () => void }) {
     setError(null);
     try {
       await create.mutateAsync({
-        submissionType: type,
+        requirementId,
         submissionUrl: trimmedUrl || undefined,
         file,
       });
@@ -213,20 +231,23 @@ function SubmitDialog({ onClose }: { onClose: () => void }) {
           <FormError message={error} />
 
           <div className="space-y-2">
-            <Label htmlFor="sub-type">Loại bài nộp</Label>
+            <Label htmlFor="sub-type">Nộp cho mục nào</Label>
             <Select
-              value={type}
-              onValueChange={(value) => setType(value as SubmissionType)}
+              value={requirementId}
+              onValueChange={(value) => setRequirementId(value as number)}
             >
               <SelectTrigger id="sub-type" className="w-full">
                 <SelectValue>
-                  {(value) => SUBMISSION_LABEL[value as SubmissionType]}
+                  {(value) =>
+                    requirements.find((one) => one.id === value)?.name ??
+                    'Chọn mục'
+                  }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {TYPES.map((one) => (
-                  <SelectItem key={one} value={one}>
-                    {SUBMISSION_LABEL[one]}
+                {requirements.map((one) => (
+                  <SelectItem key={one.id} value={one.id}>
+                    {one.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -247,13 +268,15 @@ function SubmitDialog({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="sub-url">
-              {type === 'SOURCE_CODE' ? 'Link repository' : 'Hoặc link'}
-            </Label>
+            <Label htmlFor="sub-url">Hoặc link</Label>
+            {/*
+              One sentence covering both, now that the wording cannot key off a
+              fixed kind: what the office called this document is their text, and
+              guessing "this one is source code" from its name would be wrong the
+              first time a faculty writes it differently.
+            */}
             <p className="-mt-1 text-xs text-muted-foreground">
-              {type === 'SOURCE_CODE'
-                ? 'Link GitHub, GitLab… Nộp mã nguồn bằng link thì tiện hơn nén ra file.'
-                : 'Link Google Drive, OneDrive… nếu bạn không tải file lên.'}
+              Link GitHub, Google Drive… nếu bạn không tải file lên.
             </p>
             <Input
               id="sub-url"
