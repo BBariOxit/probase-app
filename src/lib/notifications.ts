@@ -83,6 +83,9 @@ export function notificationHref(
       answered is at the top of it.
     */
     case 'SUBMISSION_FEEDBACK':
+    // Same screen for the reminder: what it asks for is a submission, and the
+    // deadline it names is at the top of that page.
+    case 'SUBMISSION_DUE_SOON':
       return '/student/nop-bai';
 
     // The group is gone in both of these, so the topic is what is left to look
@@ -93,9 +96,13 @@ export function notificationHref(
         ? `/student/topics/${notice.targetId}`
         : '/student';
 
-    // The point of the notice is that there is still time to choose, so it
-    // leads to the list rather than to the round it names.
+    /*
+      Both say there is still time to choose, so both lead to the list of
+      topics rather than to the round they name. The round is the subject of the
+      sentence; the list is the thing to do about it.
+    */
     case 'ROUND_EXTENDED':
+    case 'REGISTRATION_CLOSING_SOON':
       return '/student';
 
     default:

@@ -2,7 +2,7 @@
 
 import { use, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Info, Loader2, Lock } from 'lucide-react';
+import { ArrowLeft, CircleHelp, Info, Loader2, Lock } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import {
   useProjectTypes,
@@ -23,6 +23,11 @@ import { StatusPill, type StatusTone } from '@/components/status-pill';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 /**
  * The phases in which a round's dates are still a schedule.
@@ -47,6 +52,9 @@ interface RowState {
   start: string;
   end: string;
   cohorts: string;
+  /** Both optional: a deadline the faculty has not announced yet is simply blank. */
+  midterm: string;
+  final: string;
 }
 
 function toDateInput(iso: string | null | undefined): string {
@@ -143,6 +151,8 @@ function PlanForm({
             start: toDateInput(round?.registrationStart),
             end: toDateInput(round?.registrationEnd),
             cohorts: round?.cohorts.join(', ') ?? '',
+            midterm: toDateInput(round?.midtermDueAt),
+            final: toDateInput(round?.finalDueAt),
           } satisfies RowState,
         ];
       }),
@@ -180,6 +190,10 @@ function PlanForm({
         registrationStart: new Date(entry.row.start).toISOString(),
         registrationEnd: new Date(entry.row.end).toISOString(),
         cohorts: entry.cohorts.values,
+        // Null rather than omitted: the payload replaces the term's whole
+        // arrangement, so a box cleared here is a deadline taken back.
+        midtermDueAt: toIsoOrNull(entry.row.midterm),
+        finalDueAt: toIsoOrNull(entry.row.final),
       }));
 
       await save.mutateAsync({ semesterId, rounds: plan });
@@ -282,6 +296,59 @@ function PlanForm({
                 </div>
               </div>
             )}
+
+            {/*
+              Below the registration window and never locked with it. Moving the
+              gate after it has closed decides a race that is already over, which
+              is why that needs Gia hạn; a report deadline only says when work is
+              expected, and a faculty granting an extra week should not need a
+              second mechanism to say so.
+            */}
+            {row.enabled && (
+              <div className="space-y-2.5 border-t pt-3">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-xs font-medium">Hạn nộp báo cáo</h3>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <button
+                          type="button"
+                          aria-label="Hạn nộp báo cáo dùng để làm gì?"
+                          className="rounded-full text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        />
+                      }
+                    >
+                      <CircleHelp className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs text-pretty">
+                      Để trống nếu khoa chưa công bố. Nhóm chưa nộp được nhắc
+                      trước 3 ngày; nộp muộn vẫn nhận nhưng bị đánh dấu. Mã
+                      nguồn tính theo hạn cuối kỳ.
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <DateField
+                    id={`midterm-${type.id}`}
+                    label="Hạn nộp giữa kỳ"
+                    value={row.midterm}
+                    invalid={row.midterm !== '' && row.midterm <= row.end}
+                    onChange={(midterm) => patch(type.id, { midterm })}
+                  />
+                  <DateField
+                    id={`final-${type.id}`}
+                    label="Hạn nộp cuối kỳ"
+                    value={row.final}
+                    invalid={
+                      row.final !== '' &&
+                      (row.final <= row.end ||
+                        (row.midterm !== '' && row.final <= row.midterm))
+                    }
+                    onChange={(final) => patch(type.id, { final })}
+                  />
+                </div>
+              </div>
+            )}
           </section>
         ))}
       </div>
@@ -307,6 +374,11 @@ function PlanForm({
       </div>
     </div>
   );
+}
+
+/** A blank box means "no deadline", which the API spells as null. */
+function toIsoOrNull(value: string): string | null {
+  return value === '' ? null : new Date(value).toISOString();
 }
 
 /** "2022, 2023" as the API wants it: four-digit intake years, at least one. */
@@ -343,6 +415,21 @@ function describeProblems({
     problems.push(
       `${type.name}: khóa phải là năm nhập học bốn chữ số, ít nhất một khóa.`,
     );
+  }
+
+  // Both are typos rather than decisions — a year mistyped, or the two boxes
+  // filled the wrong way round — and the API refuses them too. Saying so here
+  // saves a round trip to be told the same thing.
+  if (row.end !== '' && row.midterm !== '' && row.midterm <= row.end) {
+    problems.push(`${type.name}: hạn nộp giữa kỳ phải sau hạn đăng ký.`);
+  }
+
+  if (row.end !== '' && row.final !== '' && row.final <= row.end) {
+    problems.push(`${type.name}: hạn nộp cuối kỳ phải sau hạn đăng ký.`);
+  }
+
+  if (row.midterm !== '' && row.final !== '' && row.final <= row.midterm) {
+    problems.push(`${type.name}: hạn nộp cuối kỳ phải sau hạn nộp giữa kỳ.`);
   }
 
   return problems;

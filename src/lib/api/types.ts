@@ -86,6 +86,15 @@ export interface RegistrationRound {
   phase: RoundPhase;
   registrationStart: string;
   registrationEnd: string;
+  /**
+   * When each report is due, or null while the office has announced nothing.
+   *
+   * On the round rather than the semester because Tốt nghiệp hands in weeks
+   * before Cơ sở. Source code has no date of its own — it is due with the final
+   * report.
+   */
+  midtermDueAt: string | null;
+  finalDueAt: string | null;
   allocationMode: 'FIRST_COME' | 'PREFERENCE_ROUND';
   finalisedAt: string | null;
   semester: { id: number; name: string; code: string };
@@ -230,6 +239,10 @@ export type NotificationType =
   | 'ROUND_FINALIZED'
   /** The supervisor answered a version of something the group handed in. */
   | 'SUBMISSION_FEEDBACK'
+  /** The gate closes in days and the reader still has no group. */
+  | 'REGISTRATION_CLOSING_SOON'
+  /** A report is due in days and the reader's group has not handed it in. */
+  | 'SUBMISSION_DUE_SOON'
   | 'GRADE_PUBLISHED'
   | 'DEADLINE_REMINDER';
 
@@ -338,6 +351,14 @@ export interface RegistrationGroup {
     lecturer: { id: number; fullName: string; academicTitle: string | null };
     projectType: { id: number; name: string; code: string };
   };
+  /**
+   * What the group owes and by when, lifted off the round.
+   *
+   * Here rather than on a submission because this is the screen a group reads
+   * *before* they have handed anything in, and until then there is no submission
+   * to hang a due date off.
+   */
+  deadlines: { midtermDueAt: string | null; finalDueAt: string | null };
   members: GroupMember[];
   occupiedSeats: number;
   /** Seats kept for people the leader is bringing; zero once the hold lapses. */
@@ -765,6 +786,13 @@ export interface RoundPlanInput {
   registrationEnd: string;
   /** Intake years, four digits — `"2022"`, never `"K46"`. At least one. */
   cohorts: string[];
+  /**
+   * Report deadlines. Null clears one — this payload replaces the term's whole
+   * arrangement, so a date left out is a date the office has taken back rather
+   * than one they forgot to resend.
+   */
+  midtermDueAt: string | null;
+  finalDueAt: string | null;
   allocationMode?: 'FIRST_COME' | 'PREFERENCE_ROUND';
 }
 
@@ -841,6 +869,14 @@ export interface Submission {
       lecturer: { id: number; fullName: string; academicTitle: string | null };
     };
   };
+  /** The deadline this was measured against; null if none was announced. */
+  dueAt: string | null;
+  /**
+   * Worked out by the API when the row is read, not stamped on it. An office
+   * that pushes a deadline back means the work is no longer late, and this
+   * follows.
+   */
+  isLate: boolean;
 }
 
 /** Where a proposal has got to. */
