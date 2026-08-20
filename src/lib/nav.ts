@@ -190,6 +190,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           href: '/admin/bao-cao',
           label: 'Báo cáo & thống kê',
           icon: ChartColumn,
+          ready: true,
         },
         {
           href: '/admin/nhat-ky',

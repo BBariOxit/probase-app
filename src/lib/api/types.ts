@@ -929,3 +929,63 @@ export interface TopicProposal {
    */
   convertedTopic: { id: number; title: string; status: TopicStatus } | null;
 }
+
+/**
+ * The faculty office's numbers for one term.
+ *
+ * Registration and submissions are reported per round and never summed: a
+ * semester runs Cơ sở, Chuyên ngành and Tốt nghiệp side by side for three
+ * different intakes, and adding numbers across them hides the one round that
+ * went badly. Supervision and majors are per term, because a lecturer with two
+ * groups in two rounds is carrying two groups.
+ */
+export interface FacultyReport {
+  semester: { id: number; name: string; code: string };
+  rounds: RoundReportRow[];
+  supervision: SupervisionRow[];
+  majors: MajorReportRow[];
+  progress: ProgressRow[];
+}
+
+export interface RoundReportRow {
+  roundId: number;
+  projectType: ProjectType;
+  phase: RoundPhase;
+  cohorts: string[];
+  /** Students of this round's intakes, on active accounts. */
+  eligible: number;
+  withGroup: number;
+  withoutGroup: number;
+  /** Chose their own topic, from the list or through a friend's join link. */
+  selfRegistered: number;
+  /** Placed on a topic by the faculty office. */
+  assigned: number;
+  topics: number;
+  topicsUnderway: number;
+}
+
+export interface SupervisionRow {
+  lecturerId: number;
+  fullName: string;
+  academicTitle: string | null;
+  groups: number;
+  students: number;
+}
+
+export interface MajorReportRow {
+  majorId: number;
+  name: string;
+  code: string;
+  students: number;
+  withGroup: number;
+}
+
+export interface ProgressRow {
+  roundId: number;
+  projectType: ProjectType;
+  groups: number;
+  midtermSubmitted: number;
+  finalSubmitted: number;
+  /** Groups whose newest submission has not been answered yet. */
+  awaitingFeedback: number;
+}
