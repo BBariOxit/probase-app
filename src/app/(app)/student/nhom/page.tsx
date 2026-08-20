@@ -5,10 +5,10 @@ import { Loader2, Users } from 'lucide-react';
 import { useActiveSemester, useMyRound } from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/empty-state';
 import { GroupTopicBrief } from '@/components/group-topic-brief';
 import { MyGroupPanel } from '@/components/my-group-panel';
+import { PageWithRail } from '@/components/page-with-rail';
 import { RoundTimeline } from '@/components/round-timeline';
 import { Button } from '@/components/ui/button';
 
@@ -56,7 +56,9 @@ export default function StudentGroupPage() {
   // còn chỗ" is what they are agreeing to by doing nothing.
   if (!group) {
     return (
-      <Shell rail={round && <RoundTimeline round={round} hasGroup={false} />}>
+      <PageWithRail
+        rail={round && <RoundTimeline round={round} hasGroup={false} />}
+      >
         <div className="rounded-xl border">
           <EmptyState
             icon={Users}
@@ -68,12 +70,12 @@ export default function StudentGroupPage() {
             }
           />
         </div>
-      </Shell>
+      </PageWithRail>
     );
   }
 
   return (
-    <Shell rail={round && <RoundTimeline round={round} hasGroup />}>
+    <PageWithRail rail={round && <RoundTimeline round={round} hasGroup />}>
       {/*
         Editable only while the gate is genuinely open. An extension does not
         count: it reopens registration for students who ended up without a group,
@@ -81,28 +83,6 @@ export default function StudentGroupPage() {
       */}
       <MyGroupPanel group={group} canEdit={round?.phase === 'OPEN'} />
       <GroupTopicBrief topicId={group.topicId} />
-    </Shell>
-  );
-}
-
-function Shell({
-  rail,
-  children,
-}: {
-  rail: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        'mx-auto grid max-w-6xl items-start gap-4',
-        // No round to report, no second column: an empty rail would be the
-        // whitespace this layout exists to spend.
-        rail && 'lg:grid-cols-[minmax(0,1fr)_20rem]',
-      )}
-    >
-      {rail && <div className="lg:order-2">{rail}</div>}
-      <div className="space-y-4 lg:order-1">{children}</div>
-    </div>
+    </PageWithRail>
   );
 }

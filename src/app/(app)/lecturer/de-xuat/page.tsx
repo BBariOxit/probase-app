@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { Check, Inbox, Loader2, X } from 'lucide-react';
 import { useMyProfile } from '@/lib/api/me';
 import { useProposals } from '@/lib/api/proposals';
-import type { ProposalStatus, TopicProposal } from '@/lib/api/types';
+import type {
+  MentoringLoad,
+  ProposalStatus,
+  TopicProposal,
+} from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/empty-state';
+import { PageWithRail } from '@/components/page-with-rail';
 import { PaginationBar } from '@/components/pagination-bar';
 import {
   AcceptProposalDialog,
@@ -64,56 +70,48 @@ export default function LecturerProposalsPage() {
   const mentoring = profile?.lecturer?.mentoring;
 
   return (
-    <div className="max-w-3xl space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Select
-          value={status}
-          onValueChange={(value) => {
-            setStatus(value as ProposalStatus | 'ALL');
-            // The page number belongs to the old filter; keeping it lands the
-            // reader on an empty page of a shorter list.
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-48" aria-label="Lọc theo trạng thái">
-            <SelectValue>
-              {(value) =>
-                STATUS_FILTERS.find((option) => option.value === value)?.label
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_FILTERS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <PageWithRail
+      rail={
+        <>
+          <Select
+            value={status}
+            onValueChange={(value) => {
+              setStatus(value as ProposalStatus | 'ALL');
+              // The page number belongs to the old filter; keeping it lands the
+              // reader on an empty page of a shorter list.
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-full" aria-label="Lọc theo trạng thái">
+              <SelectValue>
+                {(value) =>
+                  STATUS_FILTERS.find((option) => option.value === value)?.label
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_FILTERS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
+          {mentoring && <MentoringLoadCard load={mentoring} />}
+        </>
+      }
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-heading text-sm font-semibold tracking-tight">
+          Đề xuất từ sinh viên
+        </h2>
         {data && (
-          <span className="ml-auto text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {data.total} đề xuất
           </span>
         )}
       </div>
-
-      {/*
-        Said before the queue rather than at the moment of pressing Nhận, because
-        by then the lecturer has already read the whole proposal and decided. The
-        API refuses the acceptance either way — this only makes the refusal stop
-        being a surprise.
-      */}
-      {mentoring?.atQuota && (
-        <p className="rounded-xl border border-status-waiting/30 bg-status-waiting-bg/40 px-4 py-3 text-sm">
-          Bạn đã nhận đủ hạn mức {mentoring.quota} nhóm của học kỳ này (
-          {mentoring.groups} nhóm đang hướng dẫn
-          {mentoring.reserved > 0 &&
-            `, ${mentoring.reserved} đề tài đã nhận đang chờ sinh viên đăng ký`}
-          ), nên chưa nhận thêm đề xuất được. Bạn vẫn trả lời kèm nhận xét được,
-          hoặc đề nghị khoa nâng hạn mức.
-        </p>
-      )}
 
       {error && (
         <p className="text-sm text-destructive">Không tải được đề xuất.</p>
@@ -167,7 +165,49 @@ export default function LecturerProposalsPage() {
           onPageChange={setPage}
         />
       )}
-    </div>
+    </PageWithRail>
+  );
+}
+
+/**
+ * How much this lecturer is already carrying, before they read the queue.
+ *
+ * Said here rather than at the moment of pressing Nhận, because by then they
+ * have read the whole proposal and decided. It is shown whether or not they are
+ * at the ceiling: "3/5 nhóm" is the thing that makes the eventual refusal stop
+ * being a surprise, and it is also simply what a supervisor wants to know before
+ * agreeing to another one.
+ */
+function MentoringLoadCard({ load }: { load: MentoringLoad }) {
+  return (
+    <section
+      className={cn(
+        'space-y-1 rounded-xl border bg-card px-4 py-3',
+        load.atQuota && 'border-status-waiting/40 bg-status-waiting-bg/30',
+      )}
+    >
+      <h3 className="text-xs font-medium text-muted-foreground">
+        Hạn mức hướng dẫn
+      </h3>
+      <p className="text-sm">
+        <span className="font-medium tabular-nums">
+          {load.groups}
+          {load.quota !== null && `/${load.quota}`}
+        </span>{' '}
+        nhóm đang hướng dẫn
+      </p>
+      {load.reserved > 0 && (
+        <p className="text-xs text-muted-foreground">
+          {load.reserved} đề tài đã nhận, đang chờ sinh viên đăng ký
+        </p>
+      )}
+      {load.atQuota && (
+        <p className="text-xs text-pretty">
+          Đã đủ hạn mức, nên chưa nhận thêm đề xuất được. Bạn vẫn trả lời kèm
+          nhận xét được, hoặc đề nghị khoa nâng hạn mức.
+        </p>
+      )}
+    </section>
   );
 }
 
