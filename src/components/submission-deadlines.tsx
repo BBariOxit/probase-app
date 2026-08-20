@@ -1,30 +1,14 @@
 'use client';
 
 import type { RegistrationGroup, Submission } from '@/lib/api/types';
+import { daysUntilDay } from '@/lib/named-day';
 import { SUBMISSION_LABEL } from '@/components/submission-card';
 import { StatusPill, type StatusLabel } from '@/components/status-pill';
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
 });
-
-/**
- * Whole days left before a deadline expires: 0 on the day itself, negative once
- * it has gone.
- *
- * A deadline is a calendar day the office named, and it runs until the end of
- * that day rather than its first instant — the API measures lateness the same
- * way. Counting from midnight instead would put "Quá hạn" on the screen at seven
- * in the morning on the very day the report is due.
- */
-function daysUntil(iso: string): number {
-  const expiry = new Date(iso).getTime() + DAY_MS;
-
-  return Math.ceil((expiry - Date.now()) / DAY_MS) - 1;
-}
 
 /**
  * What the group owes, and by when.
@@ -60,7 +44,7 @@ export function SubmissionDeadlines({
       (submission) => submission.submissionType === kind,
     );
 
-    return [{ kind, due, handedIn, left: daysUntil(due) }];
+    return [{ kind, due, handedIn, left: daysUntilDay(due) }];
   });
 
   if (rows.length === 0) return null;
