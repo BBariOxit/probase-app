@@ -6,6 +6,7 @@ import { useAuditActions, useAuditLogs } from '@/lib/api/audit';
 import type { AuditLogEntry } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { EmptyState } from '@/components/empty-state';
+import { PageWithRail } from '@/components/page-with-rail';
 import { PaginationBar } from '@/components/pagination-bar';
 import { Button } from '@/components/ui/button';
 import {
@@ -67,8 +68,8 @@ export default function AuditLogPage() {
   const entries = data?.items ?? [];
 
   return (
-    <div className="max-w-4xl space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
+    <PageWithRail
+      rail={
         <Select
           value={action}
           onValueChange={(value) => {
@@ -76,7 +77,7 @@ export default function AuditLogPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-64" aria-label="Lọc theo hành động">
+          <SelectTrigger className="w-full" aria-label="Lọc theo hành động">
             <SelectValue>
               {(value) =>
                 value === 'ALL'
@@ -96,9 +97,14 @@ export default function AuditLogPage() {
             ))}
           </SelectContent>
         </Select>
-
+      }
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-heading text-sm font-semibold tracking-tight">
+          Nhật ký hoạt động
+        </h2>
         {data && (
-          <span className="ml-auto text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {data.total} bản ghi
           </span>
         )}
@@ -140,7 +146,7 @@ export default function AuditLogPage() {
           onPageChange={setPage}
         />
       )}
-    </div>
+    </PageWithRail>
   );
 }
 

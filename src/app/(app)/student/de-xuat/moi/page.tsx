@@ -36,7 +36,7 @@ export default function NewProposalPage() {
   if (!allowed) return null;
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5">
       <Button
         variant="ghost"
         size="sm"

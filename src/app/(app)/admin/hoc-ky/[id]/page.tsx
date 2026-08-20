@@ -88,7 +88,7 @@ export default function SemesterRoundsPage({
   if (!allowed) return null;
 
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
       <Button
         variant="ghost"
         size="sm"

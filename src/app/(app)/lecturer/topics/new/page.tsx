@@ -20,7 +20,7 @@ export default function NewTopicPage() {
   if (!activeSemester) return null;
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5">
       <PageHeading
         title="Tạo đề tài"
         description="Đề tài sẽ ở trạng thái chờ khoa duyệt sau khi lưu."
