@@ -26,6 +26,7 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/empty-state';
 import { FinalizeRoundDialog } from '@/components/finalize-round-dialog';
+import { UnlockRoundDialog } from '@/components/unlock-round-dialog';
 import { UserAvatar } from '@/components/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -100,8 +101,15 @@ export default function AllocationDeskPage() {
           </SelectContent>
         </Select>
 
+        {/*
+          Never both: one is offered while the round is being worked, the other
+          only once it has been settled.
+        */}
         {data && roundId !== undefined && (
-          <FinalizeRoundDialog roundId={roundId} desk={data} />
+          <>
+            <FinalizeRoundDialog roundId={roundId} desk={data} />
+            <UnlockRoundDialog roundId={roundId} desk={data} />
+          </>
         )}
       </div>
 

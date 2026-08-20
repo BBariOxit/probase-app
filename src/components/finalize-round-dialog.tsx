@@ -99,7 +99,8 @@ export function FinalizeRoundDialog({
             <p className="text-sm text-muted-foreground">
               Sau khi chốt, danh sách nhóm của đợt này là chính thức: khoa không
               xếp thêm được ai, sinh viên không đổi nhóm được nữa, và mọi người
-              sẽ nhận thông báo kết quả. Không hoàn tác được.
+              sẽ nhận thông báo kết quả. Chốt nhầm thì mở khoá lại được, nhưng
+              phải ghi lý do và có lưu vết.
             </p>
 
             {unplaced > 0 && (
