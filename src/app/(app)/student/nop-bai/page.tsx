@@ -11,6 +11,7 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
 import { SUBMISSION_LABEL, SubmissionCard } from '@/components/submission-card';
+import { SubmissionDeadlines } from '@/components/submission-deadlines';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -92,6 +93,11 @@ export default function StudentSubmissionsPage() {
           Nộp bài
         </Button>
       </div>
+
+      <SubmissionDeadlines
+        deadlines={group.deadlines}
+        submissions={submissions}
+      />
 
       {error && (
         <p className="text-sm text-destructive">Không tải được bài nộp.</p>

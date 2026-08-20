@@ -77,7 +77,16 @@ export function SubmissionCard({
               ` · ${submission.submittedBy.fullName} (${submission.submittedBy.studentCode})`}
           </p>
         </div>
-        <StatusPill {...answered(submission)} />
+        <div className="flex shrink-0 items-center gap-1.5">
+          {/*
+            Before the feedback pill, because it is a fact about the handing in
+            and the reader is already looking at the time it happened. Only ever
+            shown when it is true — a "đúng hạn" badge on every other card would
+            make the one that matters harder to see, not easier.
+          */}
+          {submission.isLate && <StatusPill label="Nộp muộn" tone="danger" />}
+          <StatusPill {...answered(submission)} />
+        </div>
       </div>
 
       {who}
