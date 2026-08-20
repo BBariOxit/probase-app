@@ -11,9 +11,19 @@ const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   month: '2-digit',
 });
 
-/** Whole days from now until `iso`, rounded up; negative once it has passed. */
+/**
+ * Whole days left before a deadline expires: 0 on the day itself, negative once
+ * it has gone.
+ *
+ * A deadline is a calendar day the office named, and it runs until the end of
+ * that day rather than its first instant — the API measures lateness the same
+ * way. Counting from midnight instead would put "Quá hạn" on the screen at seven
+ * in the morning on the very day the report is due.
+ */
 function daysUntil(iso: string): number {
-  return Math.ceil((new Date(iso).getTime() - Date.now()) / DAY_MS);
+  const expiry = new Date(iso).getTime() + DAY_MS;
+
+  return Math.ceil((expiry - Date.now()) / DAY_MS) - 1;
 }
 
 /**
