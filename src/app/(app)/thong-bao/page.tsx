@@ -62,7 +62,14 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    /*
+      Centred rather than given a rail, and that is the whole decision here.
+      Nothing true belongs beside an inbox — a filter by kind of notice is a
+      control nobody in a faculty this size would touch, and anything else would
+      be invented to fill the space. A reading column with even margins is the
+      honest shape for a page that is only ever read.
+    */
+    <div className="mx-auto max-w-2xl space-y-4">
       <div className="flex items-center gap-2">
         <Button
           variant={unreadOnly ? 'default' : 'outline'}

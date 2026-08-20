@@ -6,6 +6,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { RegistrationRound } from '@/lib/api/types';
+import { daysUntilDay } from '@/lib/named-day';
 
 /** Everything the wording below needs; a topic's embedded round satisfies it too. */
 export type RoundLike = Pick<
@@ -30,17 +31,10 @@ export interface RoundStatus {
   urgent: boolean;
 }
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
   month: '2-digit',
 });
-
-/** Whole days from now until `iso`, rounded up; negative once it has passed. */
-function daysUntil(iso: string): number {
-  return Math.ceil((new Date(iso).getTime() - Date.now()) / DAY_MS);
-}
 
 /**
  * A round, said out loud — the one place that turns a phase into words.
@@ -63,7 +57,7 @@ export function describeRound(
   const { phase, registrationStart, registrationEnd } = round;
 
   if (phase === 'PREP') {
-    const opensIn = daysUntil(registrationStart);
+    const opensIn = daysUntilDay(registrationStart);
 
     return {
       icon: CalendarClock,
@@ -75,7 +69,7 @@ export function describeRound(
   }
 
   if (phase === 'OPEN' || phase === 'EXTENDED') {
-    const closesIn = daysUntil(registrationEnd);
+    const closesIn = daysUntilDay(registrationEnd);
     const extended = phase === 'EXTENDED';
     const noun = extended ? 'gia hạn' : 'đăng ký';
     const closingDate = dateFormat.format(new Date(registrationEnd));
@@ -138,8 +132,8 @@ export function roundTimeline(round: RoundLike): RoundStep[] {
   const { phase } = round;
   const opened = phase !== 'PREP';
   const closed = phase === 'RECONCILING' || phase === 'FINALIZED';
-  const opensIn = daysUntil(round.registrationStart);
-  const closesIn = daysUntil(round.registrationEnd);
+  const opensIn = daysUntilDay(round.registrationStart);
+  const closesIn = daysUntilDay(round.registrationEnd);
 
   return [
     {

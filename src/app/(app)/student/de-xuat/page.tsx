@@ -20,7 +20,9 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { proposalWindow } from '@/lib/proposal-window';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
+import { PageWithRail } from '@/components/page-with-rail';
 import { PaginationBar } from '@/components/pagination-bar';
+import { RoundTimeline } from '@/components/round-timeline';
 import { ProposalCard } from '@/components/proposal-card';
 import { Button } from '@/components/ui/button';
 
@@ -69,7 +71,19 @@ export default function StudentProposalsPage() {
       : closedReason;
 
   return (
-    <div className="max-w-3xl space-y-4">
+    /*
+      The round beside the outbox. A proposal is only worth anything while the
+      gate is still open — once it shuts, an unanswered one is a message to
+      nobody — so how long is left is the fact that decides what to do with this
+      screen, and it was nowhere on it.
+    */
+    <PageWithRail
+      rail={
+        rounds?.[0] && (
+          <RoundTimeline round={rounds[0]} hasGroup={group != null} />
+        )
+      }
+    >
       {/*
         The reason comes before the button, not instead of it: a student who
         cannot send one right now still needs to know why, and the sentence is
@@ -141,7 +155,7 @@ export default function StudentProposalsPage() {
           onPageChange={setPage}
         />
       )}
-    </div>
+    </PageWithRail>
   );
 }
 

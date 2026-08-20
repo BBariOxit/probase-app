@@ -1,0 +1,371 @@
+'use client';
+
+import { useState } from 'react';
+import { ChartColumn, Download, Loader2 } from 'lucide-react';
+import { useSemesters } from '@/lib/api/master-data';
+import { useExportReport, useFacultyReport } from '@/lib/api/reports';
+import type {
+  MajorReportRow,
+  ProgressRow,
+  RoundReportRow,
+  SupervisionRow,
+} from '@/lib/api/types';
+import { useRequireRole } from '@/lib/auth/use-require-role';
+import { EmptyState } from '@/components/empty-state';
+import { StatusPill, type StatusTone } from '@/components/status-pill';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+const PHASE: Record<string, { label: string; tone: StatusTone }> = {
+  PREP: { label: 'Chưa mở', tone: 'waiting' },
+  OPEN: { label: 'Đang mở', tone: 'success' },
+  EXTENDED: { label: 'Đang gia hạn', tone: 'active' },
+  RECONCILING: { label: 'Đang phân bổ', tone: 'active' },
+  FINALIZED: { label: 'Đã chốt', tone: 'idle' },
+};
+
+/**
+ * The term in numbers.
+ *
+ * Registration and submissions are shown a row per đợt and never added up: a
+ * semester runs three of them for three different intakes sharing no seat, so a
+ * single total would hide the one that went badly behind the two that went
+ * well. Supervision and majors are one table each for the whole term, because
+ * that is the scope those questions have.
+ *
+ * There is no grade section yet, and no placeholder for one. A column of empty
+ * cells reads as "nobody has a grade" rather than "marking has not been built",
+ * and the first of those is alarming for no reason.
+ */
+export default function ReportsPage() {
+  const allowed = useRequireRole('ADMIN');
+  const { data: semesters } = useSemesters();
+  const [picked, setPicked] = useState<number | null>(null);
+
+  const semesterId = picked ?? semesters?.find((one) => one.isActive)?.id;
+  const { data, isPending, error } = useFacultyReport(semesterId);
+  const exportReport = useExportReport();
+
+  if (!allowed) return null;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <Select
+          value={semesterId ?? null}
+          onValueChange={(value) => setPicked(value as number)}
+        >
+          <SelectTrigger className="w-64" aria-label="Chọn học kỳ">
+            <SelectValue>
+              {(value) =>
+                semesters?.find((one) => one.id === value)?.name ??
+                'Chọn học kỳ'
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {semesters?.map((semester) => (
+              <SelectItem key={semester.id} value={semester.id}>
+                {semester.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Button
+          variant="outline"
+          className="ml-auto"
+          disabled={!data || exportReport.isPending}
+          onClick={() => exportReport.mutate(semesterId)}
+        >
+          {exportReport.isPending ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <Download />
+          )}
+          Xuất Excel
+        </Button>
+      </div>
+
+      {error && (
+        <p className="text-sm text-destructive">Không tải được số liệu.</p>
+      )}
+
+      {isPending && (
+        <div className="flex justify-center py-16">
+          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        </div>
+      )}
+
+      {data && data.rounds.length === 0 && (
+        <div className="rounded-xl border">
+          <EmptyState
+            icon={ChartColumn}
+            title="Học kỳ này chưa mở đợt đăng ký nào, nên chưa có gì để thống kê."
+          />
+        </div>
+      )}
+
+      {data && data.rounds.length > 0 && (
+        <>
+          <Section title="Đợt đăng ký">
+            <RegistrationTable rows={data.rounds} />
+          </Section>
+
+          {/*
+            Side by side on a wide screen. They answer the same question from two
+            sides — how the term is spread — and a reader comparing "thầy nào
+            nhiều nhất" with "ngành nào đông nhất" wants them in front of each
+            other rather than one below the fold.
+          */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Section title="Giảng viên hướng dẫn">
+              <SupervisionTable rows={data.supervision} />
+            </Section>
+            <Section title="Chuyên ngành">
+              <MajorTable rows={data.majors} />
+            </Section>
+          </div>
+
+          <Section title="Tiến độ nộp bài">
+            <ProgressTable rows={data.progress} />
+          </Section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-2.5">
+      <h2 className="font-heading text-sm font-semibold tracking-tight">
+        {title}
+      </h2>
+      <div className="overflow-x-auto rounded-xl border">{children}</div>
+    </section>
+  );
+}
+
+/** One row per đợt: who it covered, and how they got their topic. */
+function RegistrationTable({ rows }: { rows: RoundReportRow[] }) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Đợt</TableHead>
+          <TableHead className="text-right">Thuộc diện</TableHead>
+          <TableHead className="text-right">Có nhóm</TableHead>
+          <TableHead className="text-right">Chưa có</TableHead>
+          <TableHead className="w-52">Tự đăng ký / khoa xếp</TableHead>
+          <TableHead className="text-right">Đề tài</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow key={row.roundId}>
+            <TableCell>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">{row.projectType.name}</span>
+                <StatusPill {...PHASE[row.phase]} />
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Khóa {row.cohorts.join(', ')}
+              </p>
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.eligible}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.withGroup}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.withoutGroup > 0 ? (
+                <span className="text-status-danger">{row.withoutGroup}</span>
+              ) : (
+                row.withoutGroup
+              )}
+            </TableCell>
+            <TableCell>
+              <SplitBar self={row.selfRegistered} assigned={row.assigned} />
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.topicsUnderway}/{row.topics}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+/**
+ * How many students chose their own topic against how many the office placed.
+ *
+ * The one figure on this page that reads better as a shape than as a number:
+ * whether free registration is working is a proportion, and a person takes a
+ * proportion in at a glance from a bar and not from two integers.
+ */
+function SplitBar({ self, assigned }: { self: number; assigned: number }) {
+  const total = self + assigned;
+
+  if (total === 0) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs tabular-nums">
+        {self} tự chọn
+        {assigned > 0 && (
+          <span className="text-muted-foreground"> · {assigned} khoa xếp</span>
+        )}
+      </p>
+      <div
+        className="flex h-1.5 overflow-hidden rounded-full bg-muted"
+        role="img"
+        aria-label={`${self} sinh viên tự đăng ký, ${assigned} sinh viên do khoa xếp`}
+      >
+        <div
+          className="bg-status-success"
+          style={{ width: `${(self / total) * 100}%` }}
+        />
+        <div
+          className="bg-status-waiting"
+          style={{ width: `${(assigned / total) * 100}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
+/** Only lecturers carrying something; a directory of the rest is another screen. */
+function SupervisionTable({ rows }: { rows: SupervisionRow[] }) {
+  if (rows.length === 0) {
+    return (
+      <p className="px-4 py-6 text-sm text-muted-foreground">
+        Chưa có nhóm nào nhận đề tài trong học kỳ này.
+      </p>
+    );
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Giảng viên</TableHead>
+          <TableHead className="text-right">Nhóm</TableHead>
+          <TableHead className="text-right">Sinh viên</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow key={row.lecturerId}>
+            <TableCell className="font-medium">
+              {row.academicTitle
+                ? `${row.academicTitle} ${row.fullName}`
+                : row.fullName}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.groups}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.students}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+function MajorTable({ rows }: { rows: MajorReportRow[] }) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Chuyên ngành</TableHead>
+          <TableHead className="text-right">Sinh viên</TableHead>
+          <TableHead className="text-right">Có nhóm</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow key={row.majorId}>
+            <TableCell className="font-medium">{row.name}</TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.students}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.withGroup}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+/** Only the newest version of each report counts — see the API. */
+function ProgressTable({ rows }: { rows: ProgressRow[] }) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Đợt</TableHead>
+          <TableHead className="text-right">Nhóm</TableHead>
+          <TableHead className="text-right">Nộp giữa kỳ</TableHead>
+          <TableHead className="text-right">Nộp cuối kỳ</TableHead>
+          <TableHead className="text-right">Chờ nhận xét</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((row) => (
+          <TableRow key={row.roundId}>
+            <TableCell className="font-medium">
+              {row.projectType.name}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.groups}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.midtermSubmitted}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.finalSubmitted}
+            </TableCell>
+            <TableCell className="text-right tabular-nums">
+              {row.awaitingFeedback > 0 ? (
+                <span className="text-status-active">
+                  {row.awaitingFeedback}
+                </span>
+              ) : (
+                row.awaitingFeedback
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}

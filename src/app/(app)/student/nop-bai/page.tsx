@@ -10,7 +10,9 @@ import type { SubmissionType } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
+import { PageWithRail } from '@/components/page-with-rail';
 import { SUBMISSION_LABEL, SubmissionCard } from '@/components/submission-card';
+import { SubmissionDeadlines } from '@/components/submission-deadlines';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -60,7 +62,7 @@ export default function StudentSubmissionsPage() {
   // simply has no work to submit, and the way out is the other screen.
   if (!group) {
     return (
-      <div className="max-w-2xl rounded-xl border">
+      <div className="mx-auto max-w-2xl rounded-xl border">
         <EmptyState
           icon={Users}
           title="Bạn chưa có đề tài nào, nên chưa nộp bài được."
@@ -77,16 +79,36 @@ export default function StudentSubmissionsPage() {
   const submissions = data?.items ?? [];
 
   return (
-    <div className="max-w-2xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{group.topic.title}</p>
-          <p className="text-xs text-muted-foreground">
-            {group.topic.lecturer.academicTitle
-              ? `${group.topic.lecturer.academicTitle} ${group.topic.lecturer.fullName}`
-              : group.topic.lecturer.fullName}
-          </p>
-        </div>
+    /*
+      The history is the reading column and the rail is the context it is read
+      against. Which topic and what is due are the two things a group checks
+      before deciding whether to hand something in, and they were competing with
+      the history for the top of the page — while half the screen sat empty
+      beside it.
+    */
+    <PageWithRail
+      rail={
+        <>
+          <section className="rounded-xl border bg-card p-4">
+            <p className="text-sm font-medium">{group.topic.title}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {group.topic.lecturer.academicTitle
+                ? `${group.topic.lecturer.academicTitle} ${group.topic.lecturer.fullName}`
+                : group.topic.lecturer.fullName}
+            </p>
+          </section>
+
+          <SubmissionDeadlines
+            deadlines={group.deadlines}
+            submissions={submissions}
+          />
+        </>
+      }
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-heading text-sm font-semibold tracking-tight">
+          Đã nộp
+        </h2>
         <Button onClick={() => setSubmitting(true)}>
           <Upload />
           Nộp bài
@@ -131,7 +153,7 @@ export default function StudentSubmissionsPage() {
       </ul>
 
       {submitting && <SubmitDialog onClose={() => setSubmitting(false)} />}
-    </div>
+    </PageWithRail>
   );
 }
 

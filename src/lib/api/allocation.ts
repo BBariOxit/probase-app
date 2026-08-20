@@ -94,6 +94,30 @@ export interface FinalizeInput {
   reason?: string;
 }
 
+/**
+ * Taking a settled round back to the desk.
+ *
+ * The mirror of finalising and invalidates the same things, which is why it
+ * lives beside it rather than with the other round endpoints: what changes is
+ * the desk, and the topics whose status went back on offer with it.
+ */
+export function useUnlockRound() {
+  const invalidate = useInvalidateAllocation();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ roundId, reason }: { roundId: number; reason: string }) =>
+      api<{ id: number }>(`/rounds/${roundId}/unlock`, {
+        method: 'POST',
+        body: { reason },
+      }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['rounds'] });
+      await invalidate();
+    },
+  });
+}
+
 export function useFinalizeRound() {
   const invalidate = useInvalidateAllocation();
   const queryClient = useQueryClient();

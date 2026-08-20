@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { BookOpen, Inbox, Loader2, MessageSquareText } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useSubmissionFeedback, useSubmissions } from '@/lib/api/submissions';
+import { useTopics } from '@/lib/api/topics';
 import type { Submission, SubmissionType } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
+import { PageWithRail } from '@/components/page-with-rail';
 import { PaginationBar } from '@/components/pagination-bar';
 import { SUBMISSION_LABEL, SubmissionCard } from '@/components/submission-card';
 import { Button } from '@/components/ui/button';
@@ -51,10 +54,12 @@ export default function LecturerSubmissionsPage() {
   const allowed = useRequireRole('LECTURER');
   const [page, setPage] = useState(1);
   const [type, setType] = useState<SubmissionType | 'ALL'>('ALL');
+  const [topicId, setTopicId] = useState<number | undefined>(undefined);
   const [answering, setAnswering] = useState<Submission | null>(null);
 
   const { data, isPending, error } = useSubmissions({
     submissionType: type === 'ALL' ? undefined : type,
+    topicId,
     page,
     limit: PAGE_SIZE,
   });
@@ -64,35 +69,53 @@ export default function LecturerSubmissionsPage() {
   const submissions = data?.items ?? [];
 
   return (
-    <div className="max-w-3xl space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <Select
-          value={type}
-          onValueChange={(value) => {
-            setType(value as SubmissionType | 'ALL');
-            // The page number belongs to the old filter; keeping it lands the
-            // reader on an empty page of a shorter list.
-            setPage(1);
-          }}
-        >
-          <SelectTrigger className="w-52" aria-label="Lọc theo loại bài nộp">
-            <SelectValue>
-              {(value) =>
-                FILTERS.find((option) => option.value === value)?.label
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {FILTERS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    <PageWithRail
+      rail={
+        <>
+          <Select
+            value={type}
+            onValueChange={(value) => {
+              setType(value as SubmissionType | 'ALL');
+              // The page number belongs to the old filter; keeping it lands the
+              // reader on an empty page of a shorter list.
+              setPage(1);
+            }}
+          >
+            <SelectTrigger
+              className="w-full"
+              aria-label="Lọc theo loại bài nộp"
+            >
+              <SelectValue>
+                {(value) =>
+                  FILTERS.find((option) => option.value === value)?.label
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {FILTERS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
+          <TopicFilter
+            selected={topicId}
+            onSelect={(next) => {
+              setTopicId(next);
+              setPage(1);
+            }}
+          />
+        </>
+      }
+    >
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="font-heading text-sm font-semibold tracking-tight">
+          Bài nộp
+        </h2>
         {data && (
-          <span className="ml-auto text-sm text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {data.total} bài nộp
           </span>
         )}
@@ -169,7 +192,56 @@ export default function LecturerSubmissionsPage() {
           onClose={() => setAnswering(null)}
         />
       )}
-    </div>
+    </PageWithRail>
+  );
+}
+
+/**
+ * The lecturer's own topics, as a way to narrow the queue to one of them.
+ *
+ * A supervisor with five topics reads this screen one topic at a time — they sit
+ * down to answer everything for one group, not to work through twenty
+ * submissions in the order they happened to arrive. The filter travels to the
+ * API rather than being applied to the page already loaded, so page two of a
+ * narrowed list is page two of that list.
+ *
+ * Nothing is drawn while they have only one topic: a filter offering a single
+ * choice is a control that cannot change anything.
+ */
+function TopicFilter({
+  selected,
+  onSelect,
+}: {
+  selected: number | undefined;
+  onSelect: (topicId: number | undefined) => void;
+}) {
+  const { data } = useTopics({ mine: true, limit: 50 });
+  const topics = data?.items ?? [];
+
+  if (topics.length < 2) return null;
+
+  return (
+    <section className="rounded-xl border bg-card p-2">
+      <h3 className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+        Đề tài của tôi
+      </h3>
+      <ul>
+        {[{ id: undefined, title: 'Tất cả đề tài' }, ...topics].map((topic) => (
+          <li key={topic.id ?? 'all'}>
+            <button
+              type="button"
+              onClick={() => onSelect(topic.id)}
+              className={cn(
+                'w-full rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+                topic.id === selected && 'bg-muted font-medium',
+              )}
+            >
+              <span className="line-clamp-2">{topic.title}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
