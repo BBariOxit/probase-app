@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { CircleHelp, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import type { CatalogueInput } from '@/lib/api/master-data';
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -18,6 +18,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   Table,
   TableBody,
@@ -46,6 +51,7 @@ export interface CatalogueItem {
  */
 export function CatalogueManager<T extends CatalogueItem>({
   icon,
+  title,
   noun,
   codeHint,
   items,
@@ -57,8 +63,11 @@ export function CatalogueManager<T extends CatalogueItem>({
   onDelete,
 }: {
   icon: LucideIcon;
+  /** The heading over this block — both catalogues share one screen. */
+  title: string;
   /** Lower case, used mid-sentence: "Thêm chuyên ngành", "Xoá loại đồ án?" */
   noun: string;
+  /** What the code is for, shown on demand rather than printed above the table. */
   codeHint: string;
   items: T[] | undefined;
   isPending: boolean;
@@ -77,13 +86,14 @@ export function CatalogueManager<T extends CatalogueItem>({
   const [deleting, setDeleting] = useState<T | null>(null);
 
   return (
-    <div className="max-w-3xl space-y-4">
+    /* No width of its own: two of these share a screen, and how much room each
+       gets is the page's decision rather than the block's. */
+    <section className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Mã dùng để đối chiếu khi nhập danh sách, nên đặt ngắn và không đổi về
-          sau.
-        </p>
-        <Button onClick={() => setEditing('new')}>
+        <h2 className="font-heading text-sm font-semibold tracking-tight">
+          {title}
+        </h2>
+        <Button size="sm" onClick={() => setEditing('new')}>
           <Plus />
           Thêm {noun}
         </Button>
@@ -98,10 +108,40 @@ export function CatalogueManager<T extends CatalogueItem>({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="min-w-56">Tên</TableHead>
-                <TableHead className="w-32">Mã</TableHead>
-                <TableHead className="w-40">Đang dùng</TableHead>
-                <TableHead className="w-24" />
+                <TableHead className="min-w-48">Tên</TableHead>
+                <TableHead className="w-28">
+                  {/*
+                    What the code is for used to be a line of grey text above
+                    the table, permanently, for everyone who had already read
+                    it. It belongs to this column and to the moment somebody
+                    wonders about it.
+                  */}
+                  <span className="inline-flex items-center gap-1">
+                    Mã
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <button
+                            type="button"
+                            aria-label={`Mã ${noun} dùng để làm gì?`}
+                            className="rounded-full text-muted-foreground/70 transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                          />
+                        }
+                      >
+                        <CircleHelp className="size-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="top"
+                        className="max-w-xs text-pretty"
+                      >
+                        {codeHint} Dùng để đối chiếu khi nhập danh sách, nên đặt
+                        ngắn và không đổi về sau.
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                </TableHead>
+                <TableHead className="w-32">Đang dùng</TableHead>
+                <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,7 +238,7 @@ export function CatalogueManager<T extends CatalogueItem>({
         confirmLabel="Xoá"
         onConfirm={() => onDelete(deleting!.id)}
       />
-    </div>
+    </section>
   );
 }
 

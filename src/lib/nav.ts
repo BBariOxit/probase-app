@@ -169,15 +169,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: CalendarRange,
           ready: true,
         },
+        // One destination for both flat lists. They were a page each and each
+        // page was a six-row table holding a third of a monitor, while the
+        // office declares both in the same sitting at the start of a term.
         {
-          href: '/admin/chuyen-nganh',
-          label: 'Chuyên ngành',
-          icon: GraduationCap,
-          ready: true,
-        },
-        {
-          href: '/admin/loai-do-an',
-          label: 'Loại đồ án',
+          href: '/admin/danh-muc',
+          label: 'Ngành & loại đồ án',
           icon: Layers,
           ready: true,
         },
