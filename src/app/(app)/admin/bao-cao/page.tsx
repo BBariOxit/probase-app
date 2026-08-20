@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { ChartColumn, Download, Loader2 } from 'lucide-react';
 import { useSemesters } from '@/lib/api/master-data';
 import { useExportReport, useFacultyReport } from '@/lib/api/reports';
@@ -29,6 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
+const dueFormat = new Intl.DateTimeFormat('vi-VN', {
+  day: '2-digit',
+  month: '2-digit',
+});
 
 const PHASE: Record<string, { label: string; tone: StatusTone }> = {
   PREP: { label: 'Chưa mở', tone: 'waiting' },
@@ -326,44 +331,82 @@ function MajorTable({ rows }: { rows: MajorReportRow[] }) {
   );
 }
 
-/** Only the newest version of each report counts — see the API. */
+/**
+ * A row per đợt, then a row per document under it.
+ *
+ * The list is the faculty's to declare and its length differs between rounds, so
+ * a column per document would be a table that changes shape every term. Reading
+ * down the indented rows is reading which document a round is actually stuck on,
+ * which the round's own total cannot say.
+ *
+ * Every count uses the newest version each group handed in — see the API.
+ */
 function ProgressTable({ rows }: { rows: ProgressRow[] }) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Đợt</TableHead>
+          <TableHead>Đợt · mục phải nộp</TableHead>
+          <TableHead className="text-right">Hạn</TableHead>
           <TableHead className="text-right">Nhóm</TableHead>
-          <TableHead className="text-right">Nộp giữa kỳ</TableHead>
-          <TableHead className="text-right">Nộp cuối kỳ</TableHead>
+          <TableHead className="text-right">Đã nộp</TableHead>
           <TableHead className="text-right">Chờ nhận xét</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map((row) => (
-          <TableRow key={row.roundId}>
-            <TableCell className="font-medium">
-              {row.projectType.name}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-              {row.groups}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-              {row.midtermSubmitted}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-              {row.finalSubmitted}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-              {row.awaitingFeedback > 0 ? (
-                <span className="text-status-active">
-                  {row.awaitingFeedback}
+          <Fragment key={row.roundId}>
+            <TableRow>
+              <TableCell className="font-medium">
+                {row.projectType.name}
+                <span className="ml-2 text-xs font-normal text-muted-foreground">
+                  {row.required > 0
+                    ? `nộp đủ ${row.required} mục bắt buộc`
+                    : 'chưa khai mục nào'}
                 </span>
-              ) : (
-                row.awaitingFeedback
-              )}
-            </TableCell>
-          </TableRow>
+              </TableCell>
+              <TableCell />
+              <TableCell className="text-right tabular-nums">
+                {row.groups}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {row.required > 0 ? row.complete : '—'}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {row.awaitingFeedback > 0 ? (
+                  <span className="text-status-active">
+                    {row.awaitingFeedback}
+                  </span>
+                ) : (
+                  row.awaitingFeedback
+                )}
+              </TableCell>
+            </TableRow>
+
+            {row.items.map((item) => (
+              <TableRow
+                key={item.requirementId}
+                className="text-muted-foreground"
+              >
+                <TableCell className="pl-8">
+                  {item.name}
+                  {!item.isRequired && (
+                    <span className="ml-1.5 text-xs">tuỳ chọn</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-right text-xs tabular-nums">
+                  {dueFormat.format(new Date(item.dueAt))}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {row.groups}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {item.submitted}
+                </TableCell>
+                <TableCell />
+              </TableRow>
+            ))}
+          </Fragment>
         ))}
       </TableBody>
     </Table>

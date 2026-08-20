@@ -5,14 +5,14 @@ import { BookOpen, Inbox, Loader2, MessageSquareText } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useSubmissionFeedback, useSubmissions } from '@/lib/api/submissions';
 import { useTopics } from '@/lib/api/topics';
-import type { Submission, SubmissionType } from '@/lib/api/types';
+import type { Submission } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/empty-state';
 import { FormError } from '@/components/form-error';
 import { PageWithRail } from '@/components/page-with-rail';
 import { PaginationBar } from '@/components/pagination-bar';
-import { SUBMISSION_LABEL, SubmissionCard } from '@/components/submission-card';
+import { SubmissionCard } from '@/components/submission-card';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -23,23 +23,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
 const PAGE_SIZE = 10;
-
-const FILTERS: { value: SubmissionType | 'ALL'; label: string }[] = [
-  { value: 'ALL', label: 'Mọi loại bài nộp' },
-  { value: 'MIDTERM', label: SUBMISSION_LABEL.MIDTERM },
-  { value: 'FINAL', label: SUBMISSION_LABEL.FINAL },
-  { value: 'SOURCE_CODE', label: SUBMISSION_LABEL.SOURCE_CODE },
-];
 
 /**
  * Everything handed in on this lecturer's topics, newest first.
@@ -53,12 +39,10 @@ const FILTERS: { value: SubmissionType | 'ALL'; label: string }[] = [
 export default function LecturerSubmissionsPage() {
   const allowed = useRequireRole('LECTURER');
   const [page, setPage] = useState(1);
-  const [type, setType] = useState<SubmissionType | 'ALL'>('ALL');
   const [topicId, setTopicId] = useState<number | undefined>(undefined);
   const [answering, setAnswering] = useState<Submission | null>(null);
 
   const { data, isPending, error } = useSubmissions({
-    submissionType: type === 'ALL' ? undefined : type,
     topicId,
     page,
     limit: PAGE_SIZE,
@@ -72,34 +56,6 @@ export default function LecturerSubmissionsPage() {
     <PageWithRail
       rail={
         <>
-          <Select
-            value={type}
-            onValueChange={(value) => {
-              setType(value as SubmissionType | 'ALL');
-              // The page number belongs to the old filter; keeping it lands the
-              // reader on an empty page of a shorter list.
-              setPage(1);
-            }}
-          >
-            <SelectTrigger
-              className="w-full"
-              aria-label="Lọc theo loại bài nộp"
-            >
-              <SelectValue>
-                {(value) =>
-                  FILTERS.find((option) => option.value === value)?.label
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {FILTERS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <TopicFilter
             selected={topicId}
             onSelect={(next) => {
@@ -136,9 +92,9 @@ export default function LecturerSubmissionsPage() {
           <EmptyState
             icon={Inbox}
             title={
-              type === 'ALL'
+              topicId === undefined
                 ? 'Chưa nhóm nào nộp bài cho đề tài của bạn.'
-                : 'Chưa có bài nộp nào thuộc loại này.'
+                : 'Đề tài này chưa có bài nộp nào.'
             }
           />
         </div>
@@ -285,7 +241,7 @@ function FeedbackDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Nhận xét {SUBMISSION_LABEL[submission.submissionType].toLowerCase()}
+            Nhận xét {submission.requirement.name.toLowerCase()}
           </DialogTitle>
           <DialogDescription>
             {submission.group.topic.title} · lần {submission.version}

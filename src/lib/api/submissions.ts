@@ -2,10 +2,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
-import type { Paginated, Submission, SubmissionType } from '@/lib/api/types';
+import type { Paginated, Submission } from '@/lib/api/types';
 
 export interface SubmissionQuery {
-  submissionType?: SubmissionType;
+  /** One of the round's declared documents. */
+  requirementId?: number;
   /** Staff only. A student's own group comes from their token, never from here. */
   groupId?: number;
   topicId?: number;
@@ -52,7 +53,8 @@ function useInvalidateSubmissions() {
 }
 
 export interface SubmissionInput {
-  submissionType: SubmissionType;
+  /** Which of the round's declared documents this is an attempt at. */
+  requirementId: number;
   /** At least one of these; the API refuses a submission carrying neither. */
   submissionUrl?: string;
   file?: File | null;
@@ -71,7 +73,7 @@ export function useCreateSubmission() {
   return useMutation({
     mutationFn: (input: SubmissionInput) => {
       const body = new FormData();
-      body.append('submissionType', input.submissionType);
+      body.append('requirementId', String(input.requirementId));
       if (input.submissionUrl)
         body.append('submissionUrl', input.submissionUrl);
       if (input.file) body.append('file', input.file);
