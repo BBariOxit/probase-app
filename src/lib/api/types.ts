@@ -642,11 +642,18 @@ export interface UsersPage {
  * which is exactly the field that once leaked to the student themselves through
  * `/auth/me`. It belongs here, where the office edits it, and nowhere a student
  * can read.
+ *
+ * `avatarUrl` and `mustChangePassword` are absent from the list shape
+ * (`UserAccount`) — serialising them across every row in the roster adds noise
+ * with no value. They appear here because the profile dialog needs the picture
+ * and must surface the first-login warning.
  */
 export interface UserDetail extends Omit<
   UserAccount,
   'studentProfile' | 'lecturerProfile'
 > {
+  avatarUrl: string | null;
+  mustChangePassword: boolean;
   studentProfile: StudentProfileDetail | null;
   lecturerProfile: LecturerProfileDetail | null;
 }

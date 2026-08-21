@@ -61,7 +61,13 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           icon: FileUp,
           ready: true,
         },
-        { href: '/student/ket-qua', label: 'Kết quả', icon: GraduationCap },
+        {
+          href: '/giang-vien',
+          label: 'Giảng viên',
+          icon: GraduationCap,
+          ready: true,
+        },
+        { href: '/student/ket-qua', label: 'Kết quả', icon: ClipboardPen },
       ],
     },
   ],
@@ -95,6 +101,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           href: '/lecturer/bao-cao',
           label: 'Báo cáo & nhận xét',
           icon: MessageSquareText,
+          ready: true,
+        },
+        {
+          href: '/giang-vien',
+          label: 'Giảng viên',
+          icon: GraduationCap,
           ready: true,
         },
         { href: '/lecturer/cham-diem', label: 'Chấm điểm', icon: ClipboardPen },
@@ -218,7 +230,10 @@ const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   // different pages answering to the same word is how a support question
   // becomes unanswerable.
   { prefix: '/ca-nhan', label: 'Trang cá nhân' },
-  { prefix: '/giang-vien/', label: 'Giảng viên' },
+  // The directory itself and any profile within it share the same heading:
+  // "/giang-vien" (the list) and "/giang-vien/42" (one person) both say
+  // "Giảng viên" because the sub-page is the person, not a new section.
+  { prefix: '/giang-vien', label: 'Giảng viên' },
 ];
 
 /**
