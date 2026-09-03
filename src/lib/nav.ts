@@ -92,6 +92,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           ready: true,
         },
         {
+          href: '/lecturer/nhom',
+          label: 'Nhóm hướng dẫn',
+          icon: Users,
+          ready: true,
+        },
+        {
           href: '/lecturer/de-xuat',
           label: 'Đề xuất từ SV',
           icon: Lightbulb,
