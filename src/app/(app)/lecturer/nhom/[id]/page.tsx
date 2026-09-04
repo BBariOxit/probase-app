@@ -2,18 +2,12 @@
 
 import { use } from 'react';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  BookOpen,
-  FileText,
-  Loader2,
-  MessageSquareText,
-  Users,
-} from 'lucide-react';
+import { BookOpen, FileText, Loader2, MessageSquareText } from 'lucide-react';
 import { useGroup } from '@/lib/api/registration';
 import { useSubmissions, useSubmissionFeedback } from '@/lib/api/submissions';
 import type { Submission } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { cn } from '@/lib/utils';
 import { ApiError } from '@/lib/api/client';
 import { EmptyState } from '@/components/empty-state';
@@ -58,10 +52,14 @@ export default function LecturerGroupDetailPage({
   const [answering, setAnswering] = useState<Submission | null>(null);
 
   const { data: group, isPending, error } = useGroup(groupId);
-  const {
-    data: submissionsData,
-    isPending: subPending,
-  } = useSubmissions({ groupId, limit: 50 });
+
+  // Inject the topic title so the header breadcrumb reads
+  // "Nhóm hướng dẫn › [Tên đề tài]" instead of "Nhóm hướng dẫn › 42".
+  useBreadcrumbLabel(id, group?.topic.title);
+  const { data: submissionsData, isPending: subPending } = useSubmissions({
+    groupId,
+    limit: 50,
+  });
 
   if (!allowed) return null;
 
@@ -74,9 +72,7 @@ export default function LecturerGroupDetailPage({
   }
 
   if (error || !group) {
-    return (
-      <p className="text-sm text-destructive">Không tìm thấy nhóm này.</p>
-    );
+    return <p className="text-sm text-destructive">Không tìm thấy nhóm này.</p>;
   }
 
   const submissions = submissionsData?.items ?? [];
@@ -87,9 +83,7 @@ export default function LecturerGroupDetailPage({
         <>
           {/* Topic brief */}
           <section className="space-y-1 rounded-xl border bg-card p-4">
-            <p className="text-xs font-medium text-muted-foreground">
-              Đề tài
-            </p>
+            <p className="text-xs font-medium text-muted-foreground">Đề tài</p>
             <p className="text-sm font-medium">{group.topic.title}</p>
             <p className="text-xs text-muted-foreground">
               {group.topic.projectType.name}
@@ -113,17 +107,6 @@ export default function LecturerGroupDetailPage({
         </>
       }
     >
-      {/* Back link */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2 text-muted-foreground"
-        render={<Link href="/lecturer/nhom" />}
-      >
-        <ArrowLeft />
-        Nhóm hướng dẫn
-      </Button>
-
       {/* Members table */}
       <section className="space-y-3">
         <h2 className="font-heading text-sm font-semibold tracking-tight">
@@ -220,10 +203,7 @@ export default function LecturerGroupDetailPage({
 
         {!subPending && submissions.length === 0 && (
           <div className="rounded-xl border">
-            <EmptyState
-              icon={FileText}
-              title="Nhóm này chưa nộp bài nào."
-            />
+            <EmptyState icon={FileText} title="Nhóm này chưa nộp bài nào." />
           </div>
         )}
 

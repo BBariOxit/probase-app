@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { api } from '@/lib/api/client';
 import { nextParam } from '@/lib/auth/next-path';
 import { useSession } from '@/lib/auth/session';
+import { BreadcrumbProvider } from '@/lib/breadcrumb-context';
 import { AppHeader } from '@/components/app-header';
 import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -69,14 +70,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <SidebarProvider defaultOpen={defaultOpen}>
-      <AppSidebar user={user} />
-      <SidebarInset>
-        <AppHeader user={user} onSignOut={handleSignOut} />
-        {/* min-w-0 so a wide table scrolls inside the panel instead of pushing
-            the page sideways. */}
-        <div className="min-w-0 flex-1 p-4 md:p-6">{children}</div>
-      </SidebarInset>
-    </SidebarProvider>
+    <BreadcrumbProvider>
+      <SidebarProvider defaultOpen={defaultOpen}>
+        <AppSidebar user={user} />
+        <SidebarInset>
+          <AppHeader user={user} onSignOut={handleSignOut} />
+          {/* min-w-0 so a wide table scrolls inside the panel instead of pushing
+              the page sideways. */}
+          <div className="min-w-0 flex-1 p-4 md:p-6">{children}</div>
+        </SidebarInset>
+      </SidebarProvider>
+    </BreadcrumbProvider>
   );
 }
