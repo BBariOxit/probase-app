@@ -1,13 +1,12 @@
 'use client';
 
 import { use } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useProposal, useUpdateProposal } from '@/lib/api/proposals';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { ProposalForm } from '@/components/proposal-form';
-import { Button } from '@/components/ui/button';
 
 /**
  * Your own words, while nobody has answered them yet.
@@ -29,20 +28,13 @@ export default function EditProposalPage({
   const { data: proposal, isPending, error } = useProposal(Number(id));
   const update = useUpdateProposal();
 
+  // Swap the raw ID for the proposal title in the breadcrumb.
+  useBreadcrumbLabel(id, proposal?.title);
+
   if (!allowed) return null;
 
   return (
     <div className="space-y-5">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2 text-muted-foreground"
-        render={<Link href="/student/de-xuat" />}
-      >
-        <ArrowLeft />
-        Đề xuất của tôi
-      </Button>
-
       {isPending ? (
         <div className="flex justify-center py-16">
           <Loader2 className="size-5 animate-spin text-muted-foreground" />

@@ -1,11 +1,11 @@
 'use client';
 
 import { use } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Check, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { useTopic, useTopicTransition } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { TopicDetailView } from '@/components/topic-detail-view';
 import { Button } from '@/components/ui/button';
 
@@ -19,6 +19,9 @@ export default function AdminTopicDetailPage({
   const router = useRouter();
   const { data: topic, isPending, error } = useTopic(Number(id));
   const transition = useTopicTransition();
+
+  // Swap the raw ID in the breadcrumb for the topic title once it loads.
+  useBreadcrumbLabel(id, topic?.title);
 
   if (!allowed) return null;
 
@@ -42,16 +45,6 @@ export default function AdminTopicDetailPage({
 
   return (
     <div className="space-y-5">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2 text-muted-foreground"
-        render={<Link href="/admin" />}
-      >
-        <ArrowLeft />
-        Hàng chờ duyệt
-      </Button>
-
       <TopicDetailView
         topic={topic}
         actions={
