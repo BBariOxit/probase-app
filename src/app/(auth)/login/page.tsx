@@ -91,12 +91,17 @@ function LoginForm() {
   }
 
   return (
-    <Card className="px-6 py-7">
-      <h1 className="font-heading text-xl font-semibold tracking-tight">
-        Đăng nhập
-      </h1>
+    <Card className="px-6 py-8 border-none shadow-lg">
+      <div className="mb-6 space-y-1.5 text-center">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
+          Chào mừng trở lại
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Đăng nhập vào hệ thống quản lý đồ án
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <FormError message={formError} />
 
         <div className="space-y-2">

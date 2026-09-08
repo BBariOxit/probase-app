@@ -33,8 +33,6 @@ function ResetPasswordForm() {
   const router = useRouter();
   const token = useSearchParams().get('token') ?? '';
 
-  // A missing token needs no round trip, so it is decided during render rather
-  // than by an effect that would set state on its first pass.
   const [linkState, setLinkState] = useState<LinkState>(
     token ? 'checking' : 'invalid',
   );
@@ -51,8 +49,6 @@ function ResetPasswordForm() {
     reValidateMode: 'onChange',
   });
 
-  // Ask before showing the form. Letting someone type a password twice and
-  // only then telling them the link died is the whole reason this check exists.
   useEffect(() => {
     if (!token) return;
 
@@ -95,9 +91,9 @@ function ResetPasswordForm() {
 
   if (linkState === 'invalid') {
     return (
-      <Card className="px-6 py-7">
-        <div className="space-y-1.5">
-          <h1 className="font-heading text-xl font-semibold tracking-tight">
+      <Card className="px-6 py-8 border-none shadow-lg">
+        <div className="mb-6 space-y-1.5 text-center">
+          <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
             Liên kết không còn hiệu lực
           </h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
@@ -105,36 +101,47 @@ function ResetPasswordForm() {
             phút. Hãy yêu cầu một liên kết mới.
           </p>
         </div>
-        <Button onClick={() => router.push('/forgot-password')}>
+        <Button
+          onClick={() => router.push('/forgot-password')}
+          className="w-full"
+        >
           Gửi liên kết mới
         </Button>
-        <BackToLogin />
+        <div className="mt-5 flex justify-center">
+          <BackToLogin />
+        </div>
       </Card>
     );
   }
 
   if (done) {
     return (
-      <Card className="px-6 py-7">
-        <CheckCircle2 className="size-5 text-muted-foreground" />
-        <div className="space-y-1.5">
-          <h1 className="font-heading text-xl font-semibold tracking-tight">
-            Đã đổi mật khẩu
-          </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Mọi phiên đăng nhập cũ đã bị đăng xuất. Dùng mật khẩu mới để đăng
-            nhập lại.
-          </p>
+      <Card className="px-6 py-8 border-none shadow-lg">
+        <div className="mb-6 space-y-4 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <CheckCircle2 className="size-6 text-primary" />
+          </div>
+          <div className="space-y-1.5">
+            <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
+              Đã đổi mật khẩu
+            </h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Mọi phiên đăng nhập cũ đã bị đăng xuất. Dùng mật khẩu mới để đăng
+              nhập lại.
+            </p>
+          </div>
         </div>
-        <Button onClick={() => router.replace('/login')}>Đăng nhập</Button>
+        <Button onClick={() => router.replace('/login')} className="w-full">
+          Đăng nhập
+        </Button>
       </Card>
     );
   }
 
   return (
-    <Card className="px-6 py-7">
-      <div className="space-y-1.5">
-        <h1 className="font-heading text-xl font-semibold tracking-tight">
+    <Card className="px-6 py-8 border-none shadow-lg">
+      <div className="mb-6 space-y-1.5 text-center">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
           Đặt mật khẩu mới
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -142,7 +149,7 @@ function ResetPasswordForm() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <FormError message={formError} />
 
         <div className="space-y-2">
@@ -182,7 +189,9 @@ function ResetPasswordForm() {
         </Button>
       </form>
 
-      <BackToLogin />
+      <div className="mt-5 flex justify-center">
+        <BackToLogin />
+      </div>
     </Card>
   );
 }
@@ -200,8 +209,6 @@ function BackToLogin() {
 }
 
 export default function ResetPasswordPage() {
-  // useSearchParams needs a Suspense boundary, or the whole route opts out of
-  // static rendering at build time.
   return (
     <Suspense
       fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/50" />}
