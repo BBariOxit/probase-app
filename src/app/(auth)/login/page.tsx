@@ -19,9 +19,6 @@ import { FormError } from '@/components/form-error';
 import { PasswordInput } from '@/components/password-input';
 
 const LoginSchema = z.object({
-  // Empty and malformed are different mistakes and deserve different words —
-  // z.email() alone calls a blank field "không hợp lệ", which reads as an
-  // accusation about something the user has not typed yet.
   email: z
     .string()
     .min(1, 'Vui lòng nhập email')
@@ -31,11 +28,6 @@ const LoginSchema = z.object({
 
 type LoginValues = z.infer<typeof LoginSchema>;
 
-/**
- * The form reads `?next`, which Next cannot know at build time — so the page is
- * the Suspense boundary and the form is what waits behind it. Without one the
- * whole route refuses to prerender.
- */
 export default function LoginPage() {
   return (
     <Suspense fallback={<Card className="h-72 px-6 py-7" />}>
@@ -50,11 +42,8 @@ function LoginForm() {
   const { status, user, signIn } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
 
-  // Where they were headed before the session ran out or the link was followed.
-  // Validated rather than trusted: an unchecked value here is an open redirect.
   const next = safeNextPath(searchParams.get('next'));
 
-  /** A temporary password overrides everything, including where they were going. */
   function destinationFor(signedIn: {
     mustChangePassword: boolean;
     role: Role;
@@ -69,18 +58,13 @@ function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginValues>({
     resolver: zodResolver(LoginSchema),
-    // Nothing is flagged until the user actually tries to sign in; after that
-    // each field clears as it is fixed. Validating on blur meant tabbing
-    // through an empty form lit it up red before any attempt was made.
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
 
-  // Someone already signed in has no business on this screen.
   useEffect(() => {
     if (status === 'authenticated' && user)
       router.replace(destinationFor(user));
-    // destinationFor closes over `next`, which is what actually varies here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, user, router, next]);
 
@@ -96,8 +80,6 @@ function LoginForm() {
       signIn(result, result.user);
       router.replace(destinationFor(result.user));
     } catch (err) {
-      // The API answers a wrong address and a wrong password identically, on
-      // purpose. Being more helpful here would confirm which emails exist.
       setFormError(
         err instanceof ApiError && err.status === 401
           ? 'Email hoặc mật khẩu không đúng'
@@ -136,10 +118,6 @@ function LoginForm() {
         <div className="space-y-2">
           <div className="flex items-baseline justify-between">
             <Label htmlFor="password">Mật khẩu</Label>
-            {/* Colour alone carries the hover state: an underline would be a
-                second signal for the same change, and at this size it sits
-                heavily against the label's baseline. The focus ring is what
-                actually helps keyboard users, which hover never did. */}
             <Link
               href="/forgot-password"
               className="rounded-sm text-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"

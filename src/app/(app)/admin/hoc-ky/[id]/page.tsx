@@ -25,14 +25,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-/**
- * The phases in which a round's dates are still a schedule.
- *
- * Past these, moving the closing date is not an edit but a reopening, and the
- * API sends it through Gia hạn instead — where it acquires an author and a
- * reason. So the inputs lock rather than letting somebody type a change that
- * comes back refused.
- */
 const SCHEDULE_EDITABLE = ['PREP', 'OPEN'];
 
 const PHASE: Record<string, { label: string; tone: StatusTone }> = {
@@ -54,15 +46,6 @@ function toDateInput(iso: string | null | undefined): string {
   return iso ? iso.slice(0, 10) : '';
 }
 
-/**
- * Which intake does which kind of project this term, and between which dates.
- *
- * One form for the whole semester rather than a page per round, because that is
- * how a faculty announces it — a single notice covering all three kinds of
- * project. It is also what the API takes: the plan is sent whole, and declaring
- * an intake is what creates a round, so there is no separate "create round" step
- * to forget.
- */
 export default function SemesterRoundsPage({
   params,
 }: {
@@ -114,12 +97,6 @@ export default function SemesterRoundsPage({
             rounds={rounds}
           />
 
-          {/*
-            Below the plan and not inside it, because declaring an intake is
-            what creates a round — while the form above is being filled in there
-            is no round for a document to belong to. So this lists the rounds
-            that already exist.
-          */}
           {rounds.length > 0 && (
             <section className="space-y-4 border-t pt-5">
               <h2 className="font-heading text-base font-semibold tracking-tight">
@@ -214,9 +191,6 @@ function PlanForm({
       await save.mutateAsync({ semesterId, rounds: plan });
       setSaved(true);
     } catch (err) {
-      // The refusals worth reading come from the API and name the round: a
-      // round already carrying topics cannot be removed, and a closed one
-      // cannot have its dates moved except through Gia hạn.
       setError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
       );
@@ -233,11 +207,6 @@ function PlanForm({
         </p>
       )}
 
-      {/*
-        Said once, above the list, rather than under each round. Three identical
-        sentences on one screen is three times the reading for the same fact, and
-        it teaches people that the small grey text is safe to skip.
-      */}
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <Info className="mt-0.5 size-3.5 shrink-0" />
         Khóa là năm nhập học gồm bốn chữ số — 2022, không phải K46. Nhiều khóa
@@ -338,7 +307,6 @@ function PlanForm({
   );
 }
 
-/** "2022, 2023" as the API wants it: four-digit intake years, at least one. */
 function parseCohorts(raw: string): { values: string[]; valid: boolean } {
   const values = raw
     .split(',')

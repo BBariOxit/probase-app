@@ -32,7 +32,6 @@ import {
 
 const PAGE_SIZE = 25;
 
-/** Sentinel for "no filter" — a Select needs a value, and 0 is never an id. */
 const ANY = 0;
 
 const GROUP_FILTERS = [
@@ -41,19 +40,6 @@ const GROUP_FILTERS = [
   { value: 'true', label: 'Đã có đề tài' },
 ];
 
-/**
- * Every student in the faculty, and what each of them is working on.
- *
- * The table the giáo vụ opens daily: who has a topic, who does not, who is under
- * which supervisor. It is the same question the allocation desk asks — that
- * screen is this list pinned to one đợt with "chưa có đề tài" set — and both are
- * built on one query, so the two can never disagree about whether a student
- * still needs placing.
- *
- * The presentation is deliberately not shared with the desk. This is nine
- * columns to read and filter; that is a click-to-select column with faces. One
- * component doing both would be worse than either.
- */
 export default function StudentRosterPage() {
   const allowed = useRequireRole('ADMIN');
   const semester = useActiveSemester();
@@ -95,7 +81,6 @@ export default function StudentRosterPage() {
     lecturerId !== ANY ||
     groupState !== 'ALL';
 
-  /** Every filter change invalidates the current page number. */
   function refilter(apply: () => void) {
     apply();
     setPage(1);
@@ -228,12 +213,6 @@ export default function StudentRosterPage() {
               {data.total} sinh viên
             </span>
           )}
-          {/*
-            Exports what the filters are showing rather than everything, because
-            the file is meant to be the answer to the question on screen — and an
-            office that filtered to one intake and got the whole faculty would
-            filter it again in Excel.
-          */}
           <Button
             variant="outline"
             disabled={exportRoster.isPending}
@@ -336,11 +315,6 @@ function StudentRow({ student }: { student: StudentRosterRow }) {
             </span>
           </>
         ) : (
-          /*
-            Coloured rather than left blank: this is the column the office scans,
-            and an empty cell reads as missing data where the whole point is that
-            it is a student still waiting to be placed.
-          */
           <StatusPill label="Chưa có đề tài" tone="waiting" />
         )}
       </TableCell>

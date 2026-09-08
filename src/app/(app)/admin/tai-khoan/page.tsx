@@ -86,7 +86,6 @@ const STATUS_FILTERS = [
   { value: 'false', label: 'Đã khoá' },
 ];
 
-/** The name a row is known by, or the address when there is no profile. */
 function nameOf(user: UserAccount): string {
   return (
     user.studentProfile?.fullName ??
@@ -95,7 +94,6 @@ function nameOf(user: UserAccount): string {
   );
 }
 
-/** The faculty code, which is what people actually search for. */
 function codeOf(user: UserAccount): string | null {
   return (
     user.studentProfile?.studentCode ??
@@ -104,14 +102,6 @@ function codeOf(user: UserAccount): string | null {
   );
 }
 
-/**
- * Every account in the system.
- *
- * Nothing here ever shows a password. Creating an account and resetting one both
- * generate a temporary credential that is emailed and never returned — so the
- * one failure mode worth knowing about is an account whose email did not arrive,
- * which is what "Cấp lại mật khẩu" exists to fix.
- */
 export default function AccountsPage() {
   const allowed = useRequireRole('ADMIN');
   const [page, setPage] = useState(1);
@@ -145,7 +135,6 @@ export default function AccountsPage() {
   const filtering =
     debouncedSearch !== '' || role !== 'ALL' || status !== 'ALL';
 
-  /** Every filter change invalidates the current page number. */
   function refilter(apply: () => void) {
     apply();
     setPage(1);
@@ -294,12 +283,6 @@ export default function AccountsPage() {
                           <UserCog />
                           Sửa tài khoản
                         </DropdownMenuItem>
-                        {/*
-                          Two entries rather than one form, because they are two
-                          different things: the account is an address, a role and
-                          whether the door is open, while the profile is the
-                          person the system computes with.
-                        */}
                         {user.role !== 'ADMIN' && (
                           <DropdownMenuItem
                             onClick={() => setEditingProfile(user)}
@@ -312,12 +295,6 @@ export default function AccountsPage() {
                           <KeyRound />
                           Cấp lại mật khẩu
                         </DropdownMenuItem>
-                        {/*
-                          Only on an account that is open. The API refuses this
-                          on one that is already locked, and unlocking is done
-                          from "Sửa tài khoản" — so offering it here would be a
-                          second control for a state this one cannot reach.
-                        */}
                         {user.isActive && (
                           <DropdownMenuItem
                             variant="destructive"
@@ -373,11 +350,6 @@ export default function AccountsPage() {
         <EditUserDialog user={editing} onClose={() => setEditing(null)} />
       )}
 
-      {/*
-        Locking, not deleting — and the wording says so, because the endpoint
-        behind it is a DELETE that deactivates. Nothing in this system removes a
-        person: every group, grade and topic points at their profile.
-      */}
       <ConfirmDialog
         open={locking !== null}
         onOpenChange={(open) => !open && setLocking(null)}
@@ -399,16 +371,6 @@ export default function AccountsPage() {
   );
 }
 
-/**
- * Creating an account is creating a person, and what a person needs depends on
- * which one they are.
- *
- * A student and a lecturer are created together with their profile, because
- * every relation in the system points at the profile rather than the account.
- * An admin has no profile table at all, so an address is the whole form — and
- * the fields appear and disappear with the role rather than sitting there greyed
- * out, since half of them are meaningless for whoever is being added.
- */
 function CreateUserDialog({ onClose }: { onClose: () => void }) {
   const create = useCreateUser();
   const { data: majors } = useMajors();
@@ -455,9 +417,6 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
       await create.mutateAsync(input);
       onClose();
     } catch (err) {
-      // The API's own message carries the rule that was broken — a student code
-      // that does not match the email, a class code from the wrong intake — and
-      // those are exactly what the person typing needs to read.
       setError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
       );
@@ -614,15 +573,6 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
-/**
- * The three things about an account that are not the person.
- *
- * Name, code, class and major are absent on purpose: they belong to the profile,
- * the system computes with them — a student code carries the intake that decides
- * which round they may enter — and an editable box here would be a way into a
- * round somebody is not in. Those corrections go through the roster, which is
- * where the office keeps them.
- */
 function EditUserDialog({
   user,
   onClose,
