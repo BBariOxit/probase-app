@@ -36,19 +36,7 @@ import {
 } from '@/components/ui/select';
 
 const PAGE_SIZE = 12;
-/** Sentinel for "no filter" — a Select needs a value, and 0 is never an id. */
 const ANY = 0;
-/**
- * Sentinel for the default: the project types this student's intake may take.
- *
- * Negative so it can never collide with an id. It is the starting value rather
- * than "all", because a student registering for a project type their cohort is
- * not open for is refused by the API — showing them the whole catalogue means
- * most of what they scroll past is not theirs to take.
- *
- * It is a visible, removable option and not a hidden filter, which is the part
- * that matters: filtering silently is what makes people think data is missing.
- */
 const MY_COHORT = -1;
 
 export default function StudentTopicsPage() {
@@ -80,56 +68,27 @@ export default function StudentTopicsPage() {
       page,
       limit: PAGE_SIZE,
     },
-    // Every filter on this screen is scoped to the active semester, so asking
-    // before it is known fetches a page that is about to be thrown away.
     { enabled: activeSemester !== undefined },
   );
 
   if (!allowed) return null;
 
   const topics = data?.items ?? [];
-  // The default filter does not count as filtering: an empty page under it means
-  // the faculty has opened nothing for this intake, not that the student narrowed
-  // too far, and telling them to loosen a filter they never set is misleading.
   const filtering =
     debouncedSearch !== '' ||
     (projectTypeId !== ANY && projectTypeId !== MY_COHORT) ||
     lecturerId !== ANY;
 
-  /**
-   * What the default resolves to, as a second line rather than a parenthetical.
-   *
-   * Select items do not wrap — the primitive sets whitespace-nowrap so an option
-   * cannot break mid-phrase — so "Dành cho khóa của bạn (Đồ án Tốt nghiệp)" ran
-   * past the edge of the popup and was clipped. Two short lines fit, and the
-   * resolved project type is worth showing: it answers what this student is meant
-   * to be doing this semester.
-   */
   const myCohortTypes = myTypes?.map((type) => type.name).join(', ');
 
-  /** Every filter change invalidates the current page number. */
   function resetPage() {
     setPage(1);
   }
 
   return (
     <div className="space-y-4">
-      {/*
-        No page heading. The app header already names this screen and the
-        sidebar already names the semester, so an <h1> here repeated both and
-        pushed the list a hundred pixels down the page — on the one screen
-        where the list is the whole point.
-      */}
       {myGroup && <MyGroupBanner group={myGroup} />}
 
-      {/*
-        One notice per round the reader takes part in, rather than one selector
-        that makes them pick which round the screen is about. A student eligible
-        for two of them is looking at both lists at once anyway, and the only
-        thing that genuinely differs is what each gate is doing — so that is the
-        only thing worth saying twice. The component draws nothing for a round
-        that is simply open, so the usual case stays a single line or none.
-      */}
       {rounds?.map((round) => (
         <RegistrationPhaseNotice
           key={round.id}
@@ -192,8 +151,6 @@ export default function StudentTopicsPage() {
           </SelectContent>
         </Select>
 
-        {/* Students go looking for the supervisors they know, so this is a
-            primary filter rather than a refinement. */}
         <Select
           value={lecturerId}
           onValueChange={(value) => {
@@ -224,8 +181,6 @@ export default function StudentTopicsPage() {
           </SelectContent>
         </Select>
 
-        {/* Beside the filters rather than orphaned under the grid: the count
-            is the answer to what the filters just did. */}
         {data && (
           <span className="ml-auto text-sm text-muted-foreground">
             {data.total} đề tài
@@ -260,21 +215,10 @@ export default function StudentTopicsPage() {
         </div>
       )}
 
-      {/* Cards rather than a table: titles run long, students compare rather
-          than scan, and this is the screen most likely to be opened on a
-          phone. Three columns only from xl — at lg the sidebar leaves about
-          720px, and three Vietnamese titles in that width wrap badly. */}
       {topics.length > 0 && (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {topics.map((topic) => (
             <li key={topic.id}>
-              {/*
-                The card is a container rather than one big <Link>, because it
-                now holds a button as well. The link is stretched over the card
-                with an ::after overlay instead: the whole surface still
-                navigates, the button sits above it, and neither ends up nested
-                inside the other.
-              */}
               <div className="group relative flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-within:ring-2 focus-within:ring-ring">
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="line-clamp-2 text-sm font-medium">
@@ -285,10 +229,6 @@ export default function StudentTopicsPage() {
                       {topic.title}
                     </Link>
                   </h2>
-                  {/* Not the topic status: this list is already filtered to
-                      OPEN, so a status badge read "Đang mở" on every card and
-                      answered nothing. Whether a seat is left is the question
-                      actually being asked. */}
                   <SeatBadge topic={topic} />
                 </div>
 
@@ -308,11 +248,6 @@ export default function StudentTopicsPage() {
                     </p>
                   </div>
 
-                  {/* The action if there is one, the "this is a link"
-                      affordance if there is not. Chosen inside the component
-                      rather than here: picking between the two at this level
-                      would unmount it the moment a registration succeeds, and
-                      take the confirmation dialog with it. */}
                   <TopicRegisterButton
                     topic={topic}
                     idle={

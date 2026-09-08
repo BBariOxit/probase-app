@@ -9,16 +9,6 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { Button } from '@/components/ui/button';
 import { SeatDots } from '@/components/seat-indicator';
 
-/**
- * Where a group's join link lands.
- *
- * Two taps, not one. Joining spends a student's single registration for the whole
- * semester, and a link pasted into a class group chat gets forwarded — so if
- * following it were the act that spent it, one curious tap would cost somebody
- * their place, recoverable only by asking a stranger to remove them. This screen
- * is the second tap, and it shows what is being joined so the decision is an
- * informed one.
- */
 export default function JoinByCodePage({
   params,
 }: {
@@ -40,8 +30,6 @@ export default function JoinByCodePage({
     );
   }
 
-  // A dead link and a mistyped one answer alike, and there is nothing to do
-  // about either except go and look at the list.
   if (error || !data) {
     return (
       <Card>
@@ -131,9 +119,6 @@ export default function JoinByCodePage({
         </>
       ) : (
         <>
-          {/* The API's own words. Each blocker calls for something different —
-              full, closed, wrong intake, gate shut — and a single line saying
-              "không tham gia được" would hide which one it is. */}
           <p className="text-sm text-destructive">{data.blockedReason}</p>
           <Button variant="outline" render={<Link href="/student" />}>
             Xem danh sách đề tài

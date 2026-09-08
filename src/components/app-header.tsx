@@ -8,16 +8,6 @@ import { UserMenu } from '@/components/user-menu';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
-/**
- * Deliberately thin, and deliberately inside the content panel rather than
- * alongside the sidebar. Navigation lives in the sidebar, so what is left here
- * is where you are, and the three controls that belong to the person rather
- * than to the page: notices, theme, account.
- *
- * The heading was replaced with AppBreadcrumb so that detail pages (e.g.
- * /lecturer/nhom/42) show a clickable trail instead of a static title.
- * Top-level pages (single path segment) still render a plain h1.
- */
 export function AppHeader({
   user,
   onSignOut,

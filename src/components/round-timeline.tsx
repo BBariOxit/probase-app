@@ -5,19 +5,6 @@ import {
 } from '@/lib/round-status';
 import { cn } from '@/lib/utils';
 
-/**
- * Where the semester is, as a short column beside the group.
- *
- * This replaces a full-width card whose whole content was "Còn 21 ngày đăng ký"
- * — the same sentence the sidebar already keeps on screen at all times, set in
- * two hundred pixels of card. Repeating a line verbatim is not emphasis; it just
- * makes a reader check whether the two are saying different things.
- *
- * A sequence says something the sidebar line cannot: what comes after the gate
- * closes. The countdown is still here, but as the step it belongs to rather than
- * as a headline of its own, and the two steps with no announced date say so
- * instead of guessing.
- */
 export function RoundTimeline({
   round,
   hasGroup,
@@ -91,8 +78,6 @@ export function RoundTimeline({
         })}
       </ol>
 
-      {/* What the current step means for this reader — the half a date cannot
-          carry, and the reason the deadline is worth looking at at all. */}
       <p className="mt-4 border-t pt-3 text-xs text-pretty text-muted-foreground">
         {detail}
       </p>

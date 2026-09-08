@@ -22,7 +22,6 @@ function Section({ title, body }: { title: string; body: string }) {
   return (
     <section className="space-y-1.5">
       <h2 className="text-sm font-medium">{title}</h2>
-      {/* The body is free text a lecturer typed, newlines and all. */}
       <p className="text-sm whitespace-pre-line text-muted-foreground">
         {body}
       </p>
@@ -30,15 +29,6 @@ function Section({ title, body }: { title: string; body: string }) {
   );
 }
 
-/**
- * One topic, read-only, shared by the student and admin views. The action bar
- * differs between them and is passed in — the same object should not become
- * two pages that drift apart.
- *
- * The lecturer's contact details are absent because the API does not send
- * them: this is readable by every signed-in student, who needs to know who
- * supervises a topic, not how to phone them.
- */
 export function TopicDetailView({
   topic,
   actions,

@@ -151,7 +151,11 @@ export default function LecturerGroupsPage() {
   // the user switching to a different semester is not overridden on re-render.
   const effectiveSemesterId = semesterId ?? activeSemester?.id;
 
-  const { data: groups, isPending, error } = useSupervisedGroups(effectiveSemesterId);
+  const {
+    data: groups,
+    isPending,
+    error,
+  } = useSupervisedGroups(effectiveSemesterId);
 
   if (!allowed) return null;
 
@@ -166,9 +170,7 @@ export default function LecturerGroupsPage() {
           <Users className="size-4" />
           {!isPending && (
             <span>
-              {hasGroups
-                ? `${items.length} nhóm`
-                : 'Không có nhóm nào'}
+              {hasGroups ? `${items.length} nhóm` : 'Không có nhóm nào'}
             </span>
           )}
         </div>
@@ -230,11 +232,7 @@ export default function LecturerGroupsPage() {
         <>
           {/* Summary pills */}
           <div className="flex flex-wrap gap-3">
-            <SummaryPill
-              icon={Users}
-              label="Tổng nhóm"
-              value={items.length}
-            />
+            <SummaryPill icon={Users} label="Tổng nhóm" value={items.length} />
             <SummaryPill
               icon={CheckCircle2}
               label="Đã đủ thành viên"

@@ -1,32 +1,10 @@
 import { describeRound, type RoundLike } from '@/lib/round-status';
 
-/**
- * Why the buttons are missing, in the phases where they are.
- *
- * Only rendered outside OPEN, and only when it has something to add. A student
- * who cannot register needs to know whether that is because the gate has not
- * opened, because it has closed, or because the round is settled — different
- * situations that a page of greyed-out cards would present as one.
- *
- * The RECONCILING wording is the one that matters most. That is when a student
- * with no group can do nothing at all, and saying nothing at that moment is what
- * makes people think they have been forgotten.
- *
- * The words come from `describeRound`, shared with the sidebar countdown and the
- * group screen's header. Three copies of "what phase are we in" drifted apart
- * once already: the sidebar counted the days down while this called the same
- * round simply closed.
- */
 export function RegistrationPhaseNotice({
   subject,
   round,
   hasGroup,
 }: {
-  /**
-   * Which round this is about, when the reader has more than one and the
-   * sentence would otherwise be ambiguous. Left out when there is only one:
-   * naming the single thing on screen is noise.
-   */
   subject?: string;
   round: RoundLike;
   hasGroup: boolean;

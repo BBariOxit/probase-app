@@ -86,7 +86,6 @@ export function useBreadcrumbLabel(
     return () => {
       ctx.clearSegmentLabel(segment);
     };
-     
   }, [ctx, segment, label]);
 }
 

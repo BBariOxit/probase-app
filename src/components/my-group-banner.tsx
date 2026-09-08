@@ -5,15 +5,6 @@ import { ArrowRight } from 'lucide-react';
 import type { RegistrationGroup } from '@/lib/api/types';
 import { SeatDots } from '@/components/seat-indicator';
 
-/**
- * One line above the topic list once a student has a group.
- *
- * Deliberately not the whole panel. The group has its own screen, and repeating
- * it here would push the list — the reason this page exists — down the page while
- * saying the same thing twice. What belongs here is the fact of having a group,
- * the seat count, and the way through: enough that nobody keeps browsing without
- * realising they already have a topic.
- */
 export function MyGroupBanner({ group }: { group: RegistrationGroup }) {
   return (
     <Link

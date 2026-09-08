@@ -10,21 +10,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useSidebar } from '@/components/ui/sidebar';
 
-/**
- * The registration window governs almost everything a user can do — students
- * cannot register outside it, lecturers cannot open topics, grades lock after
- * it. It belongs somewhere permanently visible but quiet, which is what the
- * foot of the sidebar is for.
- *
- * A semester runs several rounds and they do not share a deadline, so this shows
- * one: the API returns them in the order that makes `[0]` the right one — the
- * reader's own round, or the one closing soonest. Where there is more than one,
- * the kind of project is named, because a countdown with no subject is worse
- * than none.
- *
- * The wording is `describeRound`'s, so this line and the one at the top of the
- * group screen cannot disagree about the same round.
- */
+/** Shows the current semester and round status in the sidebar footer. */
 export function SemesterContext() {
   const { state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed' && !isMobile;
@@ -33,13 +19,8 @@ export function SemesterContext() {
   const { data: rounds } = useMyRounds(active?.id);
   const round = rounds?.[0];
 
-  // Nothing to say yet, and a skeleton here would be a loading state for
-  // something nobody asked to see.
   if (!active || !round) return null;
 
-  // Only the headline: the foot of the sidebar is where this is kept in view,
-  // not where it is explained. The screen that has room for the rest says it
-  // there, in the same words.
   const line = describeRound(round, false).headline;
   const subject =
     rounds && rounds.length > 1 ? `${round.projectType.name} · ` : '';

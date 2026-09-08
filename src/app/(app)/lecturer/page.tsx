@@ -65,14 +65,10 @@ function RowActions({ topic }: { topic: TopicListItem }) {
   const remove = useDeleteTopic();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  // The API rejects the wrong transition anyway; hiding the ones it would
-  // reject keeps the menu from offering moves that cannot work.
   const canOpen = topic.status === 'APPROVED';
   const canClose = topic.status === 'OPEN';
   const canEdit =
     topic.status !== 'IN_PROGRESS' && topic.status !== 'COMPLETED';
-  // Only a group still standing blocks deletion — a rejected one has handed
-  // the topic back, and the API agrees.
   const canDelete = topic.activeGroup === null;
 
   return (
@@ -160,15 +156,11 @@ export default function LecturerTopicsPage() {
 
   return (
     <div className="space-y-4">
-      {/* No page heading: the app header names this screen already, and a
-          second <h1> saying the same thing only pushed the table down. */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-56 flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
-            // Filters change what page one means, so paging restarts. Doing
-            // this here rather than in an effect keeps it to one render.
             onChange={(event) => {
               setSearch(event.target.value);
               setPage(1);
@@ -222,8 +214,6 @@ export default function LecturerTopicsPage() {
       )}
 
       <div className="overflow-hidden rounded-xl border">
-        {/* The table scrolls inside its own box so a long title cannot push
-            the whole page sideways on a narrow screen. */}
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -244,9 +234,6 @@ export default function LecturerTopicsPage() {
                     >
                       {topic.title}
                     </Link>
-                    {/* The group lives here rather than in a column of its
-                        own: it is only ever interesting while the topic is
-                        open, so a column would be empty on most rows. */}
                     <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
                       {topic.semester.name} ·{' '}
                       {topic.activeGroup

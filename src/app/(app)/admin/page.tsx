@@ -47,7 +47,6 @@ export default function AdminTopicQueuePage() {
 
   return (
     <div className="space-y-4">
-      {/* No page heading: the app header names this screen already. */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-52 flex-1 sm:max-w-xs">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />

@@ -12,12 +12,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-/**
- * The gate in front of anything irreversible — deleting a topic, cancelling a
- * registration, finalising grades. It stays open while the request is in
- * flight so a slow network cannot look like a click that did nothing, and it
- * reports failure in place rather than closing and losing the message.
- */
 export function ConfirmDialog({
   open,
   onOpenChange,

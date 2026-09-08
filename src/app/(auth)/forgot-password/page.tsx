@@ -57,30 +57,41 @@ export default function ForgotPasswordPage() {
   // point of the uniform response.
   if (sent) {
     return (
-      <Card className="px-6 py-7">
-        <MailCheck className="size-5 text-muted-foreground" />
-        <div className="space-y-1.5">
-          <h1 className="font-heading text-xl font-semibold tracking-tight">
-            Kiểm tra hộp thư
-          </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Nếu email vừa nhập có tài khoản trong hệ thống, chúng tôi đã gửi
-            liên kết đặt lại mật khẩu. Liên kết dùng được một lần và hết hạn sau
-            15 phút.
-          </p>
+      <Card className="px-6 py-8 border-none shadow-lg">
+        <div className="mb-6 space-y-4 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10">
+            <MailCheck className="size-6 text-primary" />
+          </div>
+          <div className="space-y-1.5">
+            <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
+              Kiểm tra hộp thư
+            </h1>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              Nếu email vừa nhập có tài khoản trong hệ thống, chúng tôi đã gửi
+              liên kết đặt lại mật khẩu. Liên kết dùng được một lần và hết hạn
+              sau 15 phút.
+            </p>
+          </div>
         </div>
-        <BackToLogin />
+        <div className="flex justify-center">
+          <BackToLogin />
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className="px-6 py-7">
-      <h1 className="font-heading text-xl font-semibold tracking-tight">
-        Quên mật khẩu
-      </h1>
+    <Card className="px-6 py-8 border-none shadow-lg">
+      <div className="mb-6 space-y-1.5 text-center">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
+          Quên mật khẩu
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Nhập email để nhận liên kết đặt lại mật khẩu
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <FormError message={formError} />
 
         <div className="space-y-2">
@@ -105,7 +116,9 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <BackToLogin />
+      <div className="mt-5 flex justify-center">
+        <BackToLogin />
+      </div>
     </Card>
   );
 }

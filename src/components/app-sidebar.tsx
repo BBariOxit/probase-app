@@ -23,9 +23,6 @@ import {
 
 function NavEntry({ item }: { item: NavItem }) {
   const pathname = usePathname();
-  // A section owns its subpages: /lecturer/topics/4 still lights up
-  // "Đề tài của tôi". The landing would match every sibling by prefix, so it
-  // is compared exactly.
   const active =
     item.href.split('/').length === 2
       ? pathname === item.href
@@ -53,9 +50,6 @@ function NavEntry({ item }: { item: NavItem }) {
       <SidebarMenuButton
         isActive={active}
         tooltip={item.label}
-        // The default active treatment is a filled row. Colouring the label
-        // and icon instead marks the position without turning one menu entry
-        // into the heaviest object on screen.
         className={cn(
           'h-9',
           active && 'text-sidebar-primary [&_svg]:text-sidebar-primary',
@@ -72,15 +66,6 @@ function NavEntry({ item }: { item: NavItem }) {
 export function AppSidebar({ user }: { user: SessionUser }) {
   return (
     <Sidebar variant="inset" collapsible="icon">
-      {/*
-        Just the wordmark. A coloured square holding the product's first
-        letter is the default badge of every generated dashboard, and it was
-        doing nothing the word next to it did not already do.
-
-        It hides entirely when collapsed rather than shrinking to an initial,
-        for the same reason: the rail is a column of icons, and an icon for
-        the application itself is one nobody needs.
-      */}
       <SidebarHeader className="px-3 py-3 group-data-[collapsible=icon]:hidden">
         <Link
           href="/"
@@ -90,8 +75,6 @@ export function AppSidebar({ user }: { user: SessionUser }) {
         </Link>
       </SidebarHeader>
 
-      {/* shadcn ships gap-0 at both levels, which stacks the rows edge to
-          edge. Nav is read by scanning, and scanning needs air. */}
       <SidebarContent className="gap-4 group-data-[collapsible=icon]:pt-3">
         {NAV_BY_ROLE[user.role].map((group, index) => (
           <SidebarGroup key={group.label ?? index} className="px-3 py-0">
@@ -111,18 +94,10 @@ export function AppSidebar({ user }: { user: SessionUser }) {
         ))}
       </SidebarContent>
 
-      {/*
-        The account block used to sit here under a separator. It has moved to
-        the header, beside the theme toggle: it was the widest string in the
-        product living in the narrowest column, and it became an unreadable stub
-        whenever the sidebar collapsed. What is left is the one thing that has
-        to stay in view on every screen — where the semester is.
-      */}
       <SidebarFooter className="px-3 pb-3">
         <SemesterContext />
       </SidebarFooter>
 
-      {/* Drag the edge to open or close, for anyone who never finds Ctrl+B. */}
       <SidebarRail />
     </Sidebar>
   );

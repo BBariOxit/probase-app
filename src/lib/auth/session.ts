@@ -3,17 +3,6 @@
 import { create } from 'zustand';
 import type { Role, SessionUser } from '@/lib/api/types';
 
-/**
- * Where the two tokens live, and why they live in different places.
- *
- * The access token stays in memory only. It is short-lived and replayable, so
- * keeping it off disk means an XSS payload cannot simply read it out of
- * localStorage after the tab is closed and reopened.
- *
- * The refresh token does go to localStorage, because without it every reload
- * would be a logout. It buys session persistence at the cost of being readable
- * by script — an accepted trade until the API can set an httpOnly cookie.
- */
 const REFRESH_TOKEN_KEY = 'probase.refreshToken';
 
 export function readStoredRefreshToken(): string | null {
@@ -27,11 +16,6 @@ export function storeRefreshToken(token: string | null) {
   else window.localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
-/**
- * `loading` is the state before the stored refresh token has been exchanged on
- * first paint. Guards must wait it out rather than treating it as signed out,
- * or every reload would flash the login screen.
- */
 export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
 interface SessionState {

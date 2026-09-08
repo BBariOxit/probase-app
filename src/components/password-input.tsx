@@ -5,11 +5,6 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
-/**
- * A password field with a reveal toggle. Users are typing a machine-generated
- * temporary password out of an email, which is exactly the case where typing
- * blind causes the most failed attempts.
- */
 export function PasswordInput({
   className,
   ...props

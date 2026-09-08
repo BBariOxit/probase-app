@@ -68,9 +68,7 @@ export function useSupervisedGroups(semesterId?: number) {
   return useQuery({
     queryKey: groupKeys.supervised(semesterId),
     queryFn: () =>
-      api<RegistrationGroup[]>(
-        `/registration-groups/my-supervised${params}`,
-      ),
+      api<RegistrationGroup[]>(`/registration-groups/my-supervised${params}`),
     staleTime: 2 * 60_000,
   });
 }
