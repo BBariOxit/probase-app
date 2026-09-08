@@ -1,8 +1,7 @@
 'use client';
 
 import { use, useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Info, Loader2, Lock } from 'lucide-react';
+import { Info, Loader2, Lock } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import {
   useProjectTypes,
@@ -16,6 +15,7 @@ import type {
   RoundPlanInput,
 } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { cn } from '@/lib/utils';
 import { DateField } from '@/components/date-field';
 import { FormError } from '@/components/form-error';
@@ -61,20 +61,13 @@ export default function SemesterRoundsPage({
 
   const semester = semesters?.find((one) => one.id === semesterId);
 
+  // Swap the raw ID for the semester name in the breadcrumb once data arrives.
+  useBreadcrumbLabel(id, semester?.name);
+
   if (!allowed) return null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2 text-muted-foreground"
-        render={<Link href="/admin/hoc-ky" />}
-      >
-        <ArrowLeft />
-        Học kỳ
-      </Button>
-
       <div className="space-y-1">
         <h1 className="font-heading text-xl font-semibold tracking-tight">
           Đợt đăng ký · {semester?.name ?? `Học kỳ #${semesterId}`}

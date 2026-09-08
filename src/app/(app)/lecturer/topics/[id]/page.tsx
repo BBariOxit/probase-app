@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useTopic, useUpdateTopic } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { PageHeading } from '@/components/page-heading';
 import { TopicForm } from '@/components/topic-form';
 import { TopicStatusBadge } from '@/components/topic-status-badge';
@@ -20,6 +21,9 @@ export default function EditTopicPage({
   const router = useRouter();
   const { data: topic, isPending, error } = useTopic(topicId);
   const update = useUpdateTopic(topicId);
+
+  // Swap the raw ID in the breadcrumb for the topic title once it loads.
+  useBreadcrumbLabel(id, topic?.title);
 
   if (!allowed) return null;
 

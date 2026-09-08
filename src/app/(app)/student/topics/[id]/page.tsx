@@ -1,13 +1,12 @@
 'use client';
 
 import { use } from 'react';
-import Link from 'next/link';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useTopic } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
+import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { TopicDetailView } from '@/components/topic-detail-view';
 import { TopicRegisterButton } from '@/components/topic-register-button';
-import { Button } from '@/components/ui/button';
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
@@ -23,6 +22,9 @@ export default function StudentTopicDetailPage({
   const { id } = use(params);
   const allowed = useRequireRole('STUDENT');
   const { data: topic, isPending, error } = useTopic(Number(id));
+
+  // Swap the raw ID in the breadcrumb for the topic title once it loads.
+  useBreadcrumbLabel(id, topic?.title);
 
   if (!allowed) return null;
 
@@ -40,16 +42,6 @@ export default function StudentTopicDetailPage({
 
   return (
     <div className="space-y-5">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2 text-muted-foreground"
-        render={<Link href="/student" />}
-      >
-        <ArrowLeft />
-        Danh sách đề tài
-      </Button>
-
       <TopicDetailView
         topic={topic}
         actions={

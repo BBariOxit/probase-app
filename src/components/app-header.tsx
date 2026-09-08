@@ -1,8 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import type { SessionUser } from '@/lib/api/types';
-import { titleFor } from '@/lib/nav';
+import { AppBreadcrumb } from '@/components/app-breadcrumb';
 import { NotificationBell } from '@/components/notification-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { UserMenu } from '@/components/user-menu';
@@ -16,15 +15,13 @@ export function AppHeader({
   user: SessionUser;
   onSignOut: () => void;
 }) {
-  const pathname = usePathname();
-
   return (
     <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger className="-ml-1 text-muted-foreground" />
       <Separator orientation="vertical" className="mr-1 !h-4" />
-      <h1 className="font-heading text-sm font-medium">
-        {titleFor(user.role, pathname)}
-      </h1>
+
+      {/* Breadcrumb trail — single-segment paths degrade to a plain h1. */}
+      <AppBreadcrumb role={user.role} />
 
       <div className="ml-auto flex items-center gap-1.5">
         <NotificationBell role={user.role} />

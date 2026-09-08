@@ -8,6 +8,8 @@ import type { JoinPreview, RegistrationGroup } from '@/lib/api/types';
 export const groupKeys = {
   all: ['registration-groups'] as const,
   mine: () => [...groupKeys.all, 'mine'] as const,
+  supervised: (semesterId?: number) =>
+    [...groupKeys.all, 'supervised', semesterId] as const,
   detail: (id: number) => [...groupKeys.all, 'detail', id] as const,
   preview: (code: string) => [...groupKeys.all, 'preview', code] as const,
 };
@@ -50,6 +52,24 @@ export function useMyGroup() {
     queryFn: () => api<RegistrationGroup | null>('/registration-groups/me'),
     staleTime: 2 * 60_000,
     refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * All active groups on topics this lecturer supervises.
+ *
+ * Keyed by semesterId so switching semesters hits the network instead of
+ * showing last term's roster. staleTime of 2 minutes matches the student's
+ * own group — the data can change whenever a student registers or leaves.
+ */
+export function useSupervisedGroups(semesterId?: number) {
+  const params = semesterId ? `?semesterId=${semesterId}` : '';
+
+  return useQuery({
+    queryKey: groupKeys.supervised(semesterId),
+    queryFn: () =>
+      api<RegistrationGroup[]>(`/registration-groups/my-supervised${params}`),
+    staleTime: 2 * 60_000,
   });
 }
 
