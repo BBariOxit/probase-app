@@ -5,16 +5,6 @@ import { CalendarDays, Layers } from 'lucide-react';
 import type { ProposalStatus, TopicProposal } from '@/lib/api/types';
 import { StatusPill, type StatusLabel } from '@/components/status-pill';
 
-/**
- * Three states, worded from the student's side because they are the ones who
- * wait on them.
- *
- * REJECTED is "chưa được nhận" rather than "bị từ chối", and takes the danger
- * tone anyway: the softer wording is the API's own, and it is the honest one —
- * a lecturer declining an idea has not judged the student — but the colour still
- * has to be the one that stops a reader, because there is a reason to read
- * underneath and a next step to take.
- */
 const PROPOSAL_STATUS: Record<ProposalStatus, StatusLabel> = {
   PENDING: { label: 'Chờ trả lời', tone: 'waiting' },
   ACCEPTED: { label: 'Đã được nhận', tone: 'success' },
@@ -37,16 +27,6 @@ const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric',
 });
 
-/**
- * A proposal as either side reads it.
- *
- * The two screens differ in who the other party is and in what may be done about
- * it, so both arrive as slots rather than as a role flag — one card that renders
- * two different jobs from a boolean is a card nobody can change safely later.
- * What is shared is everything about the idea itself, and that is the part worth
- * having in one place: the same words in the same order, so a lecturer and a
- * student discussing a proposal are looking at the same object.
- */
 export function ProposalCard({
   proposal,
   counterparty,
@@ -54,10 +34,8 @@ export function ProposalCard({
   footer,
 }: {
   proposal: TopicProposal;
-  /** Who the other side is — the addressee, or the person who wrote it. */
   counterparty?: React.ReactNode;
   actions?: React.ReactNode;
-  /** Whatever the answer left behind: a reason, or the topic it became. */
   footer?: React.ReactNode;
 }) {
   return (
@@ -91,14 +69,6 @@ export function ProposalCard({
   );
 }
 
-/**
- * A block of what somebody typed, newlines and all.
- *
- * The description is clamped and the outcomes are not, which looks arbitrary and
- * is not: a description runs to paragraphs and is what makes a list of ten
- * proposals unreadable, while expected outcomes are three lines by nature. A
- * toggle on both would be two controls where one is needed.
- */
 function Prose({
   label,
   body,
@@ -109,8 +79,6 @@ function Prose({
   clamp?: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
-  // Cheap and slightly generous — it only decides whether to offer the toggle,
-  // and offering it on something that turns out to fit costs nothing.
   const long = clamp && (body.length > 260 || body.includes('\n'));
 
   return (

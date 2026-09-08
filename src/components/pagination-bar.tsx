@@ -3,14 +3,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-/**
- * Just the pager. The total belongs beside the filters that produced it, not
- * down here — it is the answer to what the filter just did, and by the time
- * you have scrolled past the results you are no longer asking.
- *
- * Renders nothing on a single page: two disabled arrows are a promise of more
- * results that do not exist.
- */
+/** Renders nothing on a single page. */
 export function PaginationBar({
   page,
   totalPages,

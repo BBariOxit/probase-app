@@ -1,22 +1,6 @@
 import { cn } from '@/lib/utils';
 
-/**
- * A reading column with a narrow rail beside it.
- *
- * The shape most screens here want. A list of cards or notices has to keep a
- * narrow measure — a line of text past about eighty characters is measurably
- * harder to read — so stretching it across a monitor is not an option. But
- * leaving the other half of the screen blank is not neutral either: it is space
- * that could be answering the next question the reader has, and on this app that
- * next question is always the same kind of thing — what is due, what is left,
- * who to contact.
- *
- * The rail is optional and the layout collapses to one column without it. An
- * empty rail would be exactly the whitespace this exists to spend.
- *
- * It stacks below `lg` with the rail first, because on a phone the summary is
- * what you want before the list, not after it.
- */
+/** Main content column with an optional sidebar rail. Stacks on mobile. */
 export function PageWithRail({
   rail,
   className,

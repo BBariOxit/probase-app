@@ -17,17 +17,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-/** Enough to see what arrived without turning the dropdown into the page. */
 const PREVIEW_COUNT = 5;
 
-/**
- * The permanent way in to everything the system had to say.
- *
- * A count and five lines — the rest is the inbox page, which this links to
- * rather than reproduces. The badge is the only part that matters at a glance,
- * and it is deliberately a count rather than a dot: "3" is a reason to open it,
- * a dot is a reason to wonder.
- */
 export function NotificationBell({ role }: { role: Role }) {
   const router = useRouter();
   const { data } = useNotifications({ limit: PREVIEW_COUNT });
@@ -37,8 +28,6 @@ export function NotificationBell({ role }: { role: Role }) {
   const items = data?.items ?? [];
 
   function open(notice: AppNotification) {
-    // Opening one is what marks it read — a separate control for that would be
-    // asking the reader to tell the app something it can already see.
     if (!notice.isRead) markRead.mutate(notice.id);
 
     const href = notificationHref(notice, role);
@@ -83,8 +72,6 @@ export function NotificationBell({ role }: { role: Role }) {
               onClick={() => open(notice)}
             >
               <div className="flex w-full items-center gap-2">
-                {/* Unread is carried by the dot alone. Bolding the row as well
-                    would make five unread notices a wall of heavy text. */}
                 {!notice.isRead && (
                   <span className="size-1.5 shrink-0 rounded-full bg-primary" />
                 )}

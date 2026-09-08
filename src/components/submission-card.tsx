@@ -12,7 +12,6 @@ const dateTimeFormat = new Intl.DateTimeFormat('vi-VN', {
   minute: '2-digit',
 });
 
-/** Bytes as a person would say them. */
 function fileSize(bytes: number | null): string | null {
   if (bytes === null) return null;
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -20,28 +19,18 @@ function fileSize(bytes: number | null): string | null {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-/** Whether anybody has looked at this version yet. */
 export function answered(submission: Submission): StatusLabel {
   return submission.feedbackAt
     ? { label: 'Đã nhận xét', tone: 'success' }
     : { label: 'Chờ nhận xét', tone: 'waiting' };
 }
 
-/**
- * One version of one thing handed in.
- *
- * The version number is on the card rather than implied by position, because
- * nothing here is ever overwritten: a group that re-submits leaves the previous
- * version standing with whatever was said about it, and a reader needs to know
- * which one they are looking at.
- */
 export function SubmissionCard({
   submission,
   who,
   actions,
 }: {
   submission: Submission;
-  /** Who handed it in, when that is not obvious — a supervisor reading many groups. */
   who?: React.ReactNode;
   actions?: React.ReactNode;
 }) {
@@ -64,12 +53,6 @@ export function SubmissionCard({
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
-          {/*
-            Before the feedback pill, because it is a fact about the handing in
-            and the reader is already looking at the time it happened. Only ever
-            shown when it is true — a "đúng hạn" badge on every other card would
-            make the one that matters harder to see, not easier.
-          */}
           {submission.isLate && <StatusPill label="Nộp muộn" tone="danger" />}
           <StatusPill {...answered(submission)} />
         </div>
@@ -96,10 +79,6 @@ export function SubmissionCard({
         )}
 
         {submission.submissionUrl && (
-          /*
-            `noreferrer` alongside `noopener`: this is a URL a student typed, and
-            the page it opens has no business being told which screen sent them.
-          */
           <a
             href={submission.submissionUrl}
             target="_blank"

@@ -1,10 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
 
-/**
- * What a list shows when it has nothing to show. One icon, one sentence, and
- * at most the single action that would change the situation — an empty screen
- * is not the place to explain the feature.
- */
 export function EmptyState({
   icon: Icon,
   title,

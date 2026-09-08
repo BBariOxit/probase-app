@@ -9,12 +9,6 @@ import { UserMenu } from '@/components/user-menu';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 
-/**
- * Deliberately thin, and deliberately inside the content panel rather than
- * alongside the sidebar. Navigation lives in the sidebar, so what is left here
- * is where you are, and the three controls that belong to the person rather
- * than to the page: notices, theme, account.
- */
 export function AppHeader({
   user,
   onSignOut,

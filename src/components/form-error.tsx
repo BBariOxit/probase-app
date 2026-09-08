@@ -1,6 +1,5 @@
 import { AlertCircle } from 'lucide-react';
 
-/** The single place a failed submission is reported, above the form. */
 export function FormError({ message }: { message?: string | null }) {
   if (!message) return null;
 
