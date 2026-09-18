@@ -8,6 +8,7 @@ import { useTopics } from '@/lib/api/topics';
 import type { Submission } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { EmptyState } from '@/components/shared/empty-state';
 import { FormError } from '@/components/shared/form-error';
 import { PageWithRail } from '@/components/layout/page-with-rail';
@@ -197,6 +198,7 @@ function FeedbackDialog({
     setError(null);
     try {
       await answer.mutateAsync({ id: submission.id, feedback: trimmed });
+      toast.success('Feedback sent to the group.');
       onClose();
     } catch (err) {
       setError(
