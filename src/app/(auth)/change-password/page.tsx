@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api/client';
 import type { ChangePasswordResponse } from '@/lib/api/types';
 import { passwordSchema } from '@/lib/auth/password';
-import { homePathFor, storeRefreshToken, useSession } from '@/lib/auth/session';
+import { homePathFor, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -57,7 +57,7 @@ export default function ChangePasswordPage() {
   async function onSubmit(values: ChangePasswordValues) {
     setFormError(null);
     try {
-      const result = await api<ChangePasswordResponse>(
+      const result = await api<{ accessToken: string }>(
         '/auth/change-password',
         {
           method: 'PATCH',
@@ -68,7 +68,6 @@ export default function ChangePasswordPage() {
         },
       );
 
-      storeRefreshToken(result.refreshToken);
       setAccessToken(result.accessToken);
       patchUser({ mustChangePassword: false });
 

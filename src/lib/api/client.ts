@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  readStoredRefreshToken,
-  storeRefreshToken,
-  useSession,
-} from '@/lib/auth/session';
+import { useSession } from '@/lib/auth/session';
 import type { TokenPair } from '@/lib/api/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -48,19 +44,14 @@ let inFlightRefresh: Promise<string | null> | null = null;
 
 function refreshAccessToken(): Promise<string | null> {
   inFlightRefresh ??= (async () => {
-    const refreshToken = readStoredRefreshToken();
-    if (!refreshToken) return null;
-
     const response = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      credentials: 'include',
     });
 
     if (!response.ok) return null;
 
-    const tokens = (await response.json()) as TokenPair;
-    storeRefreshToken(tokens.refreshToken);
+    const tokens = (await response.json()) as { accessToken: string };
     useSession.getState().setAccessToken(tokens.accessToken);
     return tokens.accessToken;
   })()
@@ -94,6 +85,7 @@ async function request(
   const send = (token: string | null) =>
     fetch(`${API_URL}${path}`, {
       method,
+      credentials: 'include',
       headers: {
         ...(body === undefined || multipart
           ? {}

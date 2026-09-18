@@ -3,11 +3,7 @@
 import { useEffect } from 'react';
 import { api, ApiError } from '@/lib/api/client';
 import type { MeResponse, TokenPair } from '@/lib/api/types';
-import {
-  readStoredRefreshToken,
-  storeRefreshToken,
-  useSession,
-} from '@/lib/auth/session';
+import { useSession } from '@/lib/auth/session';
 
 /**
  * Rebuilds the session on first paint.
@@ -23,21 +19,13 @@ export function useSessionBootstrap() {
     let cancelled = false;
 
     void (async () => {
-      const refreshToken = readStoredRefreshToken();
-      if (!refreshToken) {
-        useSession.setState({ status: 'unauthenticated' });
-        return;
-      }
-
       try {
-        const tokens = await api<TokenPair>('/auth/refresh', {
+        const tokens = await api<{ accessToken: string }>('/auth/refresh', {
           method: 'POST',
-          body: { refreshToken },
           anonymous: true,
         });
         if (cancelled) return;
 
-        storeRefreshToken(tokens.refreshToken);
         useSession.setState({ accessToken: tokens.accessToken });
 
         const me = await api<MeResponse>('/auth/me');
