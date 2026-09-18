@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   useActiveSemester,
   useMyEligibleProjectTypes,
@@ -52,6 +53,7 @@ export default function NewProposalPage() {
           submitLabel="Gửi đề xuất"
           onSubmit={async (values) => {
             await create.mutateAsync(values);
+            toast.success('Đề xuất đã được gửi.');
             router.push('/student/proposals');
           }}
           onCancel={() => router.push('/student/proposals')}

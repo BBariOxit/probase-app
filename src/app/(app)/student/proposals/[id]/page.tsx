@@ -3,6 +3,7 @@
 import { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useProposal, useUpdateProposal } from '@/lib/api/proposals';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
@@ -69,6 +70,7 @@ export default function EditProposalPage({
               description: values.description,
               expectedOutcomes: values.expectedOutcomes,
             });
+            toast.success('Đề xuất đã được lưu.');
             router.push('/student/proposals');
           }}
           onCancel={() => router.push('/student/proposals')}

@@ -29,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PAGE_SIZE = 25;
 
@@ -261,11 +262,17 @@ export default function StudentRosterPage() {
           </Table>
         </div>
 
-        {isPending && (
-          <div className="flex justify-center py-14">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        )}
+        {isPending &&
+          Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="flex gap-4 border-t px-4 py-3">
+              <Skeleton className="h-4 w-44" />
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 flex-1" />
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          ))}
 
         {!isPending && students.length === 0 && (
           <EmptyState
