@@ -24,7 +24,6 @@ export function UserAvatar({
   );
 }
 
-/** Last word initial — Vietnamese names have the given name last. */
 function initial(label: string): string {
   const parts = label.trim().split(/\s+/);
   const word = parts.at(-1) ?? label;

@@ -26,20 +26,6 @@ function toSearch(query: NotificationQuery): string {
   return search ? `?${search}` : '';
 }
 
-/**
- * The inbox, and the unread count that comes with it.
- *
- * The one thing in this app that changes without the reader having done
- * anything: somebody joins your group, the office reopens a round, and the
- * first you hear of it is here. So unlike the rest of the data — which is
- * invalidated by whatever mutation moved it — this has to go and ask.
- *
- * A minute, and on regaining focus. Not a socket: a service people open a few
- * times a semester does not earn a live connection, and the count being a
- * minute stale costs nothing. Not longer, either — a student who follows a
- * notification into the app and finds the badge still there learns to distrust
- * it.
- */
 export function useNotifications(query: NotificationQuery = {}) {
   return useQuery({
     queryKey: notificationKeys.list(query),
@@ -50,11 +36,6 @@ export function useNotifications(query: NotificationQuery = {}) {
   });
 }
 
-/**
- * Every list and every count moves when one notice is read, and the badge is
- * derived from the same response as the list — so the whole family goes rather
- * than any one key.
- */
 function useInvalidateNotifications() {
   const queryClient = useQueryClient();
 

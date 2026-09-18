@@ -24,11 +24,6 @@ function toSearch(query: AuditQuery): string {
   return search ? `?${search}` : '';
 }
 
-/**
- * The trail. Read-only, because there is nothing to write: entries are made by
- * the services that perform the actions, inside the transaction that performs
- * them, and nothing anywhere edits or deletes one.
- */
 export function useAuditLogs(query: AuditQuery) {
   return useQuery({
     queryKey: ['audit-logs', query],
@@ -38,13 +33,6 @@ export function useAuditLogs(query: AuditQuery) {
   });
 }
 
-/**
- * The kinds of action that have actually happened, for the filter.
- *
- * Asked of the server rather than listed here, so a service added next month
- * shows up the first time it writes anything — and the filter never offers a
- * value with nothing behind it.
- */
 export function useAuditActions() {
   return useQuery({
     queryKey: ['audit-logs', 'actions'],

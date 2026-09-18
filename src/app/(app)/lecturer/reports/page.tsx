@@ -27,15 +27,6 @@ import { Textarea } from '@/components/ui/textarea';
 
 const PAGE_SIZE = 10;
 
-/**
- * Everything handed in on this lecturer's topics, newest first.
- *
- * No id travels in the request: which submissions come back is decided by the
- * token, so a supervisor cannot reach another's by editing anything on this
- * screen. The same applies to answering one — the API checks that the topic is
- * theirs and answers 404 rather than 403, so knowing an id never confirms it
- * exists.
- */
 export default function LecturerSubmissionsPage() {
   const allowed = useRequireRole('LECTURER');
   const [page, setPage] = useState(1);
@@ -152,18 +143,6 @@ export default function LecturerSubmissionsPage() {
   );
 }
 
-/**
- * The lecturer's own topics, as a way to narrow the queue to one of them.
- *
- * A supervisor with five topics reads this screen one topic at a time — they sit
- * down to answer everything for one group, not to work through twenty
- * submissions in the order they happened to arrive. The filter travels to the
- * API rather than being applied to the page already loaded, so page two of a
- * narrowed list is page two of that list.
- *
- * Nothing is drawn while they have only one topic: a filter offering a single
- * choice is a control that cannot change anything.
- */
 function TopicFilter({
   selected,
   onSelect,
@@ -201,13 +180,6 @@ function TopicFilter({
   );
 }
 
-/**
- * Writing back on one version.
- *
- * Against the version rather than against the group, so a group that re-submits
- * does not silently inherit what was said about the file they replaced — and the
- * dialog names the version for the same reason.
- */
 function FeedbackDialog({
   submission,
   onClose,

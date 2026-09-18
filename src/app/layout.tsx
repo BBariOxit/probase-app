@@ -25,9 +25,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // suppressHydrationWarning is required by next-themes: it writes the theme
-    // class onto <html> before React hydrates, which is the point — it is what
-    // stops a light flash before dark mode applies.
     <html
       lang="vi"
       suppressHydrationWarning

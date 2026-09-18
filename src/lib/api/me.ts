@@ -10,14 +10,6 @@ export const meKeys = {
   profile: ['me', 'profile'] as const,
 };
 
-/**
- * The signed-in user's own profile.
- *
- * Separate from the session on purpose. The session is rebuilt on every reload
- * and is deliberately small — id, address, role, name, picture — while this is
- * everything the account screen shows, asked for by the one screen that shows
- * it.
- */
 export function useMyProfile() {
   return useQuery({
     queryKey: meKeys.profile,
@@ -36,14 +28,6 @@ export function useUpdateMyProfile() {
   });
 }
 
-/**
- * Both avatar mutations end the same way, because a picture is not only on the
- * account screen: it is in the header on every page, and in the roster of a
- * group whose members were fetched long before this upload. The session copy is
- * patched directly — it is one string and re-fetching it would mean an extra
- * round trip to learn what the response already said — while the group cache is
- * invalidated, since somebody else's row is not ours to rewrite.
- */
 function useAvatarMutation<TVariables>(
   send: (variables: TVariables) => Promise<{ avatarUrl: string | null }>,
 ) {

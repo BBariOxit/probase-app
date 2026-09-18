@@ -10,20 +10,6 @@ const readable = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric',
 });
 
-/**
- * A date, with the date said back in words underneath.
- *
- * `<input type="date">` renders in the *browser's* locale, not the page's — an
- * office running Chrome in English sees `08/12/2026` for the twelfth of August
- * and reads it as the eighth of December. `lang="vi"` on the document does not
- * change that; nothing in the page can.
- *
- * Rather than replace the native control — which brings a calendar, a keyboard
- * model and a timezone bug of its own — the value is echoed underneath in
- * Vietnamese. The widget can say whatever its locale wants; the line below it is
- * unambiguous, and it is what somebody checks against before saving a
- * registration deadline.
- */
 export function DateField({
   id,
   label,
@@ -38,7 +24,6 @@ export function DateField({
   id: string;
   label: string;
   hint?: string;
-  /** `yyyy-mm-dd`, which is what the native input speaks. */
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;

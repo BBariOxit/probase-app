@@ -26,18 +26,8 @@ import { RoundTimeline } from '@/components/rounds/round-timeline';
 import { ProposalCard } from '@/components/proposals/proposal-card';
 import { Button } from '@/components/ui/button';
 
-/** A term's worth: one proposal open at a time, plus whatever was answered. */
 const PAGE_SIZE = 20;
 
-/**
- * What a student sent, and what came back.
- *
- * The screen for the case the catalogue does not cover — a student with an idea
- * of their own, which for a final-year project is the common case rather than the
- * exception. It is an outbox: one open proposal at a time, because the cheapest
- * strategy otherwise is to send the same idea to six lecturers and take whoever
- * answers first, which costs five of them a reading.
- */
 export default function StudentProposalsPage() {
   const allowed = useRequireRole('STUDENT');
   const semester = useActiveSemester();
@@ -164,8 +154,6 @@ function SentProposal({
   registeredTopicId,
 }: {
   proposal: TopicProposal;
-  /** The topic this student already holds, so the card does not invite them
-      to register for one they are already on. */
   registeredTopicId: number | null;
 }) {
   const withdraw = useWithdrawProposal();
@@ -228,15 +216,6 @@ function SentProposal({
   );
 }
 
-/**
- * What came back, when something did.
- *
- * The accepted case is the one that needs the most words, and it is the one a
- * bare "đã được nhận" would leave a student stuck on: the topic exists but is
- * still PENDING with the faculty office, so there is no register button anywhere
- * yet and nothing on any other screen explains the gap. Naming which of the two
- * is holding it up is the whole job here.
- */
 function Answer({
   proposal,
   registeredTopicId,
@@ -261,9 +240,6 @@ function Answer({
 
   const topic = proposal.convertedTopic;
   const alreadyRegistered = registeredTopicId === topic.id;
-  // OPEN is the only status a student can act on: before it the office has not
-  // signed the topic off, and `/student/topics/:id` answers 404 until it does —
-  // so a link drawn any earlier would take the good news to an error page.
   const readyToRegister = topic.status === 'OPEN' && !alreadyRegistered;
 
   return (

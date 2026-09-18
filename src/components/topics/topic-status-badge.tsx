@@ -19,7 +19,6 @@ export function TopicStatusBadge({
   return <StatusPill {...TOPIC_STATUS[status]} className={className} />;
 }
 
-/** Folds group status into the topic badge for the lecturer's own topic list. */
 export function TopicOwnerBadge({
   status,
   activeGroup,

@@ -39,19 +39,6 @@ const STATUS_FILTERS: { value: ProposalStatus | 'ALL'; label: string }[] = [
   { value: 'ALL', label: 'Mọi trạng thái' },
 ];
 
-/**
- * The proposals sent to this lecturer.
- *
- * Filtered to the unanswered ones by default, because that is the only reason
- * anybody opens it — the notice in the bell that led them here was about
- * somebody waiting. The other states stay one click away rather than mixed in:
- * a queue you have to read past to find the work is a queue that gets read
- * once.
- *
- * There is no id in any request here. Which proposals come back is decided by
- * the token, so a lecturer cannot ask for another lecturer's inbox by editing
- * anything on this screen.
- */
 export default function LecturerProposalsPage() {
   const allowed = useRequireRole('LECTURER');
   const { data: profile } = useMyProfile();
@@ -169,15 +156,6 @@ export default function LecturerProposalsPage() {
   );
 }
 
-/**
- * How much this lecturer is already carrying, before they read the queue.
- *
- * Said here rather than at the moment of pressing Nhận, because by then they
- * have read the whole proposal and decided. It is shown whether or not they are
- * at the ceiling: "3/5 nhóm" is the thing that makes the eventual refusal stop
- * being a surprise, and it is also simply what a supervisor wants to know before
- * agreeing to another one.
- */
 function MentoringLoadCard({ load }: { load: MentoringLoad }) {
   return (
     <section
@@ -282,7 +260,6 @@ function ReceivedProposal({ proposal }: { proposal: TopicProposal }) {
   );
 }
 
-/** What this lecturer's own answer left behind, for the ones already answered. */
 function Outcome({ proposal }: { proposal: TopicProposal }) {
   if (proposal.status === 'REJECTED') {
     return (

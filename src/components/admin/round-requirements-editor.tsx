@@ -13,7 +13,6 @@ import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-/** One row being edited. `id` is absent until the office saves it. */
 interface Row {
   id?: number;
   name: string;
@@ -21,14 +20,6 @@ interface Row {
   isRequired: boolean;
 }
 
-/**
- * The documents a faculty typically asks for, offered on an empty list.
- *
- * A suggestion and nothing more — every name is editable and any of them can be
- * removed. It exists because an empty list with only a "Thêm mục" button tells
- * the office nothing about what belongs in it, while these four say what shape
- * the answer takes in one glance.
- */
 const SUGGESTED = ['Đề cương', 'Quyển báo cáo', 'Mã nguồn', 'Slide bảo vệ'];
 
 function toDateInput(iso: string): string {
@@ -44,17 +35,6 @@ function toRow(requirement: SubmissionRequirement): Row {
   };
 }
 
-/**
- * What one round's groups must hand in, and by when.
- *
- * Separate from the registration plan above it for a reason that is not
- * cosmetic: declaring an intake is what *creates* a round, so while that form is
- * being filled in there is no round for a requirement to belong to. This edits
- * rounds that already exist.
- *
- * Sent whole rather than row by row, like the plan itself — what the office
- * decides is "this is what Tốt nghiệp hands in", not three separate edits.
- */
 export function RoundRequirementsEditor({
   round,
 }: {
@@ -109,9 +89,6 @@ export function RoundRequirementsEditor({
         })),
       });
 
-      // Re-seeded from the answer so newly created rows pick up their ids.
-      // Without it, saving twice would try to create them again and collide on
-      // the name.
       setDraft(next.map(toRow));
       setSaved(true);
     } catch (err) {

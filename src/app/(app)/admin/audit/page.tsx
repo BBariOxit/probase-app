@@ -19,14 +19,6 @@ import {
 
 const PAGE_SIZE = 25;
 
-/**
- * What each action is, in words.
- *
- * Only the ones that exist today are named; anything else falls back to the raw
- * value rather than being hidden, because a log that silently drops the entries
- * it does not recognise is worse than one that shows an ugly string. Adding a
- * new audited action to the API therefore needs no change here to keep working.
- */
 const ACTION_LABEL: Record<string, string> = {
   ASSIGN_GROUP_MEMBER: 'Khoa xếp sinh viên vào đề tài',
   UNASSIGN_GROUP_MEMBER: 'Khoa bỏ xếp sinh viên',
@@ -43,14 +35,6 @@ const dateTimeFormat = new Intl.DateTimeFormat('vi-VN', {
   minute: '2-digit',
 });
 
-/**
- * The trail: who did what, and what it looked like before and after.
- *
- * Read-only, and there is nothing anywhere that edits or deletes an entry — a
- * log somebody can tidy up answers no question worth asking. Entries are written
- * by whichever service performed the action, inside the same transaction, so one
- * cannot exist without the change it describes.
- */
 export default function AuditLogPage() {
   const allowed = useRequireRole('ADMIN');
   const [page, setPage] = useState(1);
@@ -150,15 +134,6 @@ export default function AuditLogPage() {
   );
 }
 
-/**
- * One line, with the before and after folded away.
- *
- * Those two are whatever the service that wrote the entry chose to record, so
- * they have no shape this screen could render into a sentence — and pretending
- * otherwise is how a log ends up describing the wrong change. Shown as they were
- * written, behind a toggle, because the summary line answers most questions and
- * the detail answers the rest.
- */
 function Entry({ entry }: { entry: AuditLogEntry }) {
   const [open, setOpen] = useState(false);
   const detail = entry.oldValue ?? entry.newValue;

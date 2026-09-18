@@ -51,7 +51,6 @@ function describe(
   return { label: 'Chưa mở đăng ký', tone: 'idle' };
 }
 
-/** Seats as filled and empty dots — used on group detail screens. */
 export function SeatDots({
   occupied,
   capacity,

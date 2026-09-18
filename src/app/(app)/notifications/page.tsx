@@ -17,13 +17,6 @@ import { Button } from '@/components/ui/button';
 
 const PAGE_SIZE = 20;
 
-/**
- * The whole inbox, for the notices that have scrolled past the bell.
- *
- * Not in the sidebar on purpose: the bell is where anyone looks for this, and a
- * permanent nav entry for a screen visited after a badge appears would be one
- * more line in a list whose job is to show the shape of a role's work.
- */
 export default function NotificationsPage() {
   const router = useRouter();
   const user = useSession((state) => state.user);

@@ -8,15 +8,6 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { ProposalForm } from '@/components/proposals/proposal-form';
 
-/**
- * Your own words, while nobody has answered them yet.
- *
- * Only the three text fields are editable, and the form draws the other two as
- * plain text for that reason — the API refuses to move either. That is not
- * fussiness about immutability: the lecturer has been told about this proposal
- * and may have it open right now, so redirecting it to somebody else is a
- * withdrawal and a new proposal, not an edit.
- */
 export default function EditProposalPage({
   params,
 }: {

@@ -16,20 +16,6 @@ import {
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { CatalogueManager } from '@/components/admin/catalogue-manager';
 
-/**
- * The two flat lists the faculty keeps, on one screen.
- *
- * They were a page each, and each page was a six-row table holding a third of a
- * monitor. Nothing about them is separate work either: the office declares both
- * once, at the start of a term, in the same sitting — a specialisation so the
- * roster import can match a code, and a kind of project so a round can be opened
- * at all. Splitting one job across two destinations was two clicks and two
- * near-empty screens for it.
- *
- * Học kỳ deliberately stays where it is. It has a detail page, an activate
- * button and a registration plan hanging off it, so it is not a flat list and
- * would not sit beside these two.
- */
 export default function CataloguesPage() {
   const allowed = useRequireRole('ADMIN');
 
@@ -79,9 +65,6 @@ export default function CataloguesPage() {
         isPending={types.isPending}
         error={types.error}
         usage={(type) => {
-          // Two different things point at a kind of project, and the office
-          // needs to know which is in the way: an open round is this term's
-          // problem, an old proposal is a record from a term nobody runs now.
           const rounds = type._count.rounds;
           const proposals = type._count.topicProposals;
 

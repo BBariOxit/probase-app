@@ -15,18 +15,6 @@ import { Input } from '@/components/ui/input';
 
 const PAGE_SIZE = 12;
 
-/**
- * The faculty's supervisors, as anyone signed in may see them.
- *
- * Not the same list as "lecturers who already have a topic" — a student writes
- * their own idea precisely when the catalogue has nothing they want, and the
- * person who would guide it is often the one with nothing published this term.
- *
- * Contact details are absent for the same reason they are absent from a topic:
- * a list every student can read is not where forty phone numbers belong. A
- * student who is actually supervised by someone can see their contact info on
- * the lecturer's own page — but only them.
- */
 export default function LecturerDirectoryPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');

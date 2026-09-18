@@ -4,11 +4,6 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { homePathFor, useSession } from '@/lib/auth/session';
 
-/**
- * The root is a dispatcher, not a page. Where someone belongs depends on the
- * session, which only exists client-side, so it waits for bootstrap and then
- * sends them on.
- */
 export default function RootPage() {
   const router = useRouter();
   const { status, user } = useSession();

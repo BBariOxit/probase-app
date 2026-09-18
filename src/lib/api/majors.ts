@@ -7,13 +7,6 @@ import type { Major } from '@/lib/api/types';
 
 const majorKeys = ['majors'] as const;
 
-/**
- * The faculty's specialisations.
- *
- * Read with the student count attached, because the API refuses to delete one
- * that anybody is enrolled in — a screen without the count could only offer the
- * button and let the refusal do the explaining.
- */
 export function useMajors() {
   return useQuery({
     queryKey: majorKeys,

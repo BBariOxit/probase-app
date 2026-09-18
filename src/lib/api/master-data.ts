@@ -11,16 +11,6 @@ import type {
   SubmissionRequirement,
 } from '@/lib/api/types';
 
-/**
- * Master data changes a few times a year at most. Refetching it on every
- * navigation would be pure noise, so it is held for a long while.
- *
- * Half an hour rather than the five minutes this used to be. Five did not match
- * the sentence above it, and the gap was visible: React Query refetches every
- * stale query when the window regains focus, so coming back to a tab after lunch
- * fired the whole set again — semesters, project types and cohort eligibility
- * together — for data that had not moved since term started.
- */
 const MASTER_DATA_STALE_TIME = 30 * 60_000;
 
 export function useSemesters() {
@@ -39,20 +29,11 @@ export function useProjectTypes() {
   });
 }
 
-/** The semester everything defaults to, if the faculty has opened one. */
 export function useActiveSemester(): Semester | undefined {
   const { data } = useSemesters();
   return data?.find((semester) => semester.isActive);
 }
 
-/**
- * The rounds this caller may take part in, soonest deadline first.
- *
- * The API does the ordering, and it is not arbitrary: a student already in a
- * group gets that round first, and one who is not gets the round they are about
- * to miss. A screen picking `[0]` therefore lands on the right one without
- * knowing either rule.
- */
 export function useMyRounds(semesterId: number | undefined) {
   return useQuery({
     queryKey: ['rounds', semesterId, 'mine'],
@@ -66,13 +47,6 @@ export function useMyRounds(semesterId: number | undefined) {
   });
 }
 
-/**
- * Every round in a semester, whoever is asking.
- *
- * The office's version of `useMyRounds`: an administrator belongs to no intake,
- * so "mine" would answer with nothing at all — and the whole point of their
- * screens is the rounds they are not personally in.
- */
 export function useRoundsForSemester(semesterId: number | undefined) {
   return useQuery({
     queryKey: ['rounds', semesterId, 'all'],
@@ -85,28 +59,12 @@ export function useRoundsForSemester(semesterId: number | undefined) {
   });
 }
 
-/**
- * The one round a student's screens follow.
- *
- * Almost every student has exactly one — their intake is opened for a single
- * kind of project — so this is the whole answer for them. Where a faculty opens
- * two for the same intake, the API's ordering decides which comes first.
- */
 export function useMyRound(semesterId: number | undefined) {
   const { data } = useMyRounds(semesterId);
 
   return data?.[0];
 }
 
-/**
- * The kinds of project this caller's intake may take in a semester.
- *
- * What the browse screen defaults its filter to. Without it a student sees the
- * whole catalogue and every register button on a project type their cohort is not
- * open for fails on press — the rule lives at the API, so the screen has to ask
- * rather than guess. Staff get the full catalogue: the rule exists to steer
- * students, not to hide the list from the people running it.
- */
 export function useMyEligibleProjectTypes(semesterId: number | undefined) {
   return useQuery({
     queryKey: ['semesters', semesterId, 'eligibility', 'mine'],
@@ -119,11 +77,6 @@ export function useMyEligibleProjectTypes(semesterId: number | undefined) {
 
 // ── the office's side of the same data ──────────────────────
 
-/**
- * Everything the master data can be changed by, kept beside the reads it
- * invalidates. A catalogue is small enough that no mutation here tries to patch
- * a cache by hand: the list is refetched, and the two can never disagree.
- */
 function useInvalidate(key: readonly unknown[]) {
   const queryClient = useQueryClient();
 
@@ -133,7 +86,7 @@ function useInvalidate(key: readonly unknown[]) {
 export interface SemesterInput {
   name: string;
   code: string;
-  /** ISO strings; the API coerces them. */
+
   startDate: string;
   endDate: string;
   gradeSubmissionDeadline?: string | null;
@@ -169,10 +122,6 @@ export function useDeleteSemester() {
   });
 }
 
-/**
- * Making one semester active makes every other one inactive, so the whole list
- * moves — and with it every screen that asks "which term is this".
- */
 export function useActivateSemester() {
   const queryClient = useQueryClient();
 
@@ -183,7 +132,6 @@ export function useActivateSemester() {
   });
 }
 
-/** Every round of a semester, for the office rather than for one reader. */
 export function useSemesterRounds(semesterId: number | undefined) {
   return useQuery({
     queryKey: ['semesters', semesterId, 'rounds'],
@@ -192,13 +140,6 @@ export function useSemesterRounds(semesterId: number | undefined) {
   });
 }
 
-/**
- * The whole registration plan, replaced in one call.
- *
- * Rounds that already carry topics are never dropped by omission — the API
- * refuses rather than quietly deleting work a lecturer has done — so the screen
- * can send what the office means without diffing it against what is there.
- */
 export function useSetSemesterRounds() {
   const queryClient = useQueryClient();
 
@@ -256,7 +197,6 @@ export function useDeleteProjectType() {
   });
 }
 
-/** The catalogue with the counts that decide whether a row may be deleted. */
 export function useProjectTypeDetails() {
   return useQuery({
     queryKey: ['project-types'],
@@ -265,13 +205,6 @@ export function useProjectTypeDetails() {
   });
 }
 
-/**
- * What one round requires its groups to hand in.
- *
- * Kept out of the round payload itself: the list is read by the one screen that
- * edits it and by the group screen that shows a student what they owe, and both
- * of those know which round they mean.
- */
 export function useRoundRequirements(roundId: number | undefined) {
   return useQuery({
     queryKey: ['rounds', roundId, 'requirements'],
@@ -283,20 +216,13 @@ export function useRoundRequirements(roundId: number | undefined) {
 }
 
 export interface RequirementInput {
-  /** Present for a row that already exists, absent for a new one. */
   id?: number;
   name: string;
-  /** ISO; the API reads it as a calendar day running to the end of that day. */
+
   dueAt: string;
   isRequired: boolean;
 }
 
-/**
- * Replaces a round's list wholesale, the same way the semester plan is sent.
- *
- * The order of the array is the order the office meant, and becomes the order
- * every screen shows.
- */
 export function useSetRoundRequirements() {
   const queryClient = useQueryClient();
 

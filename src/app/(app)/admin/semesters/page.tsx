@@ -53,19 +53,10 @@ const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric',
 });
 
-/** `<input type="date">` speaks yyyy-mm-dd; the API speaks ISO timestamps. */
 function toDateInput(iso: string | null): string {
   return iso ? iso.slice(0, 10) : '';
 }
 
-/**
- * The terms the faculty runs, and which one everything defaults to.
- *
- * The registration window is deliberately not here. A semester runs one round
- * per kind of project and they open and close on their own schedules — Tốt
- * nghiệp almost never shares a deadline with Cơ sở — so the dates live one level
- * down, behind "Đợt đăng ký" on each row.
- */
 export default function SemestersPage() {
   const allowed = useRequireRole('ADMIN');
   const { data, isPending, error } = useSemesters();
@@ -144,7 +135,9 @@ export default function SemestersPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        render={<Link href={`/admin/semesters/${semester.id}`} />}
+                        render={
+                          <Link href={`/admin/semesters/${semester.id}`} />
+                        }
                       >
                         <Settings2 />
                         Đợt đăng ký

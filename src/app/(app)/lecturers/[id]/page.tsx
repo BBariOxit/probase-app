@@ -11,19 +11,6 @@ import { topicHref } from '@/lib/nav';
 import { SeatBadge } from '@/components/groups/seat-indicator';
 import { UserAvatar } from '@/components/shared/user-avatar';
 
-/**
- * The person behind a topic.
- *
- * Choosing a topic is choosing a supervisor for a semester, and until now the
- * system would tell a student nothing about that decision but a name with a
- * title in front of it. This is the rest of it: what they work on, how they
- * describe themselves, and — only once they actually supervise you — how to
- * reach them.
- *
- * The API decides that last part, not this page. `email` and `phone` arrive null
- * for a reader who is only browsing, so there is nothing here to hide and no
- * rule to keep in step with the server's.
- */
 export default function LecturerProfilePage({
   params,
 }: {
@@ -108,19 +95,7 @@ export default function LecturerProfilePage({
   );
 }
 
-/**
- * What this lecturer is offering right now.
- *
- * The reason most people arrive here is that they are deciding whether to
- * register with this person, and the honest answer to that is the list of
- * topics they are supervising — not a paragraph about them. Only the current
- * semester's open ones: past topics would answer a question nobody asked while
- * pushing the ones you can still take off the screen.
- */
 function OpenTopics({ lecturerId }: { lecturerId: number }) {
-  // This page is readable by all three roles, and each of them reads a topic on
-  // a different screen — a student's link would bounce a lecturer straight back
-  // out of the guard on /student/topics.
   const role = useSession((state) => state.user?.role);
   const semester = useActiveSemester();
   const { data } = useTopics(

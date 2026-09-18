@@ -69,21 +69,6 @@ function Field({
   );
 }
 
-/**
- * One form for writing a proposal and for editing one nobody has answered yet.
- *
- * The addressee and the kind of project are pickers when it is new and plain
- * text when it is not, because the API refuses to move either on an existing
- * proposal. That refusal is not fussiness: the lecturer has been told about this
- * and may be reading it right now, so moving it to somebody else is not an edit —
- * it is a withdrawal and a new proposal, which leaves both of them with a true
- * story. The kind of project is fixed for a colder reason: it decides the round,
- * and the round decides who may take the topic this becomes.
- *
- * `maxStudents` is deliberately absent. How many people an idea takes is a
- * judgement about the work, made by whoever has to guide it, and it is the one
- * field the lecturer supplies when they accept.
- */
 export function ProposalForm({
   projectTypes,
   defaultValues,
@@ -92,13 +77,8 @@ export function ProposalForm({
   onSubmit,
   onCancel,
 }: {
-  /** The kinds of project this student's intake may take; ignored when `fixed`. */
   projectTypes: ProjectType[];
   defaultValues?: Partial<ProposalFormValues>;
-  /**
-   * The two choices already made, spelled out, when this is an edit. Their ids
-   * still travel in `defaultValues` so the schema has something to validate.
-   */
   fixed?: { projectType: string; lecturer: string };
   submitLabel: string;
   onSubmit: (values: ProposalInput) => Promise<unknown>;
@@ -121,9 +101,6 @@ export function ProposalForm({
       title: '',
       description: '',
       expectedOutcomes: '',
-      // One kind of project is the common case — an intake is usually opened for
-      // exactly one — and a select with a single option is a question with one
-      // answer. Choosing it here saves the student a click without hiding it.
       projectTypeId: projectTypes.length === 1 ? projectTypes[0].id : undefined,
       ...defaultValues,
     },
@@ -134,9 +111,6 @@ export function ProposalForm({
     try {
       await onSubmit(values);
     } catch (err) {
-      // The API's own message is the useful part of a refusal here — "Bạn đang
-      // có một đề xuất chờ trả lời" is exactly what the student needs to read,
-      // and it can arrive from a rule this screen cannot see.
       setFormError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
       );

@@ -37,20 +37,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-/**
- * The faculty office's desk: the students the gate closed on, and the seats
- * left to put them in.
- *
- * Two lists side by side and one gesture between them — pick a student, then
- * press a topic. Not drag and drop: this is worked through on a laptop with a
- * trackpad, often against a printed list, and dragging a name across a scrolling
- * column is the interaction most likely to drop somebody in the wrong place.
- *
- * The third list underneath is what has already been done, and it is the reason
- * the screen is usable at all: a placed student leaves the left column and a
- * filled topic leaves the right one, so without it a misplacement would vanish
- * the moment it was made.
- */
 export default function AllocationDeskPage() {
   const allowed = useRequireRole('ADMIN');
   const semester = useActiveSemester();
@@ -279,13 +265,6 @@ function Desk({ roundId, desk }: { roundId: number; desk: AllocationDesk }) {
   );
 }
 
-/**
- * The two numbers the office arrives with, and the third only they can act on.
- *
- * The shortfall is the loudest thing here when it exists, because it is the one
- * fact no amount of clicking on this screen will fix — it is solved by a phone
- * call to a supervisor, and the unopened topics beside it are who to call.
- */
 function Summary({ desk }: { desk: AllocationDesk }) {
   const { summary } = desk;
 
@@ -374,7 +353,6 @@ function Panel({
   );
 }
 
-/** What this desk has already done, and the only way back out of it. */
 function PlacementsMade({
   roundId,
   desk,

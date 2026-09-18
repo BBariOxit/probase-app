@@ -35,23 +35,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
-/** Sentinel for "no major", since a Select needs a value and 0 is never an id. */
 const NO_MAJOR = 0;
 
-/**
- * The person behind an account, as the faculty office records them.
- *
- * Separate from the account dialog beside it, and the split is the real one: an
- * address, a role and whether the door is open are facts about the login, while
- * a name and a student code are facts about a person the system computes with.
- * The intake read out of a student code decides which round they may register
- * in — so a typo here is not a spelling mistake, it is a student in the wrong
- * đợt, and until now the only way to fix one was to open the database.
- *
- * The whole profile is sent on save because both endpoints are a PUT that takes
- * every field. That is why this loads the profile first rather than editing from
- * the table row: sending a partial payload would blank whatever it omitted.
- */
 export function UserProfileDialog({
   user,
   onClose,

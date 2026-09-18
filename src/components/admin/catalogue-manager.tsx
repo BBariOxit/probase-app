@@ -33,22 +33,12 @@ import {
 } from '@/components/ui/table';
 import type { LucideIcon } from 'lucide-react';
 
-/** Anything with a name and a code, which is both catalogues the office keeps. */
 export interface CatalogueItem {
   id: number;
   name: string;
   code: string;
 }
 
-/**
- * Chuyên ngành and Loại đồ án are the same screen twice.
- *
- * Both are a name, a code, and a count of what depends on them; both refuse
- * deletion while anything still does. Writing them separately would have been
- * two copies of one table that drift the first time either is touched — so what
- * differs is passed in, and what differs is only the words and where the count
- * comes from.
- */
 export function CatalogueManager<T extends CatalogueItem>({
   icon,
   title,
@@ -63,20 +53,12 @@ export function CatalogueManager<T extends CatalogueItem>({
   onDelete,
 }: {
   icon: LucideIcon;
-  /** The heading over this block — both catalogues share one screen. */
   title: string;
-  /** Lower case, used mid-sentence: "Thêm chuyên ngành", "Xoá loại đồ án?" */
   noun: string;
-  /** What the code is for, shown on demand rather than printed above the table. */
   codeHint: string;
   items: T[] | undefined;
   isPending: boolean;
   error: unknown;
-  /**
-   * What is already using this row, and therefore whether it can go. Returning
-   * a count of zero is what enables the delete button — the API enforces the
-   * same rule, so a screen that guessed would offer a button that fails.
-   */
   usage: (item: T) => { count: number; label: string };
   onCreate: (input: CatalogueInput) => Promise<unknown>;
   onUpdate: (input: CatalogueInput & { id: number }) => Promise<unknown>;
@@ -242,14 +224,6 @@ export function CatalogueManager<T extends CatalogueItem>({
   );
 }
 
-/**
- * One dialog for adding and for renaming.
- *
- * The code is editable on an existing row even though changing it is a bigger
- * deal than changing a name — a roster import matches on it. The screen says so
- * rather than locking the field: the office is the only caller, and a code
- * genuinely typed wrong on the day it was created has to be fixable.
- */
 function CatalogueDialog({
   noun,
   codeHint,

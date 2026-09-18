@@ -18,15 +18,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-/**
- * A roster, uploaded.
- *
- * The result matters more than the upload, so most of this component is about
- * reading it. One bad row never fails the batch — three hundred lines with two
- * typos should create two hundred and ninety-eight accounts — which means the
- * office needs to see exactly which rows did not make it and why, and cannot be
- * handed a single "import failed".
- */
 export function UserImportDialog() {
   const importUsers = useBulkImportUsers();
   const [open, setOpen] = useState(false);
@@ -123,14 +114,6 @@ export function UserImportDialog() {
   );
 }
 
-/**
- * What came of it, with the one genuinely dangerous outcome first.
- *
- * An account whose credentials email failed exists but cannot be signed in to,
- * and the temporary password is not recoverable — so it needs the office to
- * reset it by hand. That is the only line here that is a task rather than a
- * number, and burying it under the totals is how it gets missed.
- */
 function ImportSummary({ result }: { result: BulkImportResult }) {
   return (
     <div className="space-y-3">

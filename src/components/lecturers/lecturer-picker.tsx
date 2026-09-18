@@ -19,10 +19,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
-/** Enough to fill the panel; anything past it is found by typing, not scrolling. */
 const PAGE_SIZE = 20;
 
-/** A supervisor's name as it is said out loud. */
 export function lecturerName(lecturer: {
   fullName: string;
   academicTitle: string | null;
@@ -32,20 +30,6 @@ export function lecturerName(lecturer: {
     : lecturer.fullName;
 }
 
-/**
- * Choosing who to send an idea to.
- *
- * A panel rather than a dropdown, because this is not picking a value off a
- * list — it is the decision the whole proposal rests on, and the things that
- * inform it (what somebody researches, how much they are already supervising)
- * do not fit on one line of a select. A student who picks the one name they
- * recognise is how a proposal ends up with the wrong reader.
- *
- * A lecturer already at their ceiling is shown, and is still selectable. The API
- * refuses the *acceptance*, not the asking, and a quota can be raised — so
- * greying them out would hide a supervisor who might be exactly right and could
- * say yes next week. The warning is there so the choice is made knowingly.
- */
 export function LecturerPicker({
   id,
   value,
@@ -67,9 +51,6 @@ export function LecturerPicker({
         id={id}
         type="button"
         variant="outline"
-        // The default size, matching every Select in the product. `lg` made it
-        // four pixels taller than the project-type field beside it, which on a
-        // two-column row reads as one of them being broken.
         disabled={disabled}
         aria-invalid={invalid}
         aria-haspopup="dialog"
@@ -212,14 +193,6 @@ function Panel({
   );
 }
 
-/**
- * How much this person is already supervising, and only when it changes the
- * decision.
- *
- * Silent when the faculty set no ceiling, because "4 nhóm" against no limit is a
- * number with nothing to compare it to — and a row of them would turn the panel
- * into a table of statistics rather than a list of people.
- */
 function MentoringPill({ lecturer }: { lecturer: LecturerDirectoryEntry }) {
   const { groups, reserved, quota, atQuota } = lecturer.mentoring;
 

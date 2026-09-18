@@ -23,11 +23,7 @@ export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  /**
-   * Whether the screen behind this item exists. Unbuilt destinations are shown
-   * disabled rather than hidden, so the shape of each role's job is legible
-   * from the first screen instead of appearing a module at a time.
-   */
+
   ready?: boolean;
 }
 
@@ -218,14 +214,6 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
   ],
 };
 
-/** The title the header shows for a path, taken from the navigation itself. */
-/**
- * Screens reachable without being a destination in the sidebar.
- *
- * A join link is followed from a chat message, so it has no nav entry to take a
- * title from — and falling through to the product name told the reader nothing
- * about the page they had just been sent to.
- */
 const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   { prefix: '/join/', label: 'Tham gia nhóm' },
   // Reached from the bell rather than the sidebar, so it needs a title here or
@@ -242,14 +230,6 @@ const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   { prefix: '/lecturers', label: 'Giảng viên' },
 ];
 
-/**
- * Where a topic is read, for the person reading it.
- *
- * The same topic has three screens — a student registers on it, its supervisor
- * edits it, an admin moderates it — and each one is guarded by role, so a link
- * built without knowing who is following it lands somebody on a page that
- * bounces them straight back out.
- */
 export function topicHref(role: Role, topicId: number): string {
   switch (role) {
     case 'STUDENT':
@@ -283,26 +263,10 @@ export function titleFor(role: Role, pathname: string): string {
 export interface BreadcrumbSegment {
   label: string;
   href: string;
-  /** True for the last segment — rendered as plain text, not a link. */
+
   isCurrent: boolean;
 }
 
-/**
- * Compute an ordered breadcrumb trail for the current pathname.
- *
- * Strategy: walk the pathname left-to-right, building up cumulative paths.
- * For each cumulative path we look for a match in the role's nav items or in
- * TITLE_BY_PREFIX. When nothing matches a segment it is passed through as-is
- * (typically a numeric ID); the caller can later swap that label for the real
- * name once data has loaded.
- *
- * We deliberately skip the role root when it is identical to the first nav
- * item, because showing "Đề tài › Đề tài" would be redundant noise.
- *
- * @param getSegmentLabel Optional function from BreadcrumbContext that returns
- *   the human-readable override for a raw segment string (e.g. "42" → "Nhóm
- *   đề tài AI…"). Pass null if the context is not available.
- */
 export function breadcrumbsFor(
   role: Role,
   pathname: string,

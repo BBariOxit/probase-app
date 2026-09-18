@@ -28,10 +28,6 @@ const TopicSchema = z.object({
   title: z.string().trim().min(1, 'Vui lòng nhập tên đề tài').max(255),
   description: z.string().trim().min(1, 'Vui lòng mô tả đề tài'),
   expectedOutcomes: z.string().trim().min(1, 'Vui lòng nêu yêu cầu đầu ra'),
-  // Not z.coerce here: coercion would make the schema's input type `unknown`,
-  // which react-hook-form then cannot reconcile with its output type. The
-  // number field is registered with valueAsNumber instead, so what arrives is
-  // already a number — or NaN, which z.number() rejects on its own.
   maxStudents: z
     .number('Vui lòng nhập số sinh viên')
     .int()
@@ -61,14 +57,6 @@ function Field({
   );
 }
 
-/**
- * One form for both creating and editing.
- *
- * The semester is locked once a topic exists: the API refuses to move it,
- * because registration groups carry a copy of it that a composite foreign key
- * pins to the topic. Showing it disabled rather than hiding it answers "which
- * semester is this in" without inviting an edit that would be rejected.
- */
 export function TopicForm({
   defaultValues,
   lockSemester = false,

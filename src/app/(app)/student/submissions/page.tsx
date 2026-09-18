@@ -32,14 +32,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-/**
- * What the group has handed in, and the way to hand in more.
- *
- * The history is the screen rather than a footnote to it: nothing is ever
- * overwritten here, so a group that re-submits leaves the previous version
- * standing with whatever their supervisor said about it. Reading down the page
- * is reading what happened.
- */
 export default function StudentSubmissionsPage() {
   const allowed = useRequireRole('STUDENT');
   const { data: group, isPending: groupPending } = useMyGroup();
@@ -168,15 +160,6 @@ export default function StudentSubmissionsPage() {
   );
 }
 
-/**
- * Handing something in.
- *
- * What can be handed in is whatever the faculty declared for this round, so the
- * choice is a list of their words rather than of three kinds the code knows
- * about. A file or a link, and the form says at least one is needed rather than
- * silently disabling the button — a student who filled in neither should be told
- * which of the two they still owe.
- */
 function SubmitDialog({
   requirements,
   onClose,
@@ -204,9 +187,6 @@ function SubmitDialog({
       });
       onClose();
     } catch (err) {
-      // The refusal worth reading comes from the API: a file whose bytes are not
-      // a PDF, Word or zip, or a deployment where file storage is not configured
-      // at all. Both are sentences a student can act on.
       setError(
         err instanceof ApiError ? err.message : 'Không tải được bài nộp lên',
       );

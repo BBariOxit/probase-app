@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/tooltip';
 import { useSidebar } from '@/components/ui/sidebar';
 
-/** Shows the current semester and round status in the sidebar footer. */
 export function SemesterContext() {
   const { state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed' && !isMobile;

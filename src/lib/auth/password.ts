@@ -1,17 +1,5 @@
 import { z } from 'zod';
 
-/**
- * Mirrors src/common/password.schema.ts on the API, which is the real gate —
- * this copy exists so the user is told in Vietnamese, immediately, instead of
- * round-tripping to read an English message. If the two ever disagree the API
- * wins, and the user sees its message.
- *
- * No upper/lower/digit/symbol requirements on purpose: asked for a capital and
- * a number, people write `Password1`, which ticks every box and is still among
- * the first guesses anyone makes. Length plus a blocklist of the passwords that
- * actually show up in breaches is what costs an attacker something, and it
- * keeps passphrases usable.
- */
 const COMMON_PASSWORDS = new Set([
   '12345678',
   '123456789',

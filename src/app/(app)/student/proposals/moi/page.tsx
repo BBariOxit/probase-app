@@ -12,18 +12,6 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { ProposalForm } from '@/components/proposals/proposal-form';
 import { Button } from '@/components/ui/button';
 
-/**
- * Writing one.
- *
- * A page rather than a dialog: it asks for two paragraphs of considered prose,
- * and a box that closes on a stray click is the wrong container for something
- * somebody spent twenty minutes on.
- *
- * The kinds of project offered are only the ones this student's intake is opened
- * for. Anything wider would let them write a whole proposal against a round the
- * API refuses on submit, and the refusal would arrive after the writing rather
- * than before it.
- */
 export default function NewProposalPage() {
   const allowed = useRequireRole('STUDENT');
   const router = useRouter();

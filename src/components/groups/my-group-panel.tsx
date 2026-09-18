@@ -21,25 +21,6 @@ import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { GroupSeatList } from '@/components/groups/group-seat-list';
 import { JoinLinkField } from '@/components/shared/join-link-field';
 
-/**
- * The group a student belongs to, and everything they can do to it.
- *
- * Ordered by how often each thing is wanted: the seats and the join link come
- * first because a leader returns for those, and the ways to break the group up
- * sit behind a menu. Putting "giải tán" beside "copy link" would be putting the
- * most destructive control next to the most used one.
- *
- * The header is the topic and nothing else. It carried a "Nhóm của bạn" label
- * directly under a page titled "Nhóm của tôi" — the same words twice inside
- * forty pixels — and a "1/3" that sat close enough to the menu button to read as
- * part of it. Both are now in the one place the seat count belongs: the list of
- * seats.
- *
- * `canEdit` is false once the gate has closed. Every control here is refused by
- * the API from that point on, and showing a live button in front of a certain
- * refusal is worse than showing none — the group is still worth reading, so it
- * is the controls that go rather than the panel.
- */
 export function MyGroupPanel({
   group,
   canEdit = true,

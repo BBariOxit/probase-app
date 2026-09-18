@@ -5,9 +5,8 @@ import { api } from '@/lib/api/client';
 import type { Paginated, Submission } from '@/lib/api/types';
 
 export interface SubmissionQuery {
-  /** One of the round's declared documents. */
   requirementId?: number;
-  /** Staff only. A student's own group comes from their token, never from here. */
+
   groupId?: number;
   topicId?: number;
   page?: number;
@@ -32,12 +31,6 @@ function toSearch(query: SubmissionQuery): string {
   return search ? `?${search}` : '';
 }
 
-/**
- * What has been handed in, from whichever end the reader stands at: a student
- * gets their own group's, a supervisor gets everything on their topics. There is
- * no parameter for whose, so there is nothing here that could ask for somebody
- * else's work.
- */
 export function useSubmissions(query: SubmissionQuery = {}) {
   return useQuery({
     queryKey: submissionKeys.list(query),
@@ -53,20 +46,12 @@ function useInvalidateSubmissions() {
 }
 
 export interface SubmissionInput {
-  /** Which of the round's declared documents this is an attempt at. */
   requirementId: number;
-  /** At least one of these; the API refuses a submission carrying neither. */
+
   submissionUrl?: string;
   file?: File | null;
 }
 
-/**
- * Handing something in.
- *
- * Always multipart, even when there is no file: the endpoint takes one, and
- * sending the same shape either way means the form does not have to decide
- * between two request formats depending on what the student filled in.
- */
 export function useCreateSubmission() {
   const invalidate = useInvalidateSubmissions();
 

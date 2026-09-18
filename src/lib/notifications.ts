@@ -1,18 +1,5 @@
 import type { AppNotification, Role } from '@/lib/api/types';
 
-/**
- * Where a notice leads, or null when it leads nowhere yet.
- *
- * Two roles receive notices now, and each has its own set: everything a lecturer
- * is told about is a proposal waiting on them, and everything else is addressed
- * to a student. They are split rather than merged because the destinations do not
- * overlap at all — a single switch would have to re-check the role in most of its
- * arms anyway, and the one time that check was missed it would send somebody into
- * a screen that bounces them straight back out.
- *
- * Returning null is the honest answer for the types whose screens do not exist:
- * a notice that navigates to a dead page is worse than one that simply reads.
- */
 export function notificationHref(
   notice: AppNotification,
   role: Role,
@@ -123,14 +110,6 @@ const STEPS: {
   { limit: 604_800, divisor: 86_400, unit: 'day' },
 ];
 
-/**
- * How long ago, in words.
- *
- * An inbox is read by recency and almost never by date: "2 giờ trước" answers
- * the question a reader actually has, where "18/08/2026 14:22" makes them do
- * the subtraction. Past a week the exact date becomes the more useful of the
- * two, and it takes over.
- */
 export function timeAgo(iso: string): string {
   const seconds = (Date.now() - new Date(iso).getTime()) / 1000;
 

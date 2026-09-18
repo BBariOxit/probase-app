@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 
-/** Main content column with an optional sidebar rail. Stacks on mobile. */
 export function PageWithRail({
   rail,
   className,

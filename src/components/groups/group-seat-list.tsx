@@ -12,7 +12,6 @@ import {
 import { UserAvatar } from '@/components/shared/user-avatar';
 import { cn } from '@/lib/utils';
 
-/** Whole hours left on the hold, rounded up. */
 function hoursLeft(holdUntil: string): number {
   return Math.max(
     0,
@@ -20,30 +19,6 @@ function hoursLeft(holdUntil: string): number {
   );
 }
 
-/**
- * The topic's seats: who is in them, and what is happening to the empty ones.
- *
- * One list, because there is only one fact here. A roster, a row of seat icons
- * and a "1/3" beside the menu were three drawings of the same thing sixty pixels
- * apart — a reader would meet Nguyễn Văn A as a name, then again as a filled
- * square, and have to work out that they were the same person. A topic with
- * three places has three rows, and every row says in words what it is.
- *
- * That also disposes of the icons-only seat picker, which was unreadable for the
- * ordinary reason: the seat carrying the only real information was the greyest
- * box on screen, the empty ones looked disabled, and nothing was labelled, so
- * the line underneath had to be read and mapped back onto the squares.
- *
- * The hold is a count under the covers — `declaredSize` reserves the first N
- * seats and cannot skip one — so a control appears only where it leads to a
- * state the model can express: hold on the first free seat, give back on the
- * last held one. Holding the third while leaving the second open is not
- * something the API can be asked, so it is not something this offers.
- *
- * Nothing here is required. Registration already holds every seat for the first
- * 24 hours, so a leader who ignores it keeps what they were given until the
- * window lapses on its own.
- */
 export function GroupSeatList({
   group,
   canEdit = true,
@@ -56,7 +31,6 @@ export function GroupSeatList({
 
   const capacity = group.topic.maxStudents;
   const occupied = group.occupiedSeats;
-  /** Seats spoken for: the ones sat in, plus the ones being kept. */
   const claimed = group.holdActive
     ? (group.declaredSize ?? occupied)
     : occupied;
@@ -64,7 +38,6 @@ export function GroupSeatList({
     canEdit && group.isLeader && group.holdActive && !group.isFull;
   const busy = update.isPending || removeMember.isPending;
 
-  /** Holds up to `seat`, or gives everything above it back. */
   function setClaim(seat: number) {
     update.mutate({ declaredSize: seat <= occupied ? null : seat });
   }
@@ -151,12 +124,6 @@ export function GroupSeatList({
   );
 }
 
-/**
- * `joinSource` is only shown for ASSIGNED. That somebody joined by link rather
- * than by pressing the button is invisible to how the group works, whereas
- * having been placed by the faculty office is something the group can see for
- * itself — and the person concerned did not choose to be here.
- */
 function MemberSeat({
   member,
   canRemove,
@@ -215,13 +182,6 @@ function MemberSeat({
   );
 }
 
-/**
- * A place nobody is in yet, and who may take it.
- *
- * Written out rather than greyed out. An empty seat is not a disabled control:
- * it is the row a leader came to this screen to do something about, so it reads
- * as a live line with a name for its state, not as a hole in the list.
- */
 function EmptySeat({
   held,
   openForJoin,
@@ -275,15 +235,6 @@ function EmptySeat({
   );
 }
 
-/**
- * What "giữ chỗ" means, and how long it lasts — the rule the rows cannot show.
- *
- * Each row already says who may take that seat, so what is left is the clock on
- * it: the hold is a courtesy that runs 24 hours from the moment the group was
- * registered and cannot be extended. That is something a reader wants once and
- * then never again, which is why it is behind a mark rather than printed under
- * the list for the rest of the semester.
- */
 function holdExplanation(group: RegistrationGroup, canClaim: boolean): string {
   if (!group.holdActive) {
     return 'Nhóm được giữ chỗ trong 24 giờ đầu sau khi đăng ký, và hạn đó đã qua. Những chỗ còn trống giờ mở cho tất cả mọi người.';

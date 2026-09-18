@@ -8,15 +8,6 @@ import { ProfileDetailsForm } from '@/components/profile/profile-details-form';
 import { ProfileFacts } from '@/components/profile/profile-facts';
 import { Button } from '@/components/ui/button';
 
-/**
- * One screen for all three roles.
- *
- * The role decides which block appears, not which page you land on: an admin, a
- * lecturer and a student all arrive here from the same menu entry and all read
- * the same three headings in the same order — who you are, what the faculty
- * holds, what you may change — which is what makes it explainable in one
- * sentence to somebody on the phone.
- */
 export default function ProfilePage() {
   const { data: profile, isPending, error } = useMyProfile();
 

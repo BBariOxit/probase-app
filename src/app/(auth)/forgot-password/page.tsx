@@ -52,9 +52,6 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  // The API answers identically for a known and an unknown address, and so
-  // must this screen — confirming that an email exists here would undo the
-  // point of the uniform response.
   if (sent) {
     return (
       <Card className="px-6 py-8 border-none shadow-lg">

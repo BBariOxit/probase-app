@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-/** The form's fields, as strings — an empty box means null on the way out. */
 interface Draft {
   phone: string;
   bio: string;
@@ -28,33 +27,11 @@ function draftFrom(profile: MyProfile): Draft {
   };
 }
 
-/**
- * The short list of things a person may say about themselves.
- *
- * Deliberately not a form over the whole profile. Name, student code, class,
- * cohort and major come from the faculty office's import and the system reasons
- * with them, so they sit above this as text — an input that refuses to save is
- * worse than a line that never offered to.
- *
- * It carries no heading of its own. It is the lower half of "Thông tin cá
- * nhân", divided from the fixed half by a rule: which fields you may edit is
- * shown by which ones are boxes, and a sentence saying so was one more line to
- * read on the way to the same conclusion.
- *
- * Nothing here is required, and an empty box means the field is cleared rather
- * than left alone: `phone: ''` and `phone: null` would otherwise be two ways of
- * saying nothing, and the API stores one of them.
- */
 export function ProfileDetailsForm({ profile }: { profile: MyProfile }) {
   const isLecturer = profile.lecturer !== null;
   const [draft, setDraft] = useState<Draft>(() => draftFrom(profile));
   const [saved, setSaved] = useState(false);
 
-  // The profile object the boxes were last filled from. A save answers with the
-  // stored row and another tab can change it too, so when a different one
-  // arrives the draft is re-seeded from it — adjusted during render rather than
-  // in an effect, which would render once with the old values and again with
-  // the new.
   const [seed, setSeed] = useState(profile);
   if (seed !== profile) {
     setSeed(profile);

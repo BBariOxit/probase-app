@@ -43,19 +43,6 @@ const PHASE: Record<string, { label: string; tone: StatusTone }> = {
   FINALIZED: { label: 'Đã chốt', tone: 'idle' },
 };
 
-/**
- * The term in numbers.
- *
- * Registration and submissions are shown a row per đợt and never added up: a
- * semester runs three of them for three different intakes sharing no seat, so a
- * single total would hide the one that went badly behind the two that went
- * well. Supervision and majors are one table each for the whole term, because
- * that is the scope those questions have.
- *
- * There is no grade section yet, and no placeholder for one. A column of empty
- * cells reads as "nobody has a grade" rather than "marking has not been built",
- * and the first of those is alarming for no reason.
- */
 export default function ReportsPage() {
   const allowed = useRequireRole('ADMIN');
   const { data: semesters } = useSemesters();
@@ -172,7 +159,6 @@ function Section({
   );
 }
 
-/** One row per đợt: who it covered, and how they got their topic. */
 function RegistrationTable({ rows }: { rows: RoundReportRow[] }) {
   return (
     <Table>
@@ -224,13 +210,6 @@ function RegistrationTable({ rows }: { rows: RoundReportRow[] }) {
   );
 }
 
-/**
- * How many students chose their own topic against how many the office placed.
- *
- * The one figure on this page that reads better as a shape than as a number:
- * whether free registration is working is a proportion, and a person takes a
- * proportion in at a glance from a bar and not from two integers.
- */
 function SplitBar({ self, assigned }: { self: number; assigned: number }) {
   const total = self + assigned;
 
@@ -264,7 +243,6 @@ function SplitBar({ self, assigned }: { self: number; assigned: number }) {
   );
 }
 
-/** Only lecturers carrying something; a directory of the rest is another screen. */
 function SupervisionTable({ rows }: { rows: SupervisionRow[] }) {
   if (rows.length === 0) {
     return (
@@ -331,16 +309,6 @@ function MajorTable({ rows }: { rows: MajorReportRow[] }) {
   );
 }
 
-/**
- * A row per đợt, then a row per document under it.
- *
- * The list is the faculty's to declare and its length differs between rounds, so
- * a column per document would be a table that changes shape every term. Reading
- * down the indented rows is reading which document a round is actually stuck on,
- * which the round's own total cannot say.
- *
- * Every count uses the newest version each group handed in — see the API.
- */
 function ProgressTable({ rows }: { rows: ProgressRow[] }) {
   return (
     <Table>

@@ -41,30 +41,14 @@ const GROUP_STATUS_LABEL: Record<string, { label: string; class: string }> = {
   },
 };
 
-/**
- * How many submission slots the group has already filled.
- *
- * Counting distinct requirement IDs that have at least one submission — not
- * raw submission rows, which would count re-submissions as separate deliveries.
- */
 function submissionProgress(group: RegistrationGroup): {
   submitted: number;
   total: number;
 } {
   const total = group.requirements.length;
-  // The group object does not carry submissions directly; we only have
-  // requirements here. The detail page has the full submission history.
-  // We leave submitted as 0 and let the detail page show the real count.
-  // This gives us the total-requirements number for the rail.
   return { submitted: 0, total };
 }
 
-/**
- * A single group card.
- *
- * Clicking anywhere navigates to the detail page, where the supervisor can
- * see members, contact info and the full submission history.
- */
 function GroupCard({ group }: { group: RegistrationGroup }) {
   const status = GROUP_STATUS_LABEL[group.status] ?? {
     label: group.status,
@@ -131,15 +115,6 @@ function GroupCard({ group }: { group: RegistrationGroup }) {
   );
 }
 
-/**
- * The lecturer's supervised-groups list.
- *
- * A flat list ordered by creation date — the same order the students registered
- * in. Grouped-by-topic would add a heading above every single card for a
- * lecturer with five topics and one group each, which is furniture around nothing.
- * Flat with a topic title on each card is the same information at half the
- * vertical cost.
- */
 export default function LecturerGroupsPage() {
   const allowed = useRequireRole('LECTURER');
   const activeSemester = useActiveSemester();

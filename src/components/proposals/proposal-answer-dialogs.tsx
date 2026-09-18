@@ -19,20 +19,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-/**
- * Saying yes, and the one thing the lecturer has to supply to do it.
- *
- * `maxStudents` is the field the proposal deliberately does not carry: how many
- * people an idea takes is a judgement about the work, made by whoever has to
- * guide it. It is also the number the group's whole seat arithmetic is built on,
- * so it cannot be defaulted to something plausible and corrected later — which
- * is why this is a dialog and not a button.
- *
- * What it produces is a PENDING topic, exactly like one the lecturer wrote
- * themselves, and the wording says so. Skipping the faculty office here would
- * open a way around its review entirely, and a lecturer who expected the topic
- * to appear immediately would read the delay as a fault.
- */
 export function AcceptProposalDialog({
   proposal,
   open,
@@ -55,9 +41,6 @@ export function AcceptProposalDialog({
       await accept.mutateAsync({ id: proposal.id, maxStudents: size });
       onOpenChange(false);
     } catch (err) {
-      // The refusal that actually happens here is the mentoring quota, and its
-      // message names the numbers. Replacing it with something generic would
-      // throw away the only part worth reading.
       setError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
       );
@@ -128,14 +111,6 @@ export function AcceptProposalDialog({
   );
 }
 
-/**
- * Saying no, with the reason that makes it worth anything.
- *
- * The reason is required by the API, and this is why: a refusal a student cannot
- * learn from produces the same proposal again next week, and the lecturer reads
- * it twice. It also costs very little — the sentence they would have said out
- * loud is the sentence that goes here.
- */
 export function RejectProposalDialog({
   proposal,
   open,

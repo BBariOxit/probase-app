@@ -22,7 +22,6 @@ const STATUS_MESSAGES: Record<number, string> = {
   504: 'Máy chủ phản hồi quá chậm. Thử lại nhé.',
 };
 
-/** Nest replies with `message` as either a string or an array of them. */
 async function errorMessage(response: Response): Promise<string> {
   const canned = STATUS_MESSAGES[response.status];
   if (canned) return canned;
@@ -65,14 +64,7 @@ function refreshAccessToken(): Promise<string | null> {
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-  /**
-   * JSON by default. A `FormData` is sent as it is, with no `Content-Type` of
-   * ours: the browser has to write that header itself so it can append the
-   * multipart boundary, and setting it here would produce a body the server
-   * cannot split.
-   */
   body?: unknown;
-  /** Skip the Authorization header — login and refresh are public. */
   anonymous?: boolean;
 }
 

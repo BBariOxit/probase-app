@@ -3,19 +3,6 @@
 import { useTopic } from '@/lib/api/topics';
 import { Skeleton } from '@/components/ui/skeleton';
 
-/**
- * The topic itself, on the group's own screen.
- *
- * The third question a student has after registering — what does this thing
- * actually ask of me — and until now the only answer was a link to another page.
- * The group panel above already names the topic and its supervisor, so this adds
- * only the two bodies of text, without a heading repeating the title a second
- * time.
- *
- * Fetched rather than taken from the group: registration responses carry a
- * topic's title and capacity, not its description, and asking for the detail is
- * cheaper than widening every group payload for one screen.
- */
 export function GroupTopicBrief({ topicId }: { topicId: number }) {
   const { data: topic, isPending } = useTopic(topicId);
 

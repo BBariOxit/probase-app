@@ -10,7 +10,6 @@ import { AppHeader } from '@/components/layout/app-header';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
-/** SidebarProvider writes this on every toggle but never reads it back. */
 function storedSidebarOpen(): boolean {
   if (typeof document === 'undefined') return true;
   return !/(^|;\s*)sidebar_state=false(;|$)/.test(document.cookie);

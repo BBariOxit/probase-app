@@ -12,19 +12,6 @@ import { PageWithRail } from '@/components/layout/page-with-rail';
 import { RoundTimeline } from '@/components/rounds/round-timeline';
 import { Button } from '@/components/ui/button';
 
-/**
- * Two columns: what the student has, and when it is due.
- *
- * A single narrow stack left the right-hand half of a desktop screen empty while
- * the page still refused to answer two of the three questions a student arrives
- * with. Widening it alone would only have made the emptiness wider — so the
- * space is paid for with the things that were missing: the round as a sequence
- * of dates in the rail, and the topic's own description underneath the group.
- *
- * The rail comes first in the markup so that a phone, which has one column, gets
- * the deadline before the roster; `lg:order-*` puts it back on the right where
- * there is room for both.
- */
 export default function StudentGroupPage() {
   const allowed = useRequireRole('STUDENT');
   const semester = useActiveSemester();
@@ -47,13 +34,6 @@ export default function StudentGroupPage() {
     );
   }
 
-  // Not a failure and not empty furniture either: having no group yet is the
-  // normal state at the start of a semester, and the one thing to do about it is
-  // on the other screen.
-  //
-  // The timeline still belongs here, and here it matters most: this is the
-  // reader who has something to lose by it, and "khoa sẽ xếp bạn vào một đề tài
-  // còn chỗ" is what they are agreeing to by doing nothing.
   if (!group) {
     return (
       <PageWithRail

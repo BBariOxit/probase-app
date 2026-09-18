@@ -238,12 +238,6 @@ export default function LecturerGroupDetailPage({
   );
 }
 
-/**
- * Writing a comment back on one submission version.
- *
- * Reused verbatim from /lecturer/bao-cao — the dialog is the same whether you
- * open it from the overview queue or from inside a single group's page.
- */
 function FeedbackDialog({
   submission,
   onClose,

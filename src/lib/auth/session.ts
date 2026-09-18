@@ -36,7 +36,6 @@ export const useSession = create<SessionState>((set) => ({
   },
 }));
 
-/** Where a signed-in user belongs, once past the password gate. */
 export function homePathFor(role: Role): string {
   if (role === 'ADMIN') return '/admin';
   if (role === 'LECTURER') return '/lecturer';

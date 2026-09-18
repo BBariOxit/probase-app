@@ -18,19 +18,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-/**
- * Closing the round for good.
- *
- * The dialog exists mainly for the case it hopes not to meet: finalising while
- * students are still unplaced. The API refuses that unless the office says it
- * meant to, and it asks for a sentence — not as a formality, but because the
- * students being sealed out of the semester are the ones somebody will ask
- * about in a month, and this is the only place that answer gets written down.
- *
- * When everybody has a topic it is an ordinary confirmation, and the reason box
- * is not shown at all: asking for a justification for the good outcome would
- * teach people to type anything into it.
- */
 export function FinalizeRoundDialog({
   roundId,
   desk,

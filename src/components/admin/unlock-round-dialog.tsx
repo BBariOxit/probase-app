@@ -18,20 +18,6 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-/**
- * Taking a settled round back to the desk.
- *
- * A round is sealed on a mistake often enough that "không hoàn tác được" was
- * never true of a real registry — what is true is that undoing leaves a mark.
- * So the reason is required and goes to the log with who and when: every student
- * in this round has already been told their allocation was final, and the reason
- * is the only thing the faculty will have to say when one of them asks why their
- * topic moved.
- *
- * Nobody is notified by the unlock itself. An "actually, not yet" followed by
- * the same result would be two notices for one outcome; finalising again is what
- * announces whatever changed in between.
- */
 export function UnlockRoundDialog({
   roundId,
   desk,

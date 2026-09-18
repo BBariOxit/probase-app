@@ -3,7 +3,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-/** Renders nothing on a single page. */
 export function PaginationBar({
   page,
   totalPages,
