@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation';
 import type { SessionUser } from '@/lib/api/types';
 import { NAV_BY_ROLE, type NavItem } from '@/lib/nav';
 import { cn } from '@/lib/utils';
-import { Brand } from '@/components/brand';
-import { SemesterContext } from '@/components/semester-context';
+import { Brand } from '@/components/layout/brand';
+import { SemesterContext } from '@/components/rounds/semester-context';
 import {
   Sidebar,
   SidebarContent,

@@ -2,7 +2,7 @@
 
 import type { Submission, SubmissionRequirement } from '@/lib/api/types';
 import { daysUntilDay } from '@/lib/named-day';
-import { StatusPill, type StatusLabel } from '@/components/status-pill';
+import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',

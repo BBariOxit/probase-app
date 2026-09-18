@@ -6,8 +6,8 @@ import { Check, ClipboardCheck, Loader2, Search } from 'lucide-react';
 import { useTopicTransition, useTopics } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { EmptyState } from '@/components/empty-state';
-import { PaginationBar } from '@/components/pagination-bar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PaginationBar } from '@/components/shared/pagination-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

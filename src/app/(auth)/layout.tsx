@@ -1,5 +1,5 @@
-import { Brand } from '@/components/brand';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { Brand } from '@/components/layout/brand';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 export default function AuthLayout({
   children,

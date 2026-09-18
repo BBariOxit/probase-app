@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useProposal, useUpdateProposal } from '@/lib/api/proposals';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
-import { ProposalForm } from '@/components/proposal-form';
+import { ProposalForm } from '@/components/proposals/proposal-form';
 
 /**
  * Your own words, while nobody has answered them yet.

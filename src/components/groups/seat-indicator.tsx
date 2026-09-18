@@ -1,6 +1,6 @@
 import type { TopicAvailability } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
-import { StatusPill, type StatusLabel } from '@/components/status-pill';
+import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
 
 export function SeatBadge({
   topic,

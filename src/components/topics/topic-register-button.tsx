@@ -18,8 +18,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { GroupSeatList } from '@/components/group-seat-list';
-import { JoinLinkField } from '@/components/join-link-field';
+import { GroupSeatList } from '@/components/groups/group-seat-list';
+import { JoinLinkField } from '@/components/shared/join-link-field';
 
 interface TopicLike extends TopicAvailability {
   id: number;

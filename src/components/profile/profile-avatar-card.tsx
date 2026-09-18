@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { useRemoveAvatar, useUploadAvatar } from '@/lib/api/me';
 import type { MyProfile } from '@/lib/api/types';
 import { Button } from '@/components/ui/button';
-import { UserAvatar } from '@/components/user-avatar';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 const ROLE_LABELS: Record<MyProfile['role'], string> = {
   ADMIN: 'Quản trị viên',

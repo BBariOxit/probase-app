@@ -5,9 +5,9 @@ import { ChevronDown, Loader2, ScrollText } from 'lucide-react';
 import { useAuditActions, useAuditLogs } from '@/lib/api/audit';
 import type { AuditLogEntry } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { EmptyState } from '@/components/empty-state';
-import { PageWithRail } from '@/components/page-with-rail';
-import { PaginationBar } from '@/components/pagination-bar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PageWithRail } from '@/components/layout/page-with-rail';
+import { PaginationBar } from '@/components/shared/pagination-bar';
 import { Button } from '@/components/ui/button';
 import {
   Select,

@@ -17,10 +17,10 @@ import type {
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { cn } from '@/lib/utils';
-import { DateField } from '@/components/date-field';
-import { FormError } from '@/components/form-error';
-import { RoundRequirementsEditor } from '@/components/round-requirements-editor';
-import { StatusPill, type StatusTone } from '@/components/status-pill';
+import { DateField } from '@/components/shared/date-field';
+import { FormError } from '@/components/shared/form-error';
+import { RoundRequirementsEditor } from '@/components/admin/round-requirements-editor';
+import { StatusPill, type StatusTone } from '@/components/shared/status-pill';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

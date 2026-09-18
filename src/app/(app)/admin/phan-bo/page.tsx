@@ -24,10 +24,10 @@ import type {
 } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/empty-state';
-import { FinalizeRoundDialog } from '@/components/finalize-round-dialog';
-import { UnlockRoundDialog } from '@/components/unlock-round-dialog';
-import { UserAvatar } from '@/components/user-avatar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { FinalizeRoundDialog } from '@/components/admin/finalize-round-dialog';
+import { UnlockRoundDialog } from '@/components/admin/unlock-round-dialog';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
   Select,

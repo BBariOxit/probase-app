@@ -14,7 +14,7 @@ import type {
   StudentProfileDetail,
   UserAccount,
 } from '@/lib/api/types';
-import { FormError } from '@/components/form-error';
+import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

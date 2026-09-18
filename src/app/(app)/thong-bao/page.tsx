@@ -11,8 +11,8 @@ import {
 import type { AppNotification } from '@/lib/api/types';
 import { useSession } from '@/lib/auth/session';
 import { notificationHref, timeAgo } from '@/lib/notifications';
-import { EmptyState } from '@/components/empty-state';
-import { PaginationBar } from '@/components/pagination-bar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PaginationBar } from '@/components/shared/pagination-bar';
 import { Button } from '@/components/ui/button';
 
 const PAGE_SIZE = 20;

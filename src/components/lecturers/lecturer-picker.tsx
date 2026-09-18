@@ -6,9 +6,9 @@ import { useLecturerDirectory } from '@/lib/api/lecturers';
 import type { LecturerDirectoryEntry } from '@/lib/api/types';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/empty-state';
-import { StatusPill } from '@/components/status-pill';
-import { UserAvatar } from '@/components/user-avatar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { StatusPill } from '@/components/shared/status-pill';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

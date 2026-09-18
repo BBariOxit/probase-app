@@ -8,11 +8,11 @@ import { useMyGroup } from '@/lib/api/registration';
 import { useCreateSubmission, useSubmissions } from '@/lib/api/submissions';
 import type { SubmissionRequirement } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { EmptyState } from '@/components/empty-state';
-import { FormError } from '@/components/form-error';
-import { PageWithRail } from '@/components/page-with-rail';
-import { SubmissionCard } from '@/components/submission-card';
-import { SubmissionDeadlines } from '@/components/submission-deadlines';
+import { EmptyState } from '@/components/shared/empty-state';
+import { FormError } from '@/components/shared/form-error';
+import { PageWithRail } from '@/components/layout/page-with-rail';
+import { SubmissionCard } from '@/components/submissions/submission-card';
+import { SubmissionDeadlines } from '@/components/submissions/submission-deadlines';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

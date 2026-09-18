@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useActiveSemester } from '@/lib/api/master-data';
 import { useCreateTopic } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { PageHeading } from '@/components/page-heading';
-import { TopicForm } from '@/components/topic-form';
+import { PageHeading } from '@/components/layout/page-heading';
+import { TopicForm } from '@/components/topics/topic-form';
 
 export default function NewTopicPage() {
   const allowed = useRequireRole('LECTURER');

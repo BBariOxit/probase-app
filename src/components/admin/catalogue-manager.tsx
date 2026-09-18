@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { CircleHelp, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import type { CatalogueInput } from '@/lib/api/master-data';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { EmptyState } from '@/components/empty-state';
-import { FormError } from '@/components/form-error';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
+import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

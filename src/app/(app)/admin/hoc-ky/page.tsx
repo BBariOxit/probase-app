@@ -22,11 +22,11 @@ import {
 } from '@/lib/api/master-data';
 import type { Semester } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { DateField } from '@/components/date-field';
-import { EmptyState } from '@/components/empty-state';
-import { FormError } from '@/components/form-error';
-import { StatusPill } from '@/components/status-pill';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { DateField } from '@/components/shared/date-field';
+import { EmptyState } from '@/components/shared/empty-state';
+import { FormError } from '@/components/shared/form-error';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

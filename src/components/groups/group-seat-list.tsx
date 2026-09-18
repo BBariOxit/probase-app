@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { UserAvatar } from '@/components/user-avatar';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { cn } from '@/lib/utils';
 
 /** Whole hours left on the hold, rounded up. */

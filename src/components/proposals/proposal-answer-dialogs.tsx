@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useAcceptProposal, useRejectProposal } from '@/lib/api/proposals';
 import type { TopicProposal } from '@/lib/api/types';
-import { FormError } from '@/components/form-error';
+import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

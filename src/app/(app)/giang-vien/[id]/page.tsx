@@ -8,8 +8,8 @@ import { useActiveSemester } from '@/lib/api/master-data';
 import { useTopics } from '@/lib/api/topics';
 import { useSession } from '@/lib/auth/session';
 import { topicHref } from '@/lib/nav';
-import { SeatBadge } from '@/components/seat-indicator';
-import { UserAvatar } from '@/components/user-avatar';
+import { SeatBadge } from '@/components/groups/seat-indicator';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 /**
  * The person behind a topic.

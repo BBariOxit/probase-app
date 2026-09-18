@@ -2,7 +2,7 @@
 
 import { ExternalLink, FileText, Link2, MessageSquareText } from 'lucide-react';
 import type { Submission } from '@/lib/api/types';
-import { StatusPill, type StatusLabel } from '@/components/status-pill';
+import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
 
 const dateTimeFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import type { RegistrationGroup } from '@/lib/api/types';
-import { SeatDots } from '@/components/seat-indicator';
+import { SeatDots } from '@/components/groups/seat-indicator';
 
 export function MyGroupBanner({ group }: { group: RegistrationGroup }) {
   return (

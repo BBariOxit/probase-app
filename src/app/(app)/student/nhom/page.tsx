@@ -5,11 +5,11 @@ import { Loader2, Users } from 'lucide-react';
 import { useActiveSemester, useMyRound } from '@/lib/api/master-data';
 import { useMyGroup } from '@/lib/api/registration';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { EmptyState } from '@/components/empty-state';
-import { GroupTopicBrief } from '@/components/group-topic-brief';
-import { MyGroupPanel } from '@/components/my-group-panel';
-import { PageWithRail } from '@/components/page-with-rail';
-import { RoundTimeline } from '@/components/round-timeline';
+import { EmptyState } from '@/components/shared/empty-state';
+import { GroupTopicBrief } from '@/components/groups/group-topic-brief';
+import { MyGroupPanel } from '@/components/groups/my-group-panel';
+import { PageWithRail } from '@/components/layout/page-with-rail';
+import { RoundTimeline } from '@/components/rounds/round-timeline';
 import { Button } from '@/components/ui/button';
 
 /**

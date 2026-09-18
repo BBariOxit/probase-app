@@ -14,7 +14,7 @@ import {
   useUpdateProjectType,
 } from '@/lib/api/master-data';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { CatalogueManager } from '@/components/catalogue-manager';
+import { CatalogueManager } from '@/components/admin/catalogue-manager';
 
 /**
  * The two flat lists the faculty keeps, on one screen.

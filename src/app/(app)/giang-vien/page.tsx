@@ -8,9 +8,9 @@ import {
   type LecturerDirectoryQuery,
 } from '@/lib/api/lecturers';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { EmptyState } from '@/components/empty-state';
-import { PaginationBar } from '@/components/pagination-bar';
-import { UserAvatar } from '@/components/user-avatar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PaginationBar } from '@/components/shared/pagination-bar';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Input } from '@/components/ui/input';
 
 const PAGE_SIZE = 12;

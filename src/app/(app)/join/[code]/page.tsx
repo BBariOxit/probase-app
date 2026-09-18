@@ -7,7 +7,7 @@ import { GraduationCap, Layers, Loader2, Users } from 'lucide-react';
 import { useJoinByCode, useJoinPreview } from '@/lib/api/registration';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { Button } from '@/components/ui/button';
-import { SeatDots } from '@/components/seat-indicator';
+import { SeatDots } from '@/components/groups/seat-indicator';
 
 export default function JoinByCodePage({
   params,

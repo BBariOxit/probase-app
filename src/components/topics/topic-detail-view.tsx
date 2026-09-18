@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { GraduationCap, Layers, Users } from 'lucide-react';
 import type { TopicDetail } from '@/lib/api/types';
-import { TopicStatusBadge } from '@/components/topic-status-badge';
+import { TopicStatusBadge } from '@/components/topics/topic-status-badge';
 
 function Meta({
   icon: Icon,

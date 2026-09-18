@@ -15,8 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FormError } from '@/components/form-error';
-import { PasswordInput } from '@/components/password-input';
+import { FormError } from '@/components/shared/form-error';
+import { PasswordInput } from '@/components/shared/password-input';
 
 const LoginSchema = z.object({
   email: z

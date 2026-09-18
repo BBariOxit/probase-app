@@ -18,12 +18,12 @@ import { useMyGroup } from '@/lib/api/registration';
 import type { TopicProposal } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { proposalWindow } from '@/lib/proposal-window';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { EmptyState } from '@/components/empty-state';
-import { PageWithRail } from '@/components/page-with-rail';
-import { PaginationBar } from '@/components/pagination-bar';
-import { RoundTimeline } from '@/components/round-timeline';
-import { ProposalCard } from '@/components/proposal-card';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PageWithRail } from '@/components/layout/page-with-rail';
+import { PaginationBar } from '@/components/shared/pagination-bar';
+import { RoundTimeline } from '@/components/rounds/round-timeline';
+import { ProposalCard } from '@/components/proposals/proposal-card';
 import { Button } from '@/components/ui/button';
 
 /** A term's worth: one proposal open at a time, plus whatever was answered. */

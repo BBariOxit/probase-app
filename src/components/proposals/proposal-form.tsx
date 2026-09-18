@@ -8,8 +8,11 @@ import { Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import type { ProposalInput } from '@/lib/api/proposals';
 import type { LecturerDirectoryEntry, ProjectType } from '@/lib/api/types';
-import { FormError } from '@/components/form-error';
-import { LecturerPicker, lecturerName } from '@/components/lecturer-picker';
+import { FormError } from '@/components/shared/form-error';
+import {
+  LecturerPicker,
+  lecturerName,
+} from '@/components/lecturers/lecturer-picker';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

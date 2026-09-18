@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { CalendarDays, Layers } from 'lucide-react';
 import type { ProposalStatus, TopicProposal } from '@/lib/api/types';
-import { StatusPill, type StatusLabel } from '@/components/status-pill';
+import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
 
 const PROPOSAL_STATUS: Record<ProposalStatus, StatusLabel> = {
   PENDING: { label: 'Chờ trả lời', tone: 'waiting' },

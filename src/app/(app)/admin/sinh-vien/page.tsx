@@ -9,9 +9,9 @@ import { useTopicLecturers } from '@/lib/api/topics';
 import type { StudentRosterRow } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { EmptyState } from '@/components/empty-state';
-import { PaginationBar } from '@/components/pagination-bar';
-import { StatusPill } from '@/components/status-pill';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PaginationBar } from '@/components/shared/pagination-bar';
+import { StatusPill } from '@/components/shared/status-pill';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useProjectTypes, useSemesters } from '@/lib/api/master-data';
 import type { TopicInput } from '@/lib/api/topics';
-import { FormError } from '@/components/form-error';
+import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

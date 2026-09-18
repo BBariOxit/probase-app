@@ -10,11 +10,11 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { cn } from '@/lib/utils';
 import { ApiError } from '@/lib/api/client';
-import { EmptyState } from '@/components/empty-state';
-import { FormError } from '@/components/form-error';
-import { SubmissionCard } from '@/components/submission-card';
-import { SubmissionDeadlines } from '@/components/submission-deadlines';
-import { UserAvatar } from '@/components/user-avatar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { FormError } from '@/components/shared/form-error';
+import { SubmissionCard } from '@/components/submissions/submission-card';
+import { SubmissionDeadlines } from '@/components/submissions/submission-deadlines';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { PageWithRail } from '@/components/page-with-rail';
+import { PageWithRail } from '@/components/layout/page-with-rail';
 import { useState } from 'react';
 
 const JOIN_SOURCE_LABEL: Record<string, string> = {

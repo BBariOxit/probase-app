@@ -14,8 +14,8 @@ import { useActiveSemester, useSemesters } from '@/lib/api/master-data';
 import type { RegistrationGroup } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/empty-state';
-import { UserAvatar } from '@/components/user-avatar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import {
   Select,
   SelectContent,

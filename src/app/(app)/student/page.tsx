@@ -20,12 +20,12 @@ import { useMyGroup } from '@/lib/api/registration';
 import { useTopicLecturers, useTopics } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { EmptyState } from '@/components/empty-state';
-import { MyGroupBanner } from '@/components/my-group-banner';
-import { PaginationBar } from '@/components/pagination-bar';
-import { RegistrationPhaseNotice } from '@/components/registration-phase-notice';
-import { SeatBadge } from '@/components/seat-indicator';
-import { TopicRegisterButton } from '@/components/topic-register-button';
+import { EmptyState } from '@/components/shared/empty-state';
+import { MyGroupBanner } from '@/components/groups/my-group-banner';
+import { PaginationBar } from '@/components/shared/pagination-bar';
+import { RegistrationPhaseNotice } from '@/components/rounds/registration-phase-notice';
+import { SeatBadge } from '@/components/groups/seat-indicator';
+import { TopicRegisterButton } from '@/components/topics/topic-register-button';
 import { Input } from '@/components/ui/input';
 import {
   Select,

@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FormError } from '@/components/form-error';
+import { FormError } from '@/components/shared/form-error';
 
 const ForgotPasswordSchema = z.object({
   email: z

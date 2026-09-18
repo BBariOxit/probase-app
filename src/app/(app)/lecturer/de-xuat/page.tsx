@@ -12,15 +12,15 @@ import type {
 } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
-import { EmptyState } from '@/components/empty-state';
-import { PageWithRail } from '@/components/page-with-rail';
-import { PaginationBar } from '@/components/pagination-bar';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PageWithRail } from '@/components/layout/page-with-rail';
+import { PaginationBar } from '@/components/shared/pagination-bar';
 import {
   AcceptProposalDialog,
   RejectProposalDialog,
-} from '@/components/proposal-answer-dialogs';
-import { ProposalCard } from '@/components/proposal-card';
-import { UserAvatar } from '@/components/user-avatar';
+} from '@/components/proposals/proposal-answer-dialogs';
+import { ProposalCard } from '@/components/proposals/proposal-card';
+import { UserAvatar } from '@/components/shared/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
   Select,

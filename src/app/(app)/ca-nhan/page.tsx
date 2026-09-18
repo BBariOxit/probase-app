@@ -3,9 +3,9 @@
 import Link from 'next/link';
 import { KeyRound, Loader2 } from 'lucide-react';
 import { useMyProfile } from '@/lib/api/me';
-import { ProfileAvatarCard } from '@/components/profile-avatar-card';
-import { ProfileDetailsForm } from '@/components/profile-details-form';
-import { ProfileFacts } from '@/components/profile-facts';
+import { ProfileAvatarCard } from '@/components/profile/profile-avatar-card';
+import { ProfileDetailsForm } from '@/components/profile/profile-details-form';
+import { ProfileFacts } from '@/components/profile/profile-facts';
 import { Button } from '@/components/ui/button';
 
 /**

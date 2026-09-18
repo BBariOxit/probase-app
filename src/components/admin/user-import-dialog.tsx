@@ -5,7 +5,7 @@ import { FileUp, Loader2, TriangleAlert } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useBulkImportUsers } from '@/lib/api/users';
 import type { BulkImportResult } from '@/lib/api/types';
-import { FormError } from '@/components/form-error';
+import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

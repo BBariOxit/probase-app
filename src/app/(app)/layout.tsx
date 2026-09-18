@@ -6,8 +6,8 @@ import { api } from '@/lib/api/client';
 import { nextParam } from '@/lib/auth/next-path';
 import { useSession } from '@/lib/auth/session';
 import { BreadcrumbProvider } from '@/lib/breadcrumb-context';
-import { AppHeader } from '@/components/app-header';
-import { AppSidebar } from '@/components/app-sidebar';
+import { AppHeader } from '@/components/layout/app-header';
+import { AppSidebar } from '@/components/layout/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 /** SidebarProvider writes this on every toggle but never reads it back. */

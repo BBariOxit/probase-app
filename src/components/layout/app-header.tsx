@@ -1,10 +1,10 @@
 'use client';
 
 import type { SessionUser } from '@/lib/api/types';
-import { AppBreadcrumb } from '@/components/app-breadcrumb';
-import { NotificationBell } from '@/components/notification-bell';
-import { ThemeToggle } from '@/components/theme-toggle';
-import { UserMenu } from '@/components/user-menu';
+import { AppBreadcrumb } from '@/components/layout/app-breadcrumb';
+import { NotificationBell } from '@/components/layout/notification-bell';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { UserMenu } from '@/components/layout/user-menu';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 

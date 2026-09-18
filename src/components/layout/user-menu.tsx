@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { UserAvatar } from '@/components/user-avatar';
+import { UserAvatar } from '@/components/shared/user-avatar';
 
 export function UserMenu({
   user,

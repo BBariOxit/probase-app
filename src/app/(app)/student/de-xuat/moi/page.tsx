@@ -9,7 +9,7 @@ import {
 } from '@/lib/api/master-data';
 import { useCreateProposal } from '@/lib/api/proposals';
 import { useRequireRole } from '@/lib/auth/use-require-role';
-import { ProposalForm } from '@/components/proposal-form';
+import { ProposalForm } from '@/components/proposals/proposal-form';
 import { Button } from '@/components/ui/button';
 
 /**

@@ -13,8 +13,8 @@ import { homePathFor, storeRefreshToken, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { FormError } from '@/components/form-error';
-import { PasswordInput } from '@/components/password-input';
+import { FormError } from '@/components/shared/form-error';
+import { PasswordInput } from '@/components/shared/password-input';
 
 const ChangePasswordSchema = z
   .object({

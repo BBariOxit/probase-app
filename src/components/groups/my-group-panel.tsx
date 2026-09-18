@@ -17,9 +17,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { GroupSeatList } from '@/components/group-seat-list';
-import { JoinLinkField } from '@/components/join-link-field';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { GroupSeatList } from '@/components/groups/group-seat-list';
+import { JoinLinkField } from '@/components/shared/join-link-field';
 
 /**
  * The group a student belongs to, and everything they can do to it.

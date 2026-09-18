@@ -25,12 +25,12 @@ import {
 import type { Role, UserAccount } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { EmptyState } from '@/components/empty-state';
-import { FormError } from '@/components/form-error';
-import { StatusPill } from '@/components/status-pill';
-import { UserImportDialog } from '@/components/user-import-dialog';
-import { UserProfileDialog } from '@/components/user-profile-dialog';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
+import { FormError } from '@/components/shared/form-error';
+import { StatusPill } from '@/components/shared/status-pill';
+import { UserImportDialog } from '@/components/admin/user-import-dialog';
+import { UserProfileDialog } from '@/components/admin/user-profile-dialog';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -48,7 +48,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PaginationBar } from '@/components/pagination-bar';
+import { PaginationBar } from '@/components/shared/pagination-bar';
 import {
   Select,
   SelectContent,

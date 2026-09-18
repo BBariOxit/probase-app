@@ -8,8 +8,8 @@ import {
   useSetRoundRequirements,
 } from '@/lib/api/master-data';
 import type { RegistrationRound, SubmissionRequirement } from '@/lib/api/types';
-import { DateField } from '@/components/date-field';
-import { FormError } from '@/components/form-error';
+import { DateField } from '@/components/shared/date-field';
+import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
