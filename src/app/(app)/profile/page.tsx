@@ -1,22 +1,19 @@
 'use client';
 
 import Link from 'next/link';
-import { KeyRound, Loader2 } from 'lucide-react';
+import { KeyRound } from 'lucide-react';
 import { useMyProfile } from '@/lib/api/me';
 import { ProfileAvatarCard } from '@/components/profile/profile-avatar-card';
 import { ProfileDetailsForm } from '@/components/profile/profile-details-form';
 import { ProfileFacts } from '@/components/profile/profile-facts';
+import { ProfileSkeleton } from '@/components/shared/skeletons';
 import { Button } from '@/components/ui/button';
 
 export default function ProfilePage() {
   const { data: profile, isPending, error } = useMyProfile();
 
   if (isPending) {
-    return (
-      <div className="flex justify-center py-16">
-        <Loader2 className="size-5 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (error || !profile) {

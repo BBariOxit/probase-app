@@ -64,6 +64,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PAGE_SIZE = 20;
 
@@ -313,11 +314,16 @@ export default function AccountsPage() {
           </Table>
         </div>
 
-        {isPending && (
-          <div className="flex justify-center py-14">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        )}
+        {isPending &&
+          Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="flex gap-4 border-t px-4 py-3">
+              <Skeleton className="h-4 w-44" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+              <Skeleton className="h-4 w-6 ml-auto" />
+            </div>
+          ))}
 
         {!isPending && users.length === 0 && (
           <EmptyState
