@@ -25,6 +25,8 @@ import {
 import type { Role, UserAccount } from '@/lib/api/types';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
+import { extractErrorMessage } from '@/lib/api/error';
+import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
 import { FormError } from '@/components/shared/form-error';
@@ -215,18 +217,6 @@ export default function AccountsPage() {
         </p>
       )}
 
-      {(lock.error ?? reset.error) && (
-        <p className="text-sm text-destructive">
-          {(lock.error ?? reset.error)?.message}
-        </p>
-      )}
-
-      {reset.isSuccess && (
-        <p className="rounded-xl border border-status-success/30 bg-status-success-bg/40 px-4 py-3 text-sm">
-          Đã gửi mật khẩu mới qua email.
-        </p>
-      )}
-
       <div className="overflow-hidden rounded-xl border">
         <div className="overflow-x-auto">
           <Table>
@@ -362,7 +352,11 @@ export default function AccountsPage() {
         title="Khoá tài khoản?"
         description={`${locking?.email} sẽ không đăng nhập được nữa và mọi phiên đang mở bị ngắt ngay. Dữ liệu giữ nguyên — mở lại bất cứ lúc nào trong "Sửa tài khoản".`}
         confirmLabel="Khoá tài khoản"
-        onConfirm={() => lock.mutateAsync(locking!.id)}
+        onConfirm={async () => {
+          await lock.mutateAsync(locking!.id);
+          toast.success(`Account ${locking!.email} locked.`);
+          setLocking(null);
+        }}
       />
 
       <ConfirmDialog
@@ -371,7 +365,11 @@ export default function AccountsPage() {
         title="Cấp lại mật khẩu?"
         description={`Hệ thống sẽ tạo mật khẩu tạm mới cho ${resetting?.email} và gửi qua email. Mật khẩu cũ ngừng hoạt động ngay.`}
         confirmLabel="Cấp lại"
-        onConfirm={() => reset.mutateAsync(resetting!.id)}
+        onConfirm={async () => {
+          await reset.mutateAsync(resetting!.id);
+          toast.success(`New password sent to ${resetting!.email}.`);
+          setResetting(null);
+        }}
       />
     </div>
   );

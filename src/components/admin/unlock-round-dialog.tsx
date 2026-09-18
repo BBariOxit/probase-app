@@ -5,6 +5,7 @@ import { LockOpen, Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useUnlockRound } from '@/lib/api/allocation';
 import type { AllocationDesk } from '@/lib/api/types';
+import { toast } from 'sonner';
 import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,6 +41,7 @@ export function UnlockRoundDialog({
     setError(null);
     try {
       await unlock.mutateAsync({ roundId, reason: trimmed });
+      toast.success('Round unlocked. You can now make changes.');
       setOpen(false);
       setReason('');
     } catch (err) {
