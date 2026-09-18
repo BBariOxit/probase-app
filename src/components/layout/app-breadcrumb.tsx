@@ -19,7 +19,7 @@ import {
  *
  * When the pathname has only one segment (e.g. "/student" or "/admin") we
  * render a plain heading — adding one crumb with no parent is just noise.
- * For deeper paths (e.g. "/lecturer/nhom/42") we render the full trail so the
+ * For deeper paths (e.g. "/lecturer/groups/42") we render the full trail so the
  * reader always knows where they are and how to go back one level.
  *
  * The last segment is always plain text (aria-current="page"), every preceding

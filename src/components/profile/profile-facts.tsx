@@ -40,7 +40,7 @@ export function ProfileFacts({ profile }: { profile: MyProfile }) {
           </dl>
 
           <Link
-            href={`/giang-vien/${lecturer.id}`}
+            href={`/lecturers/${lecturer.id}`}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             Xem trang sinh viên nhìn thấy

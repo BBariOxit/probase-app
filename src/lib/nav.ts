@@ -44,25 +44,25 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       items: [
         { href: '/student', label: 'Đề tài', icon: BookOpen, ready: true },
         {
-          href: '/student/nhom',
+          href: '/student/groups',
           label: 'Nhóm của tôi',
           icon: Users,
           ready: true,
         },
         {
-          href: '/student/de-xuat',
+          href: '/student/proposals',
           label: 'Đề xuất của tôi',
           icon: Lightbulb,
           ready: true,
         },
         {
-          href: '/student/nop-bai',
+          href: '/student/submissions',
           label: 'Nộp báo cáo',
           icon: FileUp,
           ready: true,
         },
         {
-          href: '/giang-vien',
+          href: '/lecturers',
           label: 'Giảng viên',
           icon: GraduationCap,
           ready: true,
@@ -92,25 +92,25 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           ready: true,
         },
         {
-          href: '/lecturer/nhom',
+          href: '/lecturer/groups',
           label: 'Nhóm hướng dẫn',
           icon: Users,
           ready: true,
         },
         {
-          href: '/lecturer/de-xuat',
+          href: '/lecturer/proposals',
           label: 'Đề xuất từ SV',
           icon: Lightbulb,
           ready: true,
         },
         {
-          href: '/lecturer/bao-cao',
+          href: '/lecturer/reports',
           label: 'Báo cáo & nhận xét',
           icon: MessageSquareText,
           ready: true,
         },
         {
-          href: '/giang-vien',
+          href: '/lecturers',
           label: 'Giảng viên',
           icon: GraduationCap,
           ready: true,
@@ -143,7 +143,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
         // in the term as well: it is the work that turns a closed registration
         // window into the list everything afterwards is built on.
         {
-          href: '/admin/phan-bo',
+          href: '/admin/allocations',
           label: 'Phân bổ đề tài',
           icon: Shuffle,
           ready: true,
@@ -162,7 +162,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       // The office opens the second one daily and the first one twice a year.
       items: [
         {
-          href: '/admin/sinh-vien',
+          href: '/admin/students',
           label: 'Sinh viên',
           // Not the graduation cap: Chuyên ngành two groups below already wears
           // it, and two entries in one sidebar with the same glyph are two
@@ -171,7 +171,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           ready: true,
         },
         {
-          href: '/admin/tai-khoan',
+          href: '/admin/accounts',
           label: 'Tài khoản',
           icon: Users,
           ready: true,
@@ -182,7 +182,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       label: 'Danh mục',
       items: [
         {
-          href: '/admin/hoc-ky',
+          href: '/admin/semesters',
           label: 'Học kỳ',
           icon: CalendarRange,
           ready: true,
@@ -191,7 +191,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
         // page was a six-row table holding a third of a monitor, while the
         // office declares both in the same sitting at the start of a term.
         {
-          href: '/admin/danh-muc',
+          href: '/admin/catalogues',
           label: 'Ngành & loại đồ án',
           icon: Layers,
           ready: true,
@@ -202,13 +202,13 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       label: 'Hệ thống',
       items: [
         {
-          href: '/admin/bao-cao',
+          href: '/admin/reports',
           label: 'Báo cáo & thống kê',
           icon: ChartColumn,
           ready: true,
         },
         {
-          href: '/admin/nhat-ky',
+          href: '/admin/audit',
           label: 'Nhật ký hoạt động',
           icon: ScrollText,
           ready: true,
@@ -230,16 +230,16 @@ const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   { prefix: '/join/', label: 'Tham gia nhóm' },
   // Reached from the bell rather than the sidebar, so it needs a title here or
   // the header would fall back to the product name on a real screen.
-  { prefix: '/thong-bao', label: 'Thông báo' },
+  { prefix: '/notifications', label: 'Thông báo' },
   // Same again for the two screens the account menu opens. Not "/tai-khoan":
   // the admin's user-management screen is already called that, and two
   // different pages answering to the same word is how a support question
   // becomes unanswerable.
-  { prefix: '/ca-nhan', label: 'Trang cá nhân' },
+  { prefix: '/profile', label: 'Trang cá nhân' },
   // The directory itself and any profile within it share the same heading:
-  // "/giang-vien" (the list) and "/giang-vien/42" (one person) both say
+  // "/lecturers" (the list) and "/lecturers/42" (one person) both say
   // "Giảng viên" because the sub-page is the person, not a new section.
-  { prefix: '/giang-vien', label: 'Giảng viên' },
+  { prefix: '/lecturers', label: 'Giảng viên' },
 ];
 
 /**

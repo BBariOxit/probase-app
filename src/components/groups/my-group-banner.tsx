@@ -8,7 +8,7 @@ import { SeatDots } from '@/components/groups/seat-indicator';
 export function MyGroupBanner({ group }: { group: RegistrationGroup }) {
   return (
     <Link
-      href="/student/nhom"
+      href="/student/groups"
       className="group flex items-center gap-3 rounded-xl border bg-card px-4 py-3 transition-colors hover:border-foreground/15 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
       <div className="min-w-0 flex-1">

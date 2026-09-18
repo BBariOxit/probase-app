@@ -99,7 +99,7 @@ export default function StudentProposalsPage() {
           <p className="text-sm text-muted-foreground">
             Có ý tưởng riêng? Gửi cho giảng viên bạn muốn được hướng dẫn.
           </p>
-          <Button render={<Link href="/student/de-xuat/moi" />}>
+          <Button render={<Link href="/student/proposals/moi" />}>
             <Plus />
             Gửi đề xuất
           </Button>
@@ -126,7 +126,7 @@ export default function StudentProposalsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  render={<Link href="/student/de-xuat/moi" />}
+                  render={<Link href="/student/proposals/moi" />}
                 >
                   <Plus />
                   Gửi đề xuất đầu tiên
@@ -180,7 +180,7 @@ function SentProposal({
           <span className="inline-flex items-center gap-1.5">
             <GraduationCap className="size-3.5 shrink-0" />
             <Link
-              href={`/giang-vien/${proposal.requestedLecturer.id}`}
+              href={`/lecturers/${proposal.requestedLecturer.id}`}
               className="rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
               {proposal.requestedLecturer.academicTitle
@@ -198,7 +198,7 @@ function SentProposal({
               <Button
                 variant="outline"
                 size="sm"
-                render={<Link href={`/student/de-xuat/${proposal.id}`} />}
+                render={<Link href={`/student/proposals/${proposal.id}`} />}
               >
                 <Pencil />
                 Sửa
@@ -294,7 +294,7 @@ function Answer({
         <p className="text-sm">
           Bạn đã đăng ký đề tài này.{' '}
           <Link
-            href="/student/nhom"
+            href="/student/groups"
             className="underline underline-offset-4 hover:no-underline"
           >
             Xem nhóm của bạn

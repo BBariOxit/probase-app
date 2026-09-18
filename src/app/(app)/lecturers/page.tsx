@@ -127,7 +127,7 @@ function LecturerCard({ lecturer }: LecturerCardProps) {
 
   return (
     <Link
-      href={`/giang-vien/${lecturer.id}`}
+      href={`/lecturers/${lecturer.id}`}
       className="group flex flex-col gap-4 rounded-xl border bg-card p-5 transition-colors hover:border-primary/40 hover:bg-accent/30"
     >
       {/* Identity */}

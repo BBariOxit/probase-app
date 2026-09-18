@@ -92,7 +92,7 @@ export function NotificationBell({ role }: { role: Role }) {
         <DropdownMenuSeparator className="m-0" />
         <DropdownMenuItem
           className="justify-center text-sm"
-          onClick={() => router.push('/thong-bao')}
+          onClick={() => router.push('/notifications')}
         >
           Xem tất cả
         </DropdownMenuItem>

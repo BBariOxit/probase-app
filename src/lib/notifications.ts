@@ -23,14 +23,14 @@ export function notificationHref(
       // they are opening it for is the queue, and the one they were told about
       // is at the top of it — pending first is the order the API returns.
       case 'PROPOSAL_SUBMITTED':
-        return '/lecturer/de-xuat';
+        return '/lecturer/proposals';
 
       // The office put somebody on their topic. `targetId` is that topic, and
       // it is where the new roster is.
       // Somebody handed something in on one of their topics, or they are being
       // reminded of it. The queue is what they open it for.
       case 'SUBMISSION_FEEDBACK':
-        return '/lecturer/bao-cao';
+        return '/lecturer/reports';
 
       case 'TOPIC_STUDENT_ASSIGNED':
         return notice.targetId
@@ -58,13 +58,13 @@ export function notificationHref(
     */
     case 'PROPOSAL_ACCEPTED':
     case 'PROPOSAL_REJECTED':
-      return '/student/de-xuat';
+      return '/student/proposals';
 
     case 'GROUP_MEMBER_JOINED':
     // The office placed the reader, or placed somebody beside them. Either way
     // the group screen is what changed, and `targetId` is that group.
     case 'GROUP_MEMBER_ASSIGNED':
-      return '/student/nhom';
+      return '/student/groups';
 
     /*
       The group screen again, and for the reader who ended up with nothing as
@@ -74,7 +74,7 @@ export function notificationHref(
       the audience land somewhere that answers them.
     */
     case 'ROUND_FINALIZED':
-      return '/student/nhom';
+      return '/student/groups';
 
     /*
       The supervisor answered a version of something the group handed in.
@@ -86,7 +86,7 @@ export function notificationHref(
     // Same screen for the reminder: what it asks for is a submission, and the
     // deadline it names is at the top of that page.
     case 'SUBMISSION_DUE_SOON':
-      return '/student/nop-bai';
+      return '/student/submissions';
 
     // The group is gone in both of these, so the topic is what is left to look
     // at — and `targetId` is the topic for exactly that reason.

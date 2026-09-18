@@ -78,9 +78,9 @@ export default function EditProposalPage({
               description: values.description,
               expectedOutcomes: values.expectedOutcomes,
             });
-            router.push('/student/de-xuat');
+            router.push('/student/proposals');
           }}
-          onCancel={() => router.push('/student/de-xuat')}
+          onCancel={() => router.push('/student/proposals')}
         />
       )}
     </div>

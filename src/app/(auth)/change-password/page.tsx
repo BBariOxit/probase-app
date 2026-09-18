@@ -72,7 +72,7 @@ export default function ChangePasswordPage() {
       setAccessToken(result.accessToken);
       patchUser({ mustChangePassword: false });
 
-      if (user) router.replace(forced ? homePathFor(user.role) : '/ca-nhan');
+      if (user) router.replace(forced ? homePathFor(user.role) : '/profile');
     } catch (err) {
       setFormError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
@@ -154,7 +154,7 @@ export default function ChangePasswordPage() {
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => router.replace('/ca-nhan')}
+              onClick={() => router.replace('/profile')}
             >
               Huỷ
             </Button>

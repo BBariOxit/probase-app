@@ -44,7 +44,7 @@ export function UserMenu({
         align="end"
         className="min-w-48 [&_[role=menuitem]]:justify-center"
       >
-        <DropdownMenuItem render={<Link href="/ca-nhan" />}>
+        <DropdownMenuItem render={<Link href="/profile" />}>
           <UserRound />
           Trang cá nhân
         </DropdownMenuItem>

@@ -144,7 +144,7 @@ export default function SemestersPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        render={<Link href={`/admin/hoc-ky/${semester.id}`} />}
+                        render={<Link href={`/admin/semesters/${semester.id}`} />}
                       >
                         <Settings2 />
                         Đợt đăng ký

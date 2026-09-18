@@ -79,7 +79,7 @@ function GroupCard({ group }: { group: RegistrationGroup }) {
 
   return (
     <Link
-      href={`/lecturer/nhom/${group.id}`}
+      href={`/lecturer/groups/${group.id}`}
       className="group block rounded-xl border bg-card p-4 transition-all hover:border-border/80 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* Topic & project type */}

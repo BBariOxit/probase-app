@@ -41,7 +41,7 @@ export default function NewProposalPage() {
         variant="ghost"
         size="sm"
         className="-ml-2 text-muted-foreground"
-        render={<Link href="/student/de-xuat" />}
+        render={<Link href="/student/proposals" />}
       >
         <ArrowLeft />
         Đề xuất của tôi
@@ -64,9 +64,9 @@ export default function NewProposalPage() {
           submitLabel="Gửi đề xuất"
           onSubmit={async (values) => {
             await create.mutateAsync(values);
-            router.push('/student/de-xuat');
+            router.push('/student/proposals');
           }}
-          onCancel={() => router.push('/student/de-xuat')}
+          onCancel={() => router.push('/student/proposals')}
         />
       )}
     </div>

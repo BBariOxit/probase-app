@@ -120,7 +120,7 @@ export function MyGroupPanel({
           {/* The supervisor is a person you will be working with for a term,
               so their name goes where their name is: to their page. */}
           <Link
-            href={`/giang-vien/${topic.lecturer.id}`}
+            href={`/lecturers/${topic.lecturer.id}`}
             className="inline-flex items-center gap-1.5 rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             <GraduationCap className="size-3.5 shrink-0" />

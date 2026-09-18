@@ -49,7 +49,7 @@ export function TopicDetailView({
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <Meta icon={GraduationCap}>
             <Link
-              href={`/giang-vien/${topic.lecturer.id}`}
+              href={`/lecturers/${topic.lecturer.id}`}
               className="rounded-sm hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
               {topic.lecturer.academicTitle

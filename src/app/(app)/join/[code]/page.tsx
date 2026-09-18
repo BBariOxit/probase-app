@@ -93,7 +93,7 @@ export default function JoinByCodePage({
           <p className="text-sm text-muted-foreground">
             Bạn đã ở trong nhóm này rồi.
           </p>
-          <Button render={<Link href="/student/nhom" />}>
+          <Button render={<Link href="/student/groups" />}>
             Xem nhóm của tôi
           </Button>
         </>
@@ -102,7 +102,7 @@ export default function JoinByCodePage({
           <Button
             onClick={() =>
               join.mutate(code, {
-                onSuccess: () => router.push('/student/nhom'),
+                onSuccess: () => router.push('/student/groups'),
               })
             }
             disabled={join.isPending}
