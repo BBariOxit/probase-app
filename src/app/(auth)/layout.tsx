@@ -1,5 +1,14 @@
+import type { Metadata } from 'next';
 import { Brand } from '@/components/layout/brand';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | ProBase',
+    default: 'ProBase',
+  },
+  description: 'Đăng nhập vào hệ thống quản lý đồ án ProBase',
+};
 
 export default function AuthLayout({
   children,

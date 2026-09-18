@@ -15,8 +15,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ProBase',
-  description: 'Hệ thống quản lý đồ án',
+  title: {
+    template: '%s | ProBase',
+    default: 'ProBase — Quản lý đồ án',
+  },
+  description:
+    'Hệ thống quản lý đồ án sinh viên: đăng ký đề tài, nộp bài, theo dõi tiến độ.',
+  keywords: ['đồ án', 'quản lý đề tài', 'sinh viên', 'giảng viên'],
+  openGraph: {
+    title: 'ProBase — Quản lý đồ án',
+    description: 'Hệ thống quản lý đồ án sinh viên',
+    type: 'website',
+    locale: 'vi_VN',
+  },
 };
 
 export default function RootLayout({
