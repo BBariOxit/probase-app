@@ -17,6 +17,7 @@ import type {
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { DateField } from '@/components/shared/date-field';
 import { FormError } from '@/components/shared/form-error';
 import { RoundRequirementsEditor } from '@/components/admin/round-requirements-editor';
@@ -182,6 +183,7 @@ function PlanForm({
       }));
 
       await save.mutateAsync({ semesterId, rounds: plan });
+      toast.success('Registration round plan saved.');
       setSaved(true);
     } catch (err) {
       setError(
@@ -193,12 +195,6 @@ function PlanForm({
   return (
     <div className="space-y-4">
       <FormError message={error} />
-
-      {saved && (
-        <p className="rounded-xl border border-status-success/30 bg-status-success-bg/40 px-4 py-3 text-sm">
-          Đã lưu kế hoạch đợt đăng ký.
-        </p>
-      )}
 
       <p className="flex items-start gap-2 text-xs text-muted-foreground">
         <Info className="mt-0.5 size-3.5 shrink-0" />

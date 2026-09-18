@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { ApiError } from '@/lib/api/client';
 import { EmptyState } from '@/components/shared/empty-state';
 import { FormError } from '@/components/shared/form-error';
+import { toast } from 'sonner';
 import { SubmissionCard } from '@/components/submissions/submission-card';
 import { SubmissionDeadlines } from '@/components/submissions/submission-deadlines';
 import { UserAvatar } from '@/components/shared/user-avatar';
@@ -255,6 +256,7 @@ function FeedbackDialog({
     setError(null);
     try {
       await answer.mutateAsync({ id: submission.id, feedback: trimmed });
+      toast.success('Feedback sent to the group.');
       onClose();
     } catch (err) {
       setError(
