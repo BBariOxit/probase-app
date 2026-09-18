@@ -5,6 +5,7 @@ import { Lock, Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useFinalizeRound } from '@/lib/api/allocation';
 import type { AllocationDesk } from '@/lib/api/types';
+import { toast } from 'sonner';
 import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -46,6 +47,7 @@ export function FinalizeRoundDialog({
         acknowledgeUnplaced: unplaced > 0,
         reason: unplaced > 0 ? trimmed : undefined,
       });
+      toast.success('Round finalized successfully. All members notified.');
       setOpen(false);
       setReason('');
     } catch (err) {

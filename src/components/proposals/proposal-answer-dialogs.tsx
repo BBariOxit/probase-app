@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import { useAcceptProposal, useRejectProposal } from '@/lib/api/proposals';
 import type { TopicProposal } from '@/lib/api/types';
+import { toast } from 'sonner';
 import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,6 +40,7 @@ export function AcceptProposalDialog({
     setError(null);
     try {
       await accept.mutateAsync({ id: proposal.id, maxStudents: size });
+      toast.success('Proposal accepted. Topic created and pending approval.');
       onOpenChange(false);
     } catch (err) {
       setError(
@@ -130,6 +132,7 @@ export function RejectProposalDialog({
     setError(null);
     try {
       await reject.mutateAsync({ id: proposal.id, feedback: trimmed });
+      toast.success('Feedback sent to student.');
       onOpenChange(false);
     } catch (err) {
       setError(

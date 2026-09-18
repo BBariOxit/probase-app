@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useUpdateMyProfile } from '@/lib/api/me';
 import type { MyProfile, UpdateMyProfileInput } from '@/lib/api/types';
+import { extractErrorMessage } from '@/lib/api/error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -64,7 +66,13 @@ export function ProfileDetailsForm({ profile }: { profile: MyProfile }) {
       }),
     };
 
-    update.mutate(input, { onSuccess: () => setSaved(true) });
+    update.mutate(input, {
+      onSuccess: () => {
+        setSaved(true);
+        toast.success('Profile updated successfully.');
+      },
+      onError: (err) => toast.error(extractErrorMessage(err)),
+    });
   }
 
   return (
@@ -132,10 +140,6 @@ export function ProfileDetailsForm({ profile }: { profile: MyProfile }) {
           <span className="text-xs text-muted-foreground">Đã lưu.</span>
         )}
       </div>
-
-      {update.error && (
-        <p className="text-xs text-destructive">{update.error.message}</p>
-      )}
     </form>
   );
 }

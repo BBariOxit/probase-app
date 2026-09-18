@@ -41,21 +41,13 @@ const GROUP_STATUS_LABEL: Record<string, { label: string; class: string }> = {
   },
 };
 
-function submissionProgress(group: RegistrationGroup): {
-  submitted: number;
-  total: number;
-} {
-  const total = group.requirements.length;
-  return { submitted: 0, total };
-}
-
 function GroupCard({ group }: { group: RegistrationGroup }) {
   const status = GROUP_STATUS_LABEL[group.status] ?? {
     label: group.status,
     class: 'text-muted-foreground',
   };
 
-  const { total } = submissionProgress(group);
+  const total = group.requirements.length;
 
   // First three members for the avatar stack; others are summarised as "+N".
   const preview = group.members.slice(0, 3);
