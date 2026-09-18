@@ -8,7 +8,6 @@ import {
 import type { RegistrationRound } from '@/lib/api/types';
 import { daysUntilDay } from '@/lib/named-day';
 
-/** Everything the wording below needs; a topic's embedded round satisfies it too. */
 export type RoundLike = Pick<
   RegistrationRound,
   'phase' | 'registrationStart' | 'registrationEnd'
@@ -16,18 +15,11 @@ export type RoundLike = Pick<
 
 export interface RoundStatus {
   icon: LucideIcon;
-  /**
-   * The deadline as a person would say it: "Còn 12 ngày đăng ký".
-   *
-   * Short enough for the foot of the sidebar and loud enough for the top of a
-   * page, because it is the same sentence in both places — a student who reads
-   * "còn 12 ngày" on one screen and "đang mở" on another has to work out that
-   * they are the same fact.
-   */
+
   headline: string;
-  /** What that means for this reader, in one line. */
+
   detail: string;
-  /** The window is closing within three days: worth colouring, not shouting. */
+
   urgent: boolean;
 }
 
@@ -36,20 +28,6 @@ const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   month: '2-digit',
 });
 
-/**
- * A round, said out loud — the one place that turns a phase into words.
- *
- * Keyed on the phase, not on the dates. The dates are what moves the phase, but
- * they are not the same thing: the office can open the gate early or hold it
- * shut, and RECONCILING carries on after `registrationEnd` has passed and says
- * something the calendar cannot — that the faculty is placing the students who
- * ended up without a group.
- *
- * `hasGroup` changes the detail and never the headline. When the gate is what
- * it is, it is that for everybody; what differs is what each reader should do
- * about it, and EXTENDED is the phase where those two readers are told opposite
- * things.
- */
 export function describeRound(
   round: RoundLike,
   hasGroup: boolean,
@@ -112,22 +90,13 @@ export function describeRound(
 
 export interface RoundStep {
   label: string;
-  /** dd/MM, on the two steps the faculty has actually committed to a date for. */
+
   date: string | null;
-  /** "còn 21 ngày", "đang diễn ra" — only ever on the step happening now. */
+
   note: string | null;
   state: 'done' | 'current' | 'upcoming';
 }
 
-/**
- * The round as a sequence, so "còn 21 ngày" has something to be 21 days of.
- *
- * A bare countdown answers when but not what happens next, and the phases after
- * the gate closes are the ones students have no picture of at all — the faculty
- * places whoever is left, then the list is final. Two of the four steps carry a
- * real date; the other two deliberately carry none, because the office does not
- * announce them and inventing one here would be a promise nothing keeps.
- */
 export function roundTimeline(round: RoundLike): RoundStep[] {
   const { phase } = round;
   const opened = phase !== 'PREP';

@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  readStoredRefreshToken,
-  storeRefreshToken,
-  useSession,
-} from '@/lib/auth/session';
+import { useSession } from '@/lib/auth/session';
 import type { TokenPair } from '@/lib/api/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -26,7 +22,6 @@ const STATUS_MESSAGES: Record<number, string> = {
   504: 'Máy chủ phản hồi quá chậm. Thử lại nhé.',
 };
 
-/** Nest replies with `message` as either a string or an array of them. */
 async function errorMessage(response: Response): Promise<string> {
   const canned = STATUS_MESSAGES[response.status];
   if (canned) return canned;
@@ -48,19 +43,14 @@ let inFlightRefresh: Promise<string | null> | null = null;
 
 function refreshAccessToken(): Promise<string | null> {
   inFlightRefresh ??= (async () => {
-    const refreshToken = readStoredRefreshToken();
-    if (!refreshToken) return null;
-
     const response = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      credentials: 'include',
     });
 
     if (!response.ok) return null;
 
-    const tokens = (await response.json()) as TokenPair;
-    storeRefreshToken(tokens.refreshToken);
+    const tokens = (await response.json()) as { accessToken: string };
     useSession.getState().setAccessToken(tokens.accessToken);
     return tokens.accessToken;
   })()
@@ -74,14 +64,7 @@ function refreshAccessToken(): Promise<string | null> {
 
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-  /**
-   * JSON by default. A `FormData` is sent as it is, with no `Content-Type` of
-   * ours: the browser has to write that header itself so it can append the
-   * multipart boundary, and setting it here would produce a body the server
-   * cannot split.
-   */
   body?: unknown;
-  /** Skip the Authorization header — login and refresh are public. */
   anonymous?: boolean;
 }
 
@@ -94,6 +77,7 @@ async function request(
   const send = (token: string | null) =>
     fetch(`${API_URL}${path}`, {
       method,
+      credentials: 'include',
       headers: {
         ...(body === undefined || multipart
           ? {}

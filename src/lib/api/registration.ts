@@ -14,13 +14,6 @@ export const groupKeys = {
   preview: (code: string) => [...groupKeys.all, 'preview', code] as const,
 };
 
-/**
- * Everything a registration change can move.
- *
- * Joining or leaving alters a topic's seat count as much as the group itself, so
- * both caches go — a browse list still showing "còn 1 chỗ" for a topic that just
- * filled is how a student ends up pressing a button the API refuses.
- */
 function useInvalidateRegistration() {
   const queryClient = useQueryClient();
 
@@ -32,20 +25,6 @@ function useInvalidateRegistration() {
   };
 }
 
-/**
- * The caller's group this semester, or null when they have none yet.
- *
- * Read by the banner, the group screen and the confirmation dialog, so it is
- * mounted and unmounted often as the student moves around. Every path that can
- * change it goes through a mutation here and invalidates it explicitly, which
- * makes refetching on each remount and on every window focus pure noise — a
- * navigation between two screens that both show the group was costing three
- * requests for data that had not moved.
- *
- * A long staleTime rather than Infinity: the group can also change from another
- * member's browser, and coming back to a tab minutes later should not show a
- * roster from before lunch.
- */
 export function useMyGroup() {
   return useQuery({
     queryKey: groupKeys.mine(),
@@ -55,13 +34,6 @@ export function useMyGroup() {
   });
 }
 
-/**
- * All active groups on topics this lecturer supervises.
- *
- * Keyed by semesterId so switching semesters hits the network instead of
- * showing last term's roster. staleTime of 2 minutes matches the student's
- * own group — the data can change whenever a student registers or leaves.
- */
 export function useSupervisedGroups(semesterId?: number) {
   const params = semesterId ? `?semesterId=${semesterId}` : '';
 
@@ -83,7 +55,7 @@ export function useGroup(id: number | undefined) {
 
 export interface RegisterTopicInput {
   topicId: number;
-  /** Omitted means no seats are held and the rest open immediately. */
+
   declaredSize?: number;
   name?: string;
 }
@@ -101,7 +73,6 @@ export function useRegisterTopic() {
   });
 }
 
-/** Take a seat in the group that already holds a topic. */
 export function useJoinTopic() {
   const invalidate = useInvalidateRegistration();
 
@@ -112,10 +83,6 @@ export function useJoinTopic() {
   });
 }
 
-/**
- * What a link leads to. Kept fresh rather than cached for long: the page exists
- * to show a seat count somebody is about to act on.
- */
 export function useJoinPreview(code: string) {
   return useQuery({
     queryKey: groupKeys.preview(code),
@@ -142,14 +109,11 @@ export function useJoinByCode() {
 export interface GroupPatch {
   name?: string | null;
   openForJoin?: boolean;
-  /**
-   * How many of the topic's seats to claim. Between the members already in the
-   * group and the topic's capacity; null gives the claim up entirely.
-   */
+
   declaredSize?: number | null;
-  /** `true` only — the API will not push a hold further out, just end it. */
+
   releaseHold?: true;
-  /** A student profile id already in the group. */
+
   leaderId?: number;
 }
 

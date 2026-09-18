@@ -9,12 +9,12 @@ import { Loader2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api/client';
 import type { ChangePasswordResponse } from '@/lib/api/types';
 import { passwordSchema } from '@/lib/auth/password';
-import { homePathFor, storeRefreshToken, useSession } from '@/lib/auth/session';
+import { homePathFor, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { FormError } from '@/components/form-error';
-import { PasswordInput } from '@/components/password-input';
+import { FormError } from '@/components/shared/form-error';
+import { PasswordInput } from '@/components/shared/password-input';
 
 const ChangePasswordSchema = z
   .object({
@@ -57,7 +57,7 @@ export default function ChangePasswordPage() {
   async function onSubmit(values: ChangePasswordValues) {
     setFormError(null);
     try {
-      const result = await api<ChangePasswordResponse>(
+      const result = await api<{ accessToken: string }>(
         '/auth/change-password',
         {
           method: 'PATCH',
@@ -68,11 +68,10 @@ export default function ChangePasswordPage() {
         },
       );
 
-      storeRefreshToken(result.refreshToken);
       setAccessToken(result.accessToken);
       patchUser({ mustChangePassword: false });
 
-      if (user) router.replace(forced ? homePathFor(user.role) : '/ca-nhan');
+      if (user) router.replace(forced ? homePathFor(user.role) : '/profile');
     } catch (err) {
       setFormError(
         err instanceof ApiError ? err.message : 'Không kết nối được máy chủ',
@@ -154,7 +153,7 @@ export default function ChangePasswordPage() {
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => router.replace('/ca-nhan')}
+              onClick={() => router.replace('/profile')}
             >
               Huỷ
             </Button>

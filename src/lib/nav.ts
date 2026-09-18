@@ -9,6 +9,7 @@ import {
   FileUp,
   Gavel,
   GraduationCap,
+  Inbox,
   Layers,
   Lightbulb,
   MessageSquareText,
@@ -23,11 +24,7 @@ export interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  /**
-   * Whether the screen behind this item exists. Unbuilt destinations are shown
-   * disabled rather than hidden, so the shape of each role's job is legible
-   * from the first screen instead of appearing a module at a time.
-   */
+
   ready?: boolean;
 }
 
@@ -44,25 +41,25 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       items: [
         { href: '/student', label: 'Đề tài', icon: BookOpen, ready: true },
         {
-          href: '/student/nhom',
+          href: '/student/groups',
           label: 'Nhóm của tôi',
           icon: Users,
           ready: true,
         },
         {
-          href: '/student/de-xuat',
+          href: '/student/proposals',
           label: 'Đề xuất của tôi',
           icon: Lightbulb,
           ready: true,
         },
         {
-          href: '/student/nop-bai',
+          href: '/student/submissions',
           label: 'Nộp báo cáo',
           icon: FileUp,
           ready: true,
         },
         {
-          href: '/giang-vien',
+          href: '/lecturers',
           label: 'Giảng viên',
           icon: GraduationCap,
           ready: true,
@@ -92,25 +89,25 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           ready: true,
         },
         {
-          href: '/lecturer/nhom',
+          href: '/lecturer/groups',
           label: 'Nhóm hướng dẫn',
           icon: Users,
           ready: true,
         },
         {
-          href: '/lecturer/de-xuat',
+          href: '/lecturer/proposals',
           label: 'Đề xuất từ SV',
           icon: Lightbulb,
           ready: true,
         },
         {
-          href: '/lecturer/bao-cao',
+          href: '/lecturer/reports',
           label: 'Báo cáo & nhận xét',
           icon: MessageSquareText,
           ready: true,
         },
         {
-          href: '/giang-vien',
+          href: '/lecturers',
           label: 'Giảng viên',
           icon: GraduationCap,
           ready: true,
@@ -143,9 +140,15 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
         // in the term as well: it is the work that turns a closed registration
         // window into the list everything afterwards is built on.
         {
-          href: '/admin/phan-bo',
+          href: '/admin/allocations',
           label: 'Phân bổ đề tài',
           icon: Shuffle,
+          ready: true,
+        },
+        {
+          href: '/admin/submissions',
+          label: 'Bài nộp',
+          icon: Inbox,
           ready: true,
         },
         { href: '/admin/hoi-dong', label: 'Hội đồng bảo vệ', icon: Gavel },
@@ -162,7 +165,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       // The office opens the second one daily and the first one twice a year.
       items: [
         {
-          href: '/admin/sinh-vien',
+          href: '/admin/students',
           label: 'Sinh viên',
           // Not the graduation cap: Chuyên ngành two groups below already wears
           // it, and two entries in one sidebar with the same glyph are two
@@ -171,7 +174,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           ready: true,
         },
         {
-          href: '/admin/tai-khoan',
+          href: '/admin/accounts',
           label: 'Tài khoản',
           icon: Users,
           ready: true,
@@ -182,7 +185,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       label: 'Danh mục',
       items: [
         {
-          href: '/admin/hoc-ky',
+          href: '/admin/semesters',
           label: 'Học kỳ',
           icon: CalendarRange,
           ready: true,
@@ -191,7 +194,7 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
         // page was a six-row table holding a third of a monitor, while the
         // office declares both in the same sitting at the start of a term.
         {
-          href: '/admin/danh-muc',
+          href: '/admin/catalogues',
           label: 'Ngành & loại đồ án',
           icon: Layers,
           ready: true,
@@ -202,13 +205,13 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
       label: 'Hệ thống',
       items: [
         {
-          href: '/admin/bao-cao',
+          href: '/admin/reports',
           label: 'Báo cáo & thống kê',
           icon: ChartColumn,
           ready: true,
         },
         {
-          href: '/admin/nhat-ky',
+          href: '/admin/audit',
           label: 'Nhật ký hoạt động',
           icon: ScrollText,
           ready: true,
@@ -218,38 +221,22 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
   ],
 };
 
-/** The title the header shows for a path, taken from the navigation itself. */
-/**
- * Screens reachable without being a destination in the sidebar.
- *
- * A join link is followed from a chat message, so it has no nav entry to take a
- * title from — and falling through to the product name told the reader nothing
- * about the page they had just been sent to.
- */
 const TITLE_BY_PREFIX: { prefix: string; label: string }[] = [
   { prefix: '/join/', label: 'Tham gia nhóm' },
   // Reached from the bell rather than the sidebar, so it needs a title here or
   // the header would fall back to the product name on a real screen.
-  { prefix: '/thong-bao', label: 'Thông báo' },
+  { prefix: '/notifications', label: 'Thông báo' },
   // Same again for the two screens the account menu opens. Not "/tai-khoan":
   // the admin's user-management screen is already called that, and two
   // different pages answering to the same word is how a support question
   // becomes unanswerable.
-  { prefix: '/ca-nhan', label: 'Trang cá nhân' },
+  { prefix: '/profile', label: 'Trang cá nhân' },
   // The directory itself and any profile within it share the same heading:
-  // "/giang-vien" (the list) and "/giang-vien/42" (one person) both say
+  // "/lecturers" (the list) and "/lecturers/42" (one person) both say
   // "Giảng viên" because the sub-page is the person, not a new section.
-  { prefix: '/giang-vien', label: 'Giảng viên' },
+  { prefix: '/lecturers', label: 'Giảng viên' },
 ];
 
-/**
- * Where a topic is read, for the person reading it.
- *
- * The same topic has three screens — a student registers on it, its supervisor
- * edits it, an admin moderates it — and each one is guarded by role, so a link
- * built without knowing who is following it lands somebody on a page that
- * bounces them straight back out.
- */
 export function topicHref(role: Role, topicId: number): string {
   switch (role) {
     case 'STUDENT':
@@ -283,26 +270,10 @@ export function titleFor(role: Role, pathname: string): string {
 export interface BreadcrumbSegment {
   label: string;
   href: string;
-  /** True for the last segment — rendered as plain text, not a link. */
+
   isCurrent: boolean;
 }
 
-/**
- * Compute an ordered breadcrumb trail for the current pathname.
- *
- * Strategy: walk the pathname left-to-right, building up cumulative paths.
- * For each cumulative path we look for a match in the role's nav items or in
- * TITLE_BY_PREFIX. When nothing matches a segment it is passed through as-is
- * (typically a numeric ID); the caller can later swap that label for the real
- * name once data has loaded.
- *
- * We deliberately skip the role root when it is identical to the first nav
- * item, because showing "Đề tài › Đề tài" would be redundant noise.
- *
- * @param getSegmentLabel Optional function from BreadcrumbContext that returns
- *   the human-readable override for a raw segment string (e.g. "42" → "Nhóm
- *   đề tài AI…"). Pass null if the context is not available.
- */
 export function breadcrumbsFor(
   role: Role,
   pathname: string,

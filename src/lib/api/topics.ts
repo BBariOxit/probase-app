@@ -16,24 +16,18 @@ export interface TopicQuery {
   status?: TopicStatus;
   q?: string;
   mine?: boolean;
-  /** Narrow to the project types this caller's intake may take. */
+
   forMyCohort?: boolean;
   page?: number;
   limit?: number;
 }
 
-/** Just enough of a lecturer to name them in a filter. */
 export interface TopicLecturer {
   id: number;
   fullName: string;
   academicTitle: string | null;
 }
 
-/**
- * Unset filters are dropped rather than sent empty, so that the cache key and
- * the URL agree on what "no filter" means. Sending `?q=` would otherwise be a
- * different key from sending nothing while asking the server the same thing.
- */
 function toSearchParams(query: TopicQuery): string {
   const params = new URLSearchParams();
 
@@ -53,12 +47,6 @@ export const topicKeys = {
   detail: (id: number) => [...topicKeys.all, 'detail', id] as const,
 };
 
-/**
- * `enabled` exists for the screens whose filters depend on something still
- * loading — the active semester, most often. Without it the list fetches once
- * unfiltered, then again with the semester the moment it arrives: a wasted
- * request, and a flicker of other semesters' topics in between.
- */
 export function useTopics(query: TopicQuery, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: topicKeys.list(query),
@@ -72,11 +60,6 @@ export function useTopics(query: TopicQuery, options?: { enabled?: boolean }) {
   });
 }
 
-/**
- * Only lecturers who actually have a visible topic, which is what the endpoint
- * returns — a filter whose options mostly lead to an empty page is worse than
- * no filter at all.
- */
 export function useTopicLecturers(semesterId: number | undefined) {
   return useQuery({
     queryKey: [...topicKeys.all, 'lecturers', semesterId],
@@ -116,7 +99,6 @@ export function useCreateTopic() {
   });
 }
 
-/** Everything except the semester, which the API refuses to move. */
 export type TopicPatch = Partial<Omit<TopicInput, 'semesterId'>>;
 
 export function useUpdateTopic(id: number) {
@@ -142,7 +124,6 @@ export function useDeleteTopic() {
   });
 }
 
-/** approve is the faculty office's; open and close belong to the owner. */
 export type TopicTransition = 'approve' | 'open' | 'close';
 
 export function useTopicTransition() {

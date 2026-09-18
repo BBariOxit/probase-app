@@ -6,9 +6,9 @@ import { Loader2 } from 'lucide-react';
 import { useTopic, useUpdateTopic } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
-import { PageHeading } from '@/components/page-heading';
-import { TopicForm } from '@/components/topic-form';
-import { TopicStatusBadge } from '@/components/topic-status-badge';
+import { PageHeading } from '@/components/layout/page-heading';
+import { TopicForm } from '@/components/topics/topic-form';
+import { TopicStatusBadge } from '@/components/topics/topic-status-badge';
 
 export default function EditTopicPage({
   params,

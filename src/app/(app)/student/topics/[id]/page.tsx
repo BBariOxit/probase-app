@@ -5,8 +5,8 @@ import { Loader2 } from 'lucide-react';
 import { useTopic } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
-import { TopicDetailView } from '@/components/topic-detail-view';
-import { TopicRegisterButton } from '@/components/topic-register-button';
+import { TopicDetailView } from '@/components/topics/topic-detail-view';
+import { TopicRegisterButton } from '@/components/topics/topic-register-button';
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',

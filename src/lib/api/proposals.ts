@@ -5,12 +5,6 @@ import { api } from '@/lib/api/client';
 import { topicKeys } from '@/lib/api/topics';
 import type { Paginated, ProposalStatus, TopicProposal } from '@/lib/api/types';
 
-/**
- * Whose proposals come back is decided by the token, not by anything here — a
- * student gets what they sent, a lecturer gets what was sent to them. There is
- * deliberately no parameter for it, so there is nothing on this side that could
- * ask for somebody else's.
- */
 export interface ProposalQuery {
   status?: ProposalStatus;
   semesterId?: number;
@@ -48,13 +42,6 @@ export function useProposals(query: ProposalQuery = {}) {
   });
 }
 
-/**
- * One proposal, for the screen that edits it.
- *
- * The API decides who may read it from the token — a student sees their own, a
- * lecturer sees what was addressed to them, and anybody else gets a 404 rather
- * than a 403, so knowing an id reveals nothing about whether it exists.
- */
 export function useProposal(id: number) {
   return useQuery({
     queryKey: proposalKeys.detail(id),
@@ -62,13 +49,6 @@ export function useProposal(id: number) {
   });
 }
 
-/**
- * Everything a proposal can move.
- *
- * The topic caches go too, and not out of caution: accepting one writes a real
- * topic, which appears in the lecturer's own list and — once the office approves
- * and it opens — in the browse list held for its proposer.
- */
 function useInvalidateProposals() {
   const queryClient = useQueryClient();
 
@@ -98,14 +78,6 @@ export function useCreateProposal() {
   });
 }
 
-/**
- * The three fields the API will still take back.
- *
- * Not the lecturer: moving a proposal to somebody else is not an edit, because
- * the first one has been told about it and may be reading it right now. And not
- * the kind of project, which decides the round the resulting topic would live
- * in. Both are changed by withdrawing and sending a new one.
- */
 export type ProposalPatch = Partial<
   Pick<ProposalInput, 'title' | 'description' | 'expectedOutcomes'>
 >;
@@ -120,7 +92,6 @@ export function useUpdateProposal() {
   });
 }
 
-/** Withdraw. The API deletes it, along with the notice the lecturer was sent. */
 export function useWithdrawProposal() {
   const invalidate = useInvalidateProposals();
 

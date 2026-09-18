@@ -6,7 +6,7 @@ import { Check, Loader2 } from 'lucide-react';
 import { useTopic, useTopicTransition } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useBreadcrumbLabel } from '@/lib/breadcrumb-context';
-import { TopicDetailView } from '@/components/topic-detail-view';
+import { TopicDetailView } from '@/components/topics/topic-detail-view';
 import { Button } from '@/components/ui/button';
 
 export default function AdminTopicDetailPage({

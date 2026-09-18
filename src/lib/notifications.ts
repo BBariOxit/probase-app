@@ -1,18 +1,5 @@
 import type { AppNotification, Role } from '@/lib/api/types';
 
-/**
- * Where a notice leads, or null when it leads nowhere yet.
- *
- * Two roles receive notices now, and each has its own set: everything a lecturer
- * is told about is a proposal waiting on them, and everything else is addressed
- * to a student. They are split rather than merged because the destinations do not
- * overlap at all — a single switch would have to re-check the role in most of its
- * arms anyway, and the one time that check was missed it would send somebody into
- * a screen that bounces them straight back out.
- *
- * Returning null is the honest answer for the types whose screens do not exist:
- * a notice that navigates to a dead page is worse than one that simply reads.
- */
 export function notificationHref(
   notice: AppNotification,
   role: Role,
@@ -23,14 +10,14 @@ export function notificationHref(
       // they are opening it for is the queue, and the one they were told about
       // is at the top of it — pending first is the order the API returns.
       case 'PROPOSAL_SUBMITTED':
-        return '/lecturer/de-xuat';
+        return '/lecturer/proposals';
 
       // The office put somebody on their topic. `targetId` is that topic, and
       // it is where the new roster is.
       // Somebody handed something in on one of their topics, or they are being
       // reminded of it. The queue is what they open it for.
       case 'SUBMISSION_FEEDBACK':
-        return '/lecturer/bao-cao';
+        return '/lecturer/reports';
 
       case 'TOPIC_STUDENT_ASSIGNED':
         return notice.targetId
@@ -58,13 +45,13 @@ export function notificationHref(
     */
     case 'PROPOSAL_ACCEPTED':
     case 'PROPOSAL_REJECTED':
-      return '/student/de-xuat';
+      return '/student/proposals';
 
     case 'GROUP_MEMBER_JOINED':
     // The office placed the reader, or placed somebody beside them. Either way
     // the group screen is what changed, and `targetId` is that group.
     case 'GROUP_MEMBER_ASSIGNED':
-      return '/student/nhom';
+      return '/student/groups';
 
     /*
       The group screen again, and for the reader who ended up with nothing as
@@ -74,7 +61,7 @@ export function notificationHref(
       the audience land somewhere that answers them.
     */
     case 'ROUND_FINALIZED':
-      return '/student/nhom';
+      return '/student/groups';
 
     /*
       The supervisor answered a version of something the group handed in.
@@ -86,7 +73,7 @@ export function notificationHref(
     // Same screen for the reminder: what it asks for is a submission, and the
     // deadline it names is at the top of that page.
     case 'SUBMISSION_DUE_SOON':
-      return '/student/nop-bai';
+      return '/student/submissions';
 
     // The group is gone in both of these, so the topic is what is left to look
     // at — and `targetId` is the topic for exactly that reason.
@@ -123,14 +110,6 @@ const STEPS: {
   { limit: 604_800, divisor: 86_400, unit: 'day' },
 ];
 
-/**
- * How long ago, in words.
- *
- * An inbox is read by recency and almost never by date: "2 giờ trước" answers
- * the question a reader actually has, where "18/08/2026 14:22" makes them do
- * the subtraction. Past a week the exact date becomes the more useful of the
- * two, and it takes over.
- */
 export function timeAgo(iso: string): string {
   const seconds = (Date.now() - new Date(iso).getTime()) / 1000;
 

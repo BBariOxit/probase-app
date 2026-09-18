@@ -10,14 +10,6 @@ export const allocationKeys = {
   desk: (roundId: number) => [...allocationKeys.all, 'desk', roundId] as const,
 };
 
-/**
- * The desk for one round.
- *
- * Not cached for long and refetched when the window regains focus, unlike the
- * master data beside it: two people can work two rounds at once out of one pool
- * of students, so a list that sat still for five minutes would offer somebody
- * who has already been placed at the other desk.
- */
 export function useAllocationDesk(roundId: number | undefined) {
   return useQuery({
     queryKey: allocationKeys.desk(roundId ?? 0),
@@ -28,12 +20,6 @@ export function useAllocationDesk(roundId: number | undefined) {
   });
 }
 
-/**
- * Every placement moves three lists at once — who is left, which seats are
- * free, what the desk has done — and they all come from the one response, so
- * the desk is refetched rather than patched. Topics go too: a seat taken here
- * is a seat gone from every browse screen.
- */
 function useInvalidateAllocation() {
   const queryClient = useQueryClient();
 
@@ -83,24 +69,12 @@ export function useUnplaceStudent() {
   });
 }
 
-/**
- * Closing the round. `acknowledgeUnplaced` is the office saying it knows some
- * students are being left out and meant to leave them out — the API refuses
- * without it, and refuses the acknowledgement itself without a reason.
- */
 export interface FinalizeInput {
   roundId: number;
   acknowledgeUnplaced?: boolean;
   reason?: string;
 }
 
-/**
- * Taking a settled round back to the desk.
- *
- * The mirror of finalising and invalidates the same things, which is why it
- * lives beside it rather than with the other round endpoints: what changes is
- * the desk, and the topics whose status went back on offer with it.
- */
 export function useUnlockRound() {
   const invalidate = useInvalidateAllocation();
   const queryClient = useQueryClient();

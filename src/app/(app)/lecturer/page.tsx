@@ -21,10 +21,10 @@ import {
 } from '@/lib/api/topics';
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
-import { ConfirmDialog } from '@/components/confirm-dialog';
-import { EmptyState } from '@/components/empty-state';
-import { PaginationBar } from '@/components/pagination-bar';
-import { TopicOwnerBadge } from '@/components/topic-status-badge';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { EmptyState } from '@/components/shared/empty-state';
+import { PaginationBar } from '@/components/shared/pagination-bar';
+import { TopicOwnerBadge } from '@/components/topics/topic-status-badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
