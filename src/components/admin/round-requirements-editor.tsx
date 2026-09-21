@@ -12,6 +12,7 @@ import { DateField } from '@/components/shared/date-field';
 import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface Row {
   id?: number;
@@ -110,7 +111,7 @@ export function RoundRequirementsEditor({
 
   const problems = rows.flatMap((row, index) => {
     if (row.name.trim() === '') return [`Mục ${index + 1}: chưa có tên.`];
-    if (row.due === '') return [`"${row.name}": chưa có hạn nộp.`];
+    if (row.due === '') return [`${row.name} chưa có hạn nộp.`];
 
     return [];
   });
@@ -151,10 +152,12 @@ export function RoundRequirementsEditor({
           {rows.map((row, index) => (
             <li
               key={row.id ?? `new-${index}`}
-              className="grid items-end gap-2 sm:grid-cols-[minmax(0,1fr)_11rem_auto]"
+              className="grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto]"
             >
-              <div className="space-y-1.5">
+              <div className="space-y-2">
+                <Label htmlFor={`name-${round.id}-${index}`}>Tên mục nộp</Label>
                 <Input
+                  id={`name-${round.id}-${index}`}
                   aria-label={`Tên mục ${index + 1}`}
                   placeholder="Đề cương"
                   value={row.name}
@@ -163,7 +166,7 @@ export function RoundRequirementsEditor({
                     patch(index, { name: event.target.value })
                   }
                 />
-                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
                   <input
                     type="checkbox"
                     className="size-3.5 accent-primary"
@@ -184,24 +187,29 @@ export function RoundRequirementsEditor({
                 onChange={(due) => patch(index, { due })}
               />
 
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={`Xoá ${row.name || `mục ${index + 1}`}`}
-                onClick={() => remove(index)}
-              >
-                <Trash2 />
-              </Button>
+              <div className="pt-8">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-muted-foreground hover:text-destructive"
+                  aria-label={`Xoá ${row.name || `mục ${index + 1}`}`}
+                  onClick={() => remove(index)}
+                >
+                  <Trash2 />
+                </Button>
+              </div>
             </li>
           ))}
         </ul>
       )}
 
       {rows.length > 0 && (
-        <Button variant="outline" size="sm" onClick={() => add()}>
-          <Plus />
-          Thêm mục
-        </Button>
+        <div className="pt-2">
+          <Button variant="outline" size="sm" onClick={() => add()}>
+            <Plus />
+            Thêm mục
+          </Button>
+        </div>
       )}
 
       {duplicated && (
@@ -216,13 +224,15 @@ export function RoundRequirementsEditor({
         </p>
       ))}
 
-      <Button
-        disabled={problems.length > 0 || duplicated || save.isPending}
-        onClick={submit}
-      >
-        {save.isPending && <Loader2 className="animate-spin" />}
-        Lưu danh sách
-      </Button>
+      <div className="pt-4">
+        <Button
+          disabled={problems.length > 0 || duplicated || save.isPending}
+          onClick={submit}
+        >
+          {save.isPending && <Loader2 className="animate-spin" />}
+          Lưu danh sách
+        </Button>
+      </div>
     </div>
   );
 }

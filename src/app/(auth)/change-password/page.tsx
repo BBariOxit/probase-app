@@ -94,7 +94,7 @@ export default function ChangePasswordPage() {
         </h1>
         {forced && (
           <p className="text-sm text-muted-foreground">
-            Tài khoản đang dùng mật khẩu tạm. Đặt mật khẩu mới để tiếp tục.
+            Vui lòng tạo mật khẩu mới để tiếp tục.
           </p>
         )}
       </div>
