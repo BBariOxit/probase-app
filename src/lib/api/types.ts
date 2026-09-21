@@ -516,6 +516,63 @@ export interface BulkImportResult {
   failed: ImportRowResult[];
 }
 
+// ── Import Wizard types ──────────────────────────────────────
+
+export type SystemField =
+  | 'role'
+  | 'email'
+  | 'fullName'
+  | 'code'
+  | 'majorCode'
+  | 'class'
+  | 'academicTitle'
+  | 'researchInterests'
+  | 'phone'
+  | 'bio';
+
+export type ColumnMapping = Record<SystemField, string | null>;
+
+export interface FieldSuggestion {
+  fileColumn: string | null;
+  confidence: number;
+}
+
+export interface ParseImportResult {
+  sessionId: string;
+  headers: string[];
+  suggestions: Record<SystemField, FieldSuggestion>;
+  rowCount: number;
+  expiresAt: string;
+}
+
+export interface PreviewImportRow {
+  row: number;
+  valid: boolean;
+  email?: string;
+  role?: string;
+  fullName?: string;
+  warnings?: string[];
+  reason?: string;
+  values?: Record<string, string>;
+}
+
+export interface PreviewImportResult {
+  sessionId: string;
+  total: number;
+  validCount: number;
+  invalidCount: number;
+  rows: PreviewImportRow[];
+}
+
+export interface CommitImportResult {
+  sessionId: string;
+  createdCount: number;
+  failedCount: number;
+  warnedCount: number;
+  created: ImportRowResult[];
+  failed: ImportRowResult[];
+}
+
 export interface AuditLogEntry {
   id: number;
   action: string;

@@ -4,8 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import type {
   BulkImportResult,
+  ColumnMapping,
+  CommitImportResult,
   LecturerProfileDetail,
   LecturerProfileInput,
+  ParseImportResult,
+  PreviewImportResult,
   Role,
   StudentProfileDetail,
   StudentProfileInput,
@@ -147,6 +151,81 @@ export function useBulkImportUsers() {
     },
     onSuccess: invalidate,
   });
+}
+
+// ── Import Wizard hooks ────────────────────────────────────
+
+/** Step 1: Upload file → receive headers + fuzzy suggestions + sessionId. */
+export function useParseImport() {
+  return useMutation({
+    mutationFn: (file: File) => {
+      const body = new FormData();
+      body.append('file', file);
+      return api<ParseImportResult>('/users/import/parse', {
+        method: 'POST',
+        body,
+      });
+    },
+  });
+}
+
+/** Step 2: Dry-run validate with confirmed mapping. */
+export function usePreviewImport() {
+  return useMutation({
+    mutationFn: ({
+      sessionId,
+      mapping,
+    }: {
+      sessionId: string;
+      mapping: ColumnMapping;
+    }) =>
+      api<PreviewImportResult>('/users/import/preview', {
+        method: 'POST',
+        body: { sessionId, mapping },
+      }),
+  });
+}
+
+/** Step 3: Commit — create accounts in DB (no emails). */
+export function useCommitImport() {
+  return useMutation({
+    mutationFn: ({
+      sessionId,
+      mapping,
+    }: {
+      sessionId: string;
+      mapping: ColumnMapping;
+    }) =>
+      api<CommitImportResult>('/users/import/commit', {
+        method: 'POST',
+        body: { sessionId, mapping },
+      }),
+  });
+}
+
+/** Step 4: Send welcome emails for all committed accounts. */
+export function useSendImportEmails() {
+  const invalidate = useInvalidateUsers();
+
+  return useMutation({
+    mutationFn: (sessionId: string) =>
+      api<{ sent: number; failed: number }>(
+        `/users/import/${sessionId}/send-emails`,
+        { method: 'POST' },
+      ),
+    onSuccess: invalidate,
+  });
+}
+
+/** Download pre-filled Excel template as a blob and trigger browser download. */
+export function downloadImportTemplate(role: 'STUDENT' | 'LECTURER') {
+  const url = `/api/users/import/template?role=${role}`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `import-template-${role.toLowerCase()}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 export function useUser(id: number | undefined) {

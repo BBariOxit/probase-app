@@ -1,10 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { FileUp, Loader2, TriangleAlert } from 'lucide-react';
+import {
+  CheckCircle2,
+  Download,
+  FileUp,
+  Loader2,
+  Mail,
+  TriangleAlert,
+} from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
-import { useBulkImportUsers } from '@/lib/api/users';
-import type { BulkImportResult } from '@/lib/api/types';
+import {
+  downloadImportTemplate,
+  useCommitImport,
+  useParseImport,
+  usePreviewImport,
+  useSendImportEmails,
+} from '@/lib/api/users';
+import type {
+  ColumnMapping,
+  CommitImportResult,
+  ParseImportResult,
+  PreviewImportResult,
+  SystemField,
+} from '@/lib/api/types';
+import { ImportColumnMapping } from '@/components/admin/import-column-mapping';
+import { ImportPreviewTable } from '@/components/admin/import-preview-table';
 import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,33 +39,211 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+type Step = 'upload' | 'mapping' | 'preview' | 'result';
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function buildInitialMapping(
+  suggestions: ParseImportResult['suggestions'],
+): ColumnMapping {
+  const mapping: Partial<ColumnMapping> = {};
+  for (const [field, suggestion] of Object.entries(suggestions)) {
+    mapping[field as SystemField] = suggestion.fileColumn;
+  }
+  return mapping as ColumnMapping;
+}
+
+const ALL_FIELDS: SystemField[] = [
+  'role',
+  'email',
+  'fullName',
+  'code',
+  'majorCode',
+  'class',
+  'academicTitle',
+  'researchInterests',
+  'phone',
+  'bio',
+];
+
+// ---------------------------------------------------------------------------
+// Step indicators
+// ---------------------------------------------------------------------------
+
+const STEPS: { key: Step; label: string }[] = [
+  { key: 'upload', label: 'Tải file' },
+  { key: 'mapping', label: 'Ánh xạ cột' },
+  { key: 'preview', label: 'Xem trước' },
+  { key: 'result', label: 'Kết quả' },
+];
+
+function StepIndicator({ current }: { current: Step }) {
+  const currentIdx = STEPS.findIndex((s) => s.key === current);
+  return (
+    <div className="flex items-center gap-1.5 text-xs">
+      {STEPS.map((step, idx) => {
+        const done = idx < currentIdx;
+        const active = idx === currentIdx;
+        return (
+          <span key={step.key} className="flex items-center gap-1.5">
+            <span
+              className={[
+                'flex size-5 items-center justify-center rounded-full text-[10px] font-semibold',
+                done
+                  ? 'bg-primary text-primary-foreground'
+                  : active
+                    ? 'bg-primary/20 text-primary ring-1 ring-primary'
+                    : 'bg-muted text-muted-foreground',
+              ].join(' ')}
+            >
+              {done ? '✓' : idx + 1}
+            </span>
+            <span
+              className={
+                active ? 'font-medium text-foreground' : 'text-muted-foreground'
+              }
+            >
+              {step.label}
+            </span>
+            {idx < STEPS.length - 1 && (
+              <span className="text-muted-foreground/40">›</span>
+            )}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Dialog
+// ---------------------------------------------------------------------------
+
 export function UserImportDialog() {
-  const importUsers = useBulkImportUsers();
+  const parseImport = useParseImport();
+  const previewImport = usePreviewImport();
+  const commitImport = useCommitImport();
+  const sendEmails = useSendImportEmails();
+
   const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<Step>('upload');
   const [file, setFile] = useState<File | null>(null);
-  const [result, setResult] = useState<BulkImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function close() {
-    if (importUsers.isPending) return;
-    setOpen(false);
+  // Wizard state
+  const [parseResult, setParseResult] = useState<ParseImportResult | null>(
+    null,
+  );
+  const [mapping, setMapping] = useState<ColumnMapping>(
+    Object.fromEntries(ALL_FIELDS.map((f) => [f, null])) as ColumnMapping,
+  );
+  const [preview, setPreview] = useState<PreviewImportResult | null>(null);
+  const [commitResult, setCommitResult] = useState<CommitImportResult | null>(
+    null,
+  );
+  const [emailResult, setEmailResult] = useState<{
+    sent: number;
+    failed: number;
+  } | null>(null);
+  const [confirmSendEmail, setConfirmSendEmail] = useState(false);
+
+  // ── Helpers ────────────────────────────────────────────
+
+  function reset() {
+    setStep('upload');
     setFile(null);
-    setResult(null);
     setError(null);
+    setParseResult(null);
+    setMapping(
+      Object.fromEntries(ALL_FIELDS.map((f) => [f, null])) as ColumnMapping,
+    );
+    setPreview(null);
+    setCommitResult(null);
+    setEmailResult(null);
+    setConfirmSendEmail(false);
   }
 
-  async function submit() {
-    if (!file) return;
+  function close() {
+    const isBusy =
+      parseImport.isPending ||
+      previewImport.isPending ||
+      commitImport.isPending ||
+      sendEmails.isPending;
+    if (isBusy) return;
+    setOpen(false);
+    reset();
+  }
 
+  // ── Step handlers ──────────────────────────────────────
+
+  async function handleParse() {
+    if (!file) return;
     setError(null);
     try {
-      setResult(await importUsers.mutateAsync(file));
+      const result = await parseImport.mutateAsync(file);
+      setParseResult(result);
+      setMapping(buildInitialMapping(result.suggestions));
+      setStep('mapping');
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : 'Không tải được file lên',
-      );
+      setError(err instanceof ApiError ? err.message : 'Không đọc được file');
     }
   }
+
+  async function handlePreview() {
+    if (!parseResult) return;
+    setError(null);
+    try {
+      const result = await previewImport.mutateAsync({
+        sessionId: parseResult.sessionId,
+        mapping,
+      });
+      setPreview(result);
+      setStep('preview');
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Lỗi khi xem trước');
+    }
+  }
+
+  async function handleCommit() {
+    if (!parseResult || !preview) return;
+    setError(null);
+    try {
+      const result = await commitImport.mutateAsync({
+        sessionId: parseResult.sessionId,
+        mapping,
+      });
+      setCommitResult(result);
+      setStep('result');
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Lỗi khi import');
+    }
+  }
+
+  async function handleSendEmails() {
+    if (!commitResult) return;
+    setError(null);
+    try {
+      const result = await sendEmails.mutateAsync(commitResult.sessionId);
+      setEmailResult(result);
+      setConfirmSendEmail(false);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Lỗi khi gửi email');
+    }
+  }
+
+  // ── Render ─────────────────────────────────────────────
+
+  const isLoading =
+    parseImport.isPending ||
+    previewImport.isPending ||
+    commitImport.isPending ||
+    sendEmails.isPending;
 
   return (
     <>
@@ -57,137 +256,268 @@ export function UserImportDialog() {
         open={open}
         onOpenChange={(next) => (next ? setOpen(true) : close())}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Nhập danh sách tài khoản</DialogTitle>
-            <DialogDescription>
-              File .xlsx hoặc .csv, tối đa 5MB. Mỗi tài khoản được tạo với mật
-              khẩu tạm và gửi qua email.
+            <DialogDescription className="sr-only">
+              Wizard nhập danh sách tài khoản hàng loạt
             </DialogDescription>
+            <StepIndicator current={step} />
           </DialogHeader>
 
-          {result ? (
-            <ImportSummary result={result} />
-          ) : (
-            <div className="space-y-4">
-              <FormError message={error} />
+          <div className="space-y-4">
+            <FormError message={error} />
 
+            {/* ── Step 1: Upload ── */}
+            {step === 'upload' && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="roster">
+                    File danh sách (.xlsx hoặc .csv, tối đa 5MB)
+                  </Label>
+                  <Input
+                    id="roster"
+                    type="file"
+                    accept=".xlsx,.csv"
+                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => downloadImportTemplate('STUDENT')}
+                    type="button"
+                  >
+                    <Download className="size-3.5" />
+                    Mẫu Sinh viên
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => downloadImportTemplate('LECTURER')}
+                    type="button"
+                  >
+                    <Download className="size-3.5" />
+                    Mẫu Giảng viên
+                  </Button>
+                </div>
+
+                <p className="rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                  Hệ thống sẽ tự động nhận diện cột dựa trên tên header. Bạn sẽ
+                  có thể kiểm tra và điều chỉnh ở bước tiếp theo.
+                </p>
+              </div>
+            )}
+
+            {/* ── Step 2: Column Mapping ── */}
+            {step === 'mapping' && parseResult && (
               <div className="space-y-2">
-                <Label htmlFor="roster">File danh sách</Label>
-                <Input
-                  id="roster"
-                  type="file"
-                  accept=".xlsx,.csv"
-                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                <p className="text-sm text-muted-foreground">
+                  File có <strong>{parseResult.rowCount}</strong> dòng dữ liệu.
+                  Hệ thống đã tự động gợi ý ánh xạ cột bên dưới. Vui lòng kiểm
+                  tra và điều chỉnh nếu cần.
+                </p>
+                <ImportColumnMapping
+                  headers={parseResult.headers}
+                  suggestions={parseResult.suggestions}
+                  mapping={mapping}
+                  onChange={setMapping}
                 />
               </div>
+            )}
 
-              <p className="rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                Dòng nào sai sẽ bị bỏ qua và báo lại riêng — một dòng hỏng không
-                làm hỏng cả file. Mã chuyên ngành trong file phải khớp với danh
-                mục Chuyên ngành.
-              </p>
-            </div>
-          )}
+            {/* ── Step 3: Preview ── */}
+            {step === 'preview' && preview && (
+              <ImportPreviewTable preview={preview} />
+            )}
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              disabled={importUsers.isPending}
-              onClick={close}
-            >
-              {result ? 'Đóng' : 'Huỷ'}
+            {/* ── Step 4: Result ── */}
+            {step === 'result' && commitResult && (
+              <div className="space-y-4">
+                {/* Commit summary */}
+                <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+                  <span>
+                    <strong className="tabular-nums">
+                      {commitResult.createdCount}
+                    </strong>{' '}
+                    tài khoản đã tạo
+                  </span>
+                  {commitResult.failedCount > 0 && (
+                    <span className="text-destructive">
+                      <strong className="tabular-nums">
+                        {commitResult.failedCount}
+                      </strong>{' '}
+                      dòng lỗi
+                    </span>
+                  )}
+                  {commitResult.warnedCount > 0 && (
+                    <span className="text-amber-600 dark:text-amber-400">
+                      <strong className="tabular-nums">
+                        {commitResult.warnedCount}
+                      </strong>{' '}
+                      dòng cần xem lại
+                    </span>
+                  )}
+                </div>
+
+                {/* Email section */}
+                {!emailResult ? (
+                  <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
+                    <p className="text-sm font-medium">
+                      Gửi mật khẩu tạm thời qua email
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {commitResult.createdCount} tài khoản đã được tạo nhưng
+                      chưa nhận mật khẩu. Bấm &ldquo;Gửi email ngay&rdquo; để
+                      thông báo cho từng người.
+                    </p>
+
+                    {!confirmSendEmail ? (
+                      <Button
+                        onClick={() => setConfirmSendEmail(true)}
+                        size="sm"
+                      >
+                        <Mail className="size-3.5" />
+                        Gửi email ngay ({commitResult.createdCount} người)
+                      </Button>
+                    ) : (
+                      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-2">
+                        <p className="text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2">
+                          <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+                          Email chỉ có thể gửi <strong>
+                            1 lần duy nhất
+                          </strong>{' '}
+                          cho phiên import này. Xác nhận để tiếp tục?
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            disabled={sendEmails.isPending}
+                            onClick={handleSendEmails}
+                          >
+                            {sendEmails.isPending && (
+                              <Loader2 className="animate-spin" />
+                            )}
+                            Xác nhận gửi
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setConfirmSendEmail(false)}
+                          >
+                            Huỷ
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 space-y-1">
+                    <p className="flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-400">
+                      <CheckCircle2 className="size-4" />
+                      Đã gửi email xong
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Gửi thành công:{' '}
+                      <strong className="tabular-nums">
+                        {emailResult.sent}
+                      </strong>
+                      {emailResult.failed > 0 && (
+                        <>
+                          {' '}
+                          · Thất bại:{' '}
+                          <strong className="tabular-nums text-destructive">
+                            {emailResult.failed}
+                          </strong>{' '}
+                          (dùng &ldquo;Cấp lại mật khẩu&rdquo; cho những tài
+                          khoản đó)
+                        </>
+                      )}
+                    </p>
+                  </div>
+                )}
+
+                {/* Failed rows */}
+                {commitResult.failed.length > 0 && (
+                  <section className="space-y-1.5">
+                    <h3 className="text-xs font-medium text-muted-foreground">
+                      Dòng không nhập được
+                    </h3>
+                    <ul className="max-h-40 divide-y overflow-y-auto rounded-lg border text-sm">
+                      {commitResult.failed.map((row) => (
+                        <li key={row.row} className="px-3 py-2">
+                          <span className="text-muted-foreground tabular-nums">
+                            Dòng {row.row}
+                          </span>
+                          {row.email && (
+                            <span className="ml-2">{row.email}</span>
+                          )}
+                          <p className="text-xs text-destructive">
+                            {row.reason}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Footer ── */}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" disabled={isLoading} onClick={close}>
+              {step === 'result' ? 'Đóng' : 'Huỷ'}
             </Button>
-            {!result && (
+
+            {step === 'upload' && (
               <Button
-                disabled={!file || importUsers.isPending}
-                onClick={submit}
+                disabled={!file || parseImport.isPending}
+                onClick={handleParse}
               >
-                {importUsers.isPending && <Loader2 className="animate-spin" />}
-                Tải lên
+                {parseImport.isPending && <Loader2 className="animate-spin" />}
+                Phân tích file
               </Button>
+            )}
+
+            {step === 'mapping' && (
+              <>
+                <Button variant="outline" onClick={() => setStep('upload')}>
+                  Quay lại
+                </Button>
+                <Button
+                  disabled={previewImport.isPending}
+                  onClick={handlePreview}
+                >
+                  {previewImport.isPending && (
+                    <Loader2 className="animate-spin" />
+                  )}
+                  Xem trước dữ liệu
+                </Button>
+              </>
+            )}
+
+            {step === 'preview' && preview && (
+              <>
+                <Button variant="outline" onClick={() => setStep('mapping')}>
+                  Quay lại
+                </Button>
+                <Button
+                  disabled={commitImport.isPending || preview.validCount === 0}
+                  onClick={handleCommit}
+                >
+                  {commitImport.isPending && (
+                    <Loader2 className="animate-spin" />
+                  )}
+                  Xác nhận Import {preview.validCount} tài khoản
+                </Button>
+              </>
             )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-
-function ImportSummary({ result }: { result: BulkImportResult }) {
-  return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-        <span>
-          <strong className="tabular-nums">{result.createdCount}</strong> tài
-          khoản đã tạo
-        </span>
-        {result.failedCount > 0 && (
-          <span className="text-destructive">
-            <strong className="tabular-nums">{result.failedCount}</strong> dòng
-            lỗi
-          </span>
-        )}
-        {result.warnedCount > 0 && (
-          <span className="text-status-waiting">
-            <strong className="tabular-nums">{result.warnedCount}</strong> dòng
-            cần xem lại
-          </span>
-        )}
-      </div>
-
-      {result.emailsFailedCount > 0 && (
-        <p className="flex items-start gap-2.5 rounded-lg border border-status-danger/30 bg-status-danger-bg/40 px-3 py-2.5 text-sm">
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-status-danger" />
-          <span>
-            {result.emailsFailedCount} tài khoản đã tạo nhưng email mật khẩu
-            không gửi được. Mật khẩu tạm không lấy lại được — phải bấm
-            &ldquo;Cấp lại mật khẩu&rdquo; cho từng tài khoản đó.
-          </span>
-        </p>
-      )}
-
-      {result.failed.length > 0 && (
-        <section className="space-y-1.5">
-          <h3 className="text-xs font-medium text-muted-foreground">
-            Dòng không nhập được
-          </h3>
-          <ul className="max-h-48 divide-y overflow-y-auto rounded-lg border text-sm">
-            {result.failed.map((row) => (
-              <li key={row.row} className="px-3 py-2">
-                <span className="text-muted-foreground tabular-nums">
-                  Dòng {row.row}
-                </span>
-                {row.email && <span className="ml-2">{row.email}</span>}
-                <p className="text-xs text-destructive">{row.reason}</p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {result.warnedCount > 0 && (
-        <section className="space-y-1.5">
-          <h3 className="text-xs font-medium text-muted-foreground">
-            Đã nhập nhưng nên kiểm tra
-          </h3>
-          <ul className="max-h-40 divide-y overflow-y-auto rounded-lg border text-sm">
-            {result.created
-              .filter((row) => row.warnings?.length)
-              .map((row) => (
-                <li key={row.row} className="px-3 py-2">
-                  <span className="text-muted-foreground tabular-nums">
-                    Dòng {row.row}
-                  </span>
-                  {row.email && <span className="ml-2">{row.email}</span>}
-                  <p className="text-xs text-status-waiting">
-                    {row.warnings?.join(' · ')}
-                  </p>
-                </li>
-              ))}
-          </ul>
-        </section>
-      )}
-    </div>
   );
 }
