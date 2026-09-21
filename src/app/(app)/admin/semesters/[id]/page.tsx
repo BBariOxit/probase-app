@@ -23,8 +23,21 @@ import { FormError } from '@/components/shared/form-error';
 import { RoundRequirementsEditor } from '@/components/admin/round-requirements-editor';
 import { StatusPill, type StatusTone } from '@/components/shared/status-pill';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { getRecentCohorts } from '@/lib/utils';
 
 const SCHEDULE_EDITABLE = ['PREP', 'OPEN'];
 
@@ -70,13 +83,26 @@ export default function SemesterRoundsPage({
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div className="space-y-1">
-        <h1 className="font-heading text-xl font-semibold tracking-tight">
+        <h1 className="flex items-center gap-2 font-heading text-xl font-semibold tracking-tight">
           Đợt đăng ký · {semester?.name ?? `Học kỳ #${semesterId}`}
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Info className="size-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Mỗi loại đồ án là một đợt riêng, mở và đóng theo lịch của nó.
+                <br />
+                Chỉ loại nào được bật mới có đợt trong học kỳ này.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Mỗi loại đồ án là một đợt riêng, mở và đóng theo lịch của nó. Chỉ loại
-          nào được bật mới có đợt trong học kỳ này.
-        </p>
       </div>
 
       {isPending || !projectTypes || !rounds ? (
@@ -90,26 +116,6 @@ export default function SemesterRoundsPage({
             projectTypes={projectTypes}
             rounds={rounds}
           />
-
-          {rounds.length > 0 && (
-            <section className="space-y-4 border-t pt-5">
-              <h2 className="font-heading text-base font-semibold tracking-tight">
-                Bài phải nộp
-              </h2>
-
-              {rounds.map((round) => (
-                <div
-                  key={round.id}
-                  className="space-y-2.5 rounded-xl border p-4"
-                >
-                  <h3 className="text-sm font-medium">
-                    {round.projectType.name}
-                  </h3>
-                  <RoundRequirementsEditor round={round} />
-                </div>
-              ))}
-            </section>
-          )}
         </>
       )}
     </div>
@@ -129,6 +135,7 @@ function PlanForm({
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
+  const cohortOptions = getRecentCohorts(5);
   const byType = new Map(rounds.map((round) => [round.projectTypeId, round]));
 
   const [state, setState] = useState<Record<number, RowState>>(() =>
@@ -142,7 +149,7 @@ function PlanForm({
             enabled: round !== undefined,
             start: toDateInput(round?.registrationStart),
             end: toDateInput(round?.registrationEnd),
-            cohorts: round?.cohorts.join(', ') ?? '',
+            cohorts: round?.cohorts[0] ?? cohortOptions[0].value,
           } satisfies RowState,
         ];
       }),
@@ -160,11 +167,10 @@ function PlanForm({
   const rows = projectTypes.map((type) => {
     const row = state[type.id];
     const round = byType.get(type.id);
-    const cohorts = parseCohorts(row.cohorts);
     const locked =
       round !== undefined && !SCHEDULE_EDITABLE.includes(round.phase);
 
-    return { type, row, round, cohorts, locked };
+    return { type, row, round, locked };
   });
 
   const enabled = rows.filter((entry) => entry.row.enabled);
@@ -179,7 +185,7 @@ function PlanForm({
         projectTypeId: entry.type.id,
         registrationStart: new Date(entry.row.start).toISOString(),
         registrationEnd: new Date(entry.row.end).toISOString(),
-        cohorts: entry.cohorts.values,
+        cohorts: [entry.row.cohorts],
       }));
 
       await save.mutateAsync({ semesterId, rounds: plan });
@@ -196,14 +202,8 @@ function PlanForm({
     <div className="space-y-4">
       <FormError message={error} />
 
-      <p className="flex items-start gap-2 text-xs text-muted-foreground">
-        <Info className="mt-0.5 size-3.5 shrink-0" />
-        Khóa là năm nhập học gồm bốn chữ số — 2022, không phải K46. Nhiều khóa
-        thì cách nhau bằng dấu phẩy.
-      </p>
-
       <div className="space-y-3">
-        {rows.map(({ type, row, round, cohorts, locked }) => (
+        {rows.map(({ type, row, round, locked }) => (
           <section
             key={type.id}
             className={cn(
@@ -257,15 +257,24 @@ function PlanForm({
                   <Label htmlFor={`cohorts-${type.id}`} className="text-xs">
                     Khóa được đăng ký
                   </Label>
-                  <Input
-                    id={`cohorts-${type.id}`}
-                    placeholder="2022, 2023"
+                  <Select
+                    disabled={locked}
                     value={row.cohorts}
-                    aria-invalid={!cohorts.valid}
-                    onChange={(event) =>
-                      patch(type.id, { cohorts: event.target.value })
+                    onValueChange={(value) =>
+                      patch(type.id, { cohorts: value })
                     }
-                  />
+                  >
+                    <SelectTrigger id={`cohorts-${type.id}`}>
+                      <SelectValue placeholder="Chọn khoá" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cohortOptions.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             )}
@@ -292,30 +301,35 @@ function PlanForm({
           </span>
         )}
       </div>
+
+      {rounds.some((r) => state[r.projectTypeId].enabled) && (
+        <section className="space-y-4 border-t pt-5">
+          <h2 className="font-heading text-base font-semibold tracking-tight">
+            Bài phải nộp
+          </h2>
+
+          {rounds
+            .filter((r) => state[r.projectTypeId].enabled)
+            .map((round) => (
+              <div key={round.id} className="space-y-2.5 rounded-xl border p-4">
+                <h3 className="text-sm font-medium">
+                  {round.projectType.name}
+                </h3>
+                <RoundRequirementsEditor round={round} />
+              </div>
+            ))}
+        </section>
+      )}
     </div>
   );
-}
-
-function parseCohorts(raw: string): { values: string[]; valid: boolean } {
-  const values = raw
-    .split(',')
-    .map((part) => part.trim())
-    .filter((part) => part !== '');
-
-  return {
-    values,
-    valid: values.length > 0 && values.every((part) => /^\d{4}$/.test(part)),
-  };
 }
 
 function describeProblems({
   type,
   row,
-  cohorts,
 }: {
   type: ProjectType;
   row: RowState;
-  cohorts: { valid: boolean };
 }): string[] {
   const problems: string[] = [];
 
@@ -323,12 +337,6 @@ function describeProblems({
     problems.push(`${type.name}: chưa nhập đủ ngày mở và hạn đăng ký.`);
   } else if (row.end <= row.start) {
     problems.push(`${type.name}: hạn đăng ký phải sau ngày mở.`);
-  }
-
-  if (!cohorts.valid) {
-    problems.push(
-      `${type.name}: khóa phải là năm nhập học bốn chữ số, ít nhất một khóa.`,
-    );
   }
 
   return problems;

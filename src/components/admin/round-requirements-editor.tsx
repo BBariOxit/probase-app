@@ -194,8 +194,7 @@ export function RoundRequirementsEditor({
               />
 
               <div className="flex flex-col space-y-2">
-                <div className="h-5" />{' '}
-                {/* Invisible spacer matching the Label height */}
+                <Label className="invisible">X</Label>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -211,15 +210,6 @@ export function RoundRequirementsEditor({
         </ul>
       )}
 
-      {rows.length > 0 && (
-        <div className="pt-2">
-          <Button variant="outline" size="sm" onClick={() => add()}>
-            <Plus />
-            Thêm mục
-          </Button>
-        </div>
-      )}
-
       {hasSubmitted && duplicated && (
         <p className="text-sm text-destructive">
           Hai mục trùng tên — sinh viên sẽ không biết chọn cái nào.
@@ -233,7 +223,14 @@ export function RoundRequirementsEditor({
           </p>
         ))}
 
-      <div className="pt-4">
+      <div className="flex items-center gap-4 pt-4">
+        {rows.length > 0 && (
+          <Button variant="outline" size="sm" onClick={() => add()}>
+            <Plus />
+            Thêm mục
+          </Button>
+        )}
+
         <Button disabled={save.isPending} onClick={submit}>
           {save.isPending && <Loader2 className="animate-spin" />}
           Lưu danh sách
