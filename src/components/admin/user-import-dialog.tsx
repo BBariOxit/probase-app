@@ -294,12 +294,13 @@ export function UserImportDialog() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="roster">
-                    File danh sách (.xlsx hoặc .csv, tối đa 5MB)
+                    File (.xlsx hoặc .csv, tối đa 5MB)
                   </Label>
                   <Input
                     id="roster"
                     type="file"
                     accept=".xlsx,.csv"
+                    className="cursor-pointer file:cursor-pointer hover:bg-muted/50 transition-colors"
                     onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                   />
                 </div>
@@ -324,11 +325,6 @@ export function UserImportDialog() {
                     Mẫu Giảng viên
                   </Button>
                 </div>
-
-                <p className="rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                  Hệ thống sẽ tự động nhận diện cột dựa trên tên header. Bạn sẽ
-                  có thể kiểm tra và điều chỉnh ở bước tiếp theo.
-                </p>
               </div>
             )}
 
