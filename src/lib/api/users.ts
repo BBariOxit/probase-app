@@ -110,6 +110,16 @@ export function useDeactivateUser() {
   });
 }
 
+export function useHardDeleteUser() {
+  const invalidate = useInvalidateUsers();
+
+  return useMutation({
+    mutationFn: (id: number) =>
+      api<{ message: string }>(`/users/${id}/hard`, { method: 'DELETE' }),
+    onSuccess: invalidate,
+  });
+}
+
 export function useResetUserPassword() {
   const invalidate = useInvalidateUsers();
 

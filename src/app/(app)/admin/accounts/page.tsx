@@ -9,6 +9,7 @@ import {
   MoreHorizontal,
   Plus,
   Search,
+  Trash2,
   UserCog,
   Users,
 } from 'lucide-react';
@@ -17,6 +18,7 @@ import { useMajors } from '@/lib/api/majors';
 import {
   useCreateUser,
   useDeactivateUser,
+  useHardDeleteUser,
   useResetUserPassword,
   useUpdateUser,
   useUsers,
@@ -120,6 +122,7 @@ export default function AccountsPage() {
   );
   const [locking, setLocking] = useState<UserAccount | null>(null);
   const [resetting, setResetting] = useState<UserAccount | null>(null);
+  const [deleting, setDeleting] = useState<UserAccount | null>(null);
 
   const { data, isPending, error } = useUsers({
     page,
@@ -131,6 +134,7 @@ export default function AccountsPage() {
 
   const lock = useDeactivateUser();
   const reset = useResetUserPassword();
+  const hardDelete = useHardDeleteUser();
 
   if (!allowed) return null;
 
@@ -295,6 +299,13 @@ export default function AccountsPage() {
                             Khoá tài khoản
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => setDeleting(user)}
+                        >
+                          <Trash2 />
+                          Xóa tài khoản
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -369,6 +380,19 @@ export default function AccountsPage() {
           await reset.mutateAsync(resetting!.id);
           toast.success(`Đã gửi mật khẩu mới đến ${resetting!.email}.`);
           setResetting(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        title="Xóa tài khoản vĩnh viễn?"
+        description={`Tài khoản ${deleting?.email} sẽ bị xóa hoàn toàn khỏi hệ thống. Toàn bộ dữ liệu liên quan (hồ sơ, đề tài…) cũng bị xóa theo và KHÔNG THỂ khôi phục.`}
+        confirmLabel="Xóa vĩnh viễn"
+        onConfirm={async () => {
+          await hardDelete.mutateAsync(deleting!.id);
+          toast.success(`Đã xóa tài khoản ${deleting!.email}.`);
+          setDeleting(null);
         }}
       />
     </div>
