@@ -46,6 +46,7 @@ export function RoundRequirementsEditor({
   const [draft, setDraft] = useState<Row[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   /*
     What the server said, until the office types something — then their draft,
@@ -57,6 +58,7 @@ export function RoundRequirementsEditor({
 
   function edit(next: Row[]) {
     setSaved(false);
+    setHasSubmitted(false);
     setDraft(next);
   }
 
@@ -77,8 +79,12 @@ export function RoundRequirementsEditor({
   }
 
   async function submit() {
+    setHasSubmitted(true);
     setError(null);
     setSaved(false);
+
+    if (problems.length > 0 || duplicated) return;
+
     try {
       const next = await save.mutateAsync({
         roundId: round.id,
@@ -161,7 +167,7 @@ export function RoundRequirementsEditor({
                   aria-label={`Tên mục ${index + 1}`}
                   placeholder="Đề cương"
                   value={row.name}
-                  aria-invalid={row.name.trim() === ''}
+                  aria-invalid={hasSubmitted && row.name.trim() === ''}
                   onChange={(event) =>
                     patch(index, { name: event.target.value })
                   }
@@ -183,11 +189,13 @@ export function RoundRequirementsEditor({
                 id={`due-${round.id}-${index}`}
                 label="Hạn nộp"
                 value={row.due}
-                invalid={row.due === ''}
+                invalid={hasSubmitted && row.due === ''}
                 onChange={(due) => patch(index, { due })}
               />
 
-              <div className="pt-8">
+              <div className="flex flex-col space-y-2">
+                <div className="h-5" />{' '}
+                {/* Invisible spacer matching the Label height */}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -212,23 +220,21 @@ export function RoundRequirementsEditor({
         </div>
       )}
 
-      {duplicated && (
+      {hasSubmitted && duplicated && (
         <p className="text-sm text-destructive">
           Hai mục trùng tên — sinh viên sẽ không biết chọn cái nào.
         </p>
       )}
 
-      {problems.map((problem) => (
-        <p key={problem} className="text-sm text-destructive">
-          {problem}
-        </p>
-      ))}
+      {hasSubmitted &&
+        problems.map((problem) => (
+          <p key={problem} className="text-sm text-destructive">
+            {problem}
+          </p>
+        ))}
 
       <div className="pt-4">
-        <Button
-          disabled={problems.length > 0 || duplicated || save.isPending}
-          onClick={submit}
-        >
+        <Button disabled={save.isPending} onClick={submit}>
           {save.isPending && <Loader2 className="animate-spin" />}
           Lưu danh sách
         </Button>
