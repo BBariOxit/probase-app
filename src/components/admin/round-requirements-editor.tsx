@@ -11,7 +11,6 @@ import type { RegistrationRound, SubmissionRequirement } from '@/lib/api/types';
 import { DateField } from '@/components/shared/date-field';
 import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -137,7 +136,7 @@ export function RoundRequirementsEditor({
 
   if (saved) {
     return (
-      <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/20 px-4 py-3">
+      <div className="inline-flex items-center gap-3 rounded-lg border bg-muted/30 pl-4 pr-1.5 py-1.5 mt-2">
         <p className="text-sm">
           {rows.length === 0 ? (
             <span className="text-muted-foreground">Không có bài nộp nào.</span>
@@ -148,10 +147,10 @@ export function RoundRequirementsEditor({
         <Button
           variant="ghost"
           size="icon"
-          className="shrink-0 text-muted-foreground hover:text-foreground"
+          className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
           onClick={() => setSaved(false)}
         >
-          <Pencil />
+          <Pencil className="size-3.5" />
         </Button>
       </div>
     );
