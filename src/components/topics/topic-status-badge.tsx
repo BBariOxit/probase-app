@@ -3,7 +3,7 @@ import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
 
 const TOPIC_STATUS: Record<TopicStatus, StatusLabel> = {
   PENDING: { label: 'Chờ duyệt', tone: 'waiting' },
-  APPROVED: { label: 'Đã duyệt', tone: 'idle' },
+  APPROVED: { label: 'Đã duyệt', tone: 'success' },
   OPEN: { label: 'Đang mở', tone: 'success' },
   IN_PROGRESS: { label: 'Đang thực hiện', tone: 'active' },
   COMPLETED: { label: 'Hoàn thành', tone: 'idle' },

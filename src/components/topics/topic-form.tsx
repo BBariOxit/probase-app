@@ -25,11 +25,23 @@ import { Textarea } from '@/components/ui/textarea';
 const TopicSchema = z.object({
   semesterId: z.number('Vui lòng chọn học kỳ').int().positive(),
   projectTypeId: z.number('Vui lòng chọn loại đồ án').int().positive(),
-  title: z.string().trim().min(1, 'Vui lòng nhập tên đề tài').max(255),
-  description: z.string().trim().min(1, 'Vui lòng mô tả đề tài'),
-  expectedOutcomes: z.string().trim().min(1, 'Vui lòng nêu yêu cầu đầu ra'),
+  title: z
+    .string()
+    .trim()
+    .min(1, 'Vui lòng nhập tên đề tài')
+    .max(200, 'Tên đề tài tối đa 200 ký tự'),
+  description: z
+    .string()
+    .trim()
+    .min(1, 'Vui lòng mô tả đề tài')
+    .max(3000, 'Mô tả tối đa 3000 ký tự'),
+  expectedOutcomes: z
+    .string()
+    .trim()
+    .min(1, 'Vui lòng nêu yêu cầu đầu ra')
+    .max(3000, 'Yêu cầu đầu ra tối đa 3000 ký tự'),
   maxStudents: z
-    .number('Vui lòng nhập số sinh viên')
+    .number({ message: 'Vui lòng nhập số sinh viên' })
     .int()
     .min(1, 'Ít nhất 1 sinh viên')
     .max(10, 'Nhiều nhất 10 sinh viên'),
@@ -85,7 +97,7 @@ export function TopicForm({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues: {
-      maxStudents: 1,
+      maxStudents: 3,
       title: '',
       description: '',
       expectedOutcomes: '',
@@ -189,6 +201,7 @@ export function TopicForm({
         <Input
           id="title"
           autoFocus
+          maxLength={200}
           aria-invalid={!!errors.title}
           {...register('title')}
         />
@@ -202,6 +215,7 @@ export function TopicForm({
         <Textarea
           id="description"
           rows={5}
+          maxLength={3000}
           aria-invalid={!!errors.description}
           {...register('description')}
         />
@@ -215,6 +229,7 @@ export function TopicForm({
         <Textarea
           id="expectedOutcomes"
           rows={4}
+          maxLength={3000}
           aria-invalid={!!errors.expectedOutcomes}
           {...register('expectedOutcomes')}
         />

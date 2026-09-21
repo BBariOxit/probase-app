@@ -58,7 +58,7 @@ export function TopicDetailView({
             </Link>
           </Meta>
           <Meta icon={Layers}>{topic.projectType.name}</Meta>
-          <Meta icon={Users}>Tối đa {topic.maxStudents} sinh viên</Meta>
+          <Meta icon={Users}>{topic.maxStudents} sinh viên</Meta>
         </div>
       </header>
 

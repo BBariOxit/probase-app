@@ -298,6 +298,7 @@ function SemesterDialog({
               <Input
                 id="semester-name"
                 autoFocus
+                maxLength={100}
                 placeholder="Học kỳ 1 năm học 2026-2027"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
@@ -308,6 +309,7 @@ function SemesterDialog({
               <Input
                 id="semester-code"
                 className="uppercase"
+                maxLength={20}
                 placeholder="HK1-2026-2027"
                 value={code}
                 onChange={(event) => setCode(event.target.value)}
