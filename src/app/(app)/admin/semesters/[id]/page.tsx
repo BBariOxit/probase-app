@@ -88,12 +88,12 @@ export default function SemesterRoundsPage({
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  className="text-muted-foreground hover:text-foreground"
+                <span
+                  tabIndex={0}
+                  className="cursor-default text-muted-foreground hover:text-foreground"
                 >
                   <Info className="size-4" />
-                </button>
+                </span>
               </TooltipTrigger>
               <TooltipContent>
                 Mỗi loại đồ án là một đợt riêng, mở và đóng theo lịch của nó.
@@ -189,7 +189,7 @@ function PlanForm({
       }));
 
       await save.mutateAsync({ semesterId, rounds: plan });
-      toast.success('Registration round plan saved.');
+      toast.success('Đã lưu kế hoạch.');
       setSaved(true);
     } catch (err) {
       setError(
@@ -311,12 +311,7 @@ function PlanForm({
           {rounds
             .filter((r) => state[r.projectTypeId].enabled)
             .map((round) => (
-              <div key={round.id} className="space-y-2.5 rounded-xl border p-4">
-                <h3 className="text-sm font-medium">
-                  {round.projectType.name}
-                </h3>
-                <RoundRequirementsEditor round={round} />
-              </div>
+              <RoundRequirementsEditor key={round.id} round={round} />
             ))}
         </section>
       )}

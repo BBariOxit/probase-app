@@ -126,16 +126,20 @@ export default function AdminSubmissionsPage() {
               actions={
                 <div className="flex items-center gap-2">
                   {submission.fileUrl && (
-                    <Button size="sm" variant="ghost" asChild>
-                      <a
-                        href={submission.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        download
-                      >
-                        <FileDown />
-                        Tải file
-                      </a>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      render={
+                        <a
+                          href={submission.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
+                        />
+                      }
+                    >
+                      <FileDown />
+                      Tải file
                     </Button>
                   )}
                   <Button
@@ -233,7 +237,7 @@ function FeedbackDialog({
     setError(null);
     try {
       await answer.mutateAsync({ id: submission.id, feedback: trimmed });
-      toast.success('Feedback sent successfully.');
+      toast.success('Đã gửi phản hồi.');
       onClose();
     } catch (err) {
       setError(

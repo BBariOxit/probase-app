@@ -72,10 +72,7 @@ export default function SemestersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Học kỳ đang mở là học kỳ mọi màn hình khác lấy làm mặc định.
-        </p>
+      <div className="flex items-center justify-end gap-3">
         <Button onClick={() => setEditing('new')}>
           <Plus />
           Thêm học kỳ
@@ -92,7 +89,7 @@ export default function SemestersPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-56">Học kỳ</TableHead>
-                <TableHead className="w-48">Thời gian</TableHead>
+                <TableHead className="w-48 text-center">Thời gian</TableHead>
                 <TableHead className="w-40">Hạn nhập điểm</TableHead>
                 <TableHead className="w-32">Trạng thái</TableHead>
                 <TableHead className="w-44" />
@@ -101,13 +98,8 @@ export default function SemestersPage() {
             <TableBody>
               {data?.map((semester) => (
                 <TableRow key={semester.id}>
-                  <TableCell className="font-medium">
-                    {semester.name}
-                    <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
-                      {semester.code}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="font-medium">{semester.name}</TableCell>
+                  <TableCell className="text-muted-foreground text-center">
                     {dateFormat.format(new Date(semester.startDate))} –{' '}
                     {dateFormat.format(new Date(semester.endDate))}
                   </TableCell>
@@ -292,9 +284,8 @@ function SemesterDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{semester ? 'Sửa học kỳ' : 'Thêm học kỳ'}</DialogTitle>
-          <DialogDescription>
-            Thời gian đăng ký đề tài không đặt ở đây — mỗi loại đồ án có đợt
-            riêng, khai trong &ldquo;Đợt đăng ký&rdquo;.
+          <DialogDescription className="sr-only">
+            Thêm hoặc sửa học kỳ
           </DialogDescription>
         </DialogHeader>
 

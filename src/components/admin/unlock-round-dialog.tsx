@@ -41,7 +41,7 @@ export function UnlockRoundDialog({
     setError(null);
     try {
       await unlock.mutateAsync({ roundId, reason: trimmed });
-      toast.success('Round unlocked. You can now make changes.');
+      toast.success('Đã mở khóa đợt.');
       setOpen(false);
       setReason('');
     } catch (err) {

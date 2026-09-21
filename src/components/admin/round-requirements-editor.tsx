@@ -134,142 +134,156 @@ export function RoundRequirementsEditor({
     new Set(rows.map((row) => row.name.trim().toLowerCase())).size !==
     rows.length;
 
-  if (saved) {
-    return (
-      <div className="inline-flex items-center gap-3 rounded-lg border bg-muted/30 pl-4 pr-1.5 py-1.5 mt-2">
-        <p className="text-sm">
-          {rows.length === 0 ? (
-            <span className="text-muted-foreground">Không có bài nộp nào.</span>
-          ) : (
-            rows.map((r) => r.name).join(', ')
-          )}
-        </p>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7 shrink-0 text-muted-foreground hover:text-foreground"
-          onClick={() => setSaved(false)}
-        >
-          <Pencil className="size-3.5" />
-        </Button>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-3">
-      <FormError message={error} />
+    <div
+      className={
+        saved
+          ? 'flex flex-wrap items-center justify-between gap-4 rounded-xl border p-4'
+          : 'space-y-2.5 rounded-xl border p-4'
+      }
+    >
+      <h3 className="text-sm font-medium">{round.projectType.name}</h3>
 
-      {rows.length === 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-3">
-          <span className="text-sm text-muted-foreground">
-            Chưa khai mục nào. Thường có:
-          </span>
-          {SUGGESTED.map((name) => (
-            <Button
-              key={name}
-              variant="outline"
-              size="sm"
-              onClick={() => add(name)}
-            >
-              <Plus />
-              {name}
-            </Button>
-          ))}
+      {saved ? (
+        <div className="inline-flex items-center gap-3 rounded-lg border bg-muted/30 pl-4 pr-1.5 py-1.5">
+          <p className="text-sm">
+            {rows.length === 0 ? (
+              <span className="text-muted-foreground">
+                Không có bài nộp nào.
+              </span>
+            ) : (
+              rows.map((r) => r.name).join(', ')
+            )}
+          </p>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 shrink-0 text-muted-foreground hover:bg-background hover:text-foreground"
+            onClick={() => setSaved(false)}
+          >
+            <Pencil className="size-3.5" />
+          </Button>
         </div>
       ) : (
-        <ul className="space-y-2">
-          {rows.map((row, index) => (
-            <li
-              key={row.id ?? `new-${index}`}
-              className="grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto]"
-            >
-              <div className="space-y-2">
-                <Label htmlFor={`name-${round.id}-${index}`}>Tên mục nộp</Label>
-                <Select
-                  value={row.name}
-                  onValueChange={(value) => patch(index, { name: value })}
-                >
-                  <SelectTrigger
-                    id={`name-${round.id}-${index}`}
-                    aria-label={`Tên mục ${index + 1}`}
-                    className="w-full"
-                    aria-invalid={hasSubmitted && row.name.trim() === ''}
-                  >
-                    <SelectValue placeholder="Chọn mục nộp" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SUGGESTED.map((name) => (
-                      <SelectItem key={name} value={name}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
-                  <input
-                    type="checkbox"
-                    className="size-3.5 accent-primary"
-                    checked={row.isRequired}
-                    onChange={(event) =>
-                      patch(index, { isRequired: event.target.checked })
-                    }
-                  />
-                  Bắt buộc
-                </label>
-              </div>
+        <div className="space-y-3 pt-1">
+          <FormError message={error} />
 
-              <DateField
-                id={`due-${round.id}-${index}`}
-                label="Hạn nộp"
-                value={row.due}
-                invalid={hasSubmitted && row.due === ''}
-                onChange={(due) => patch(index, { due })}
-              />
-
-              <div className="flex flex-col space-y-2">
-                <Label className="invisible">X</Label>
+          {rows.length === 0 ? (
+            <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-3">
+              <span className="text-sm text-muted-foreground">
+                Chưa khai mục nào. Thường có:
+              </span>
+              {SUGGESTED.map((name) => (
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-destructive"
-                  aria-label={`Xoá ${row.name || `mục ${index + 1}`}`}
-                  onClick={() => remove(index)}
+                  key={name}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => add(name)}
                 >
-                  <Trash2 />
+                  <Plus />
+                  {name}
                 </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+              ))}
+            </div>
+          ) : (
+            <ul className="space-y-2">
+              {rows.map((row, index) => (
+                <li
+                  key={row.id ?? `new-${index}`}
+                  className="grid items-start gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto]"
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor={`name-${round.id}-${index}`}>
+                      Tên mục nộp
+                    </Label>
+                    <Select
+                      value={row.name}
+                      onValueChange={(value) =>
+                        patch(index, { name: value as string })
+                      }
+                    >
+                      <SelectTrigger
+                        id={`name-${round.id}-${index}`}
+                        aria-label={`Tên mục ${index + 1}`}
+                        className="w-full"
+                        aria-invalid={hasSubmitted && row.name.trim() === ''}
+                      >
+                        <SelectValue placeholder="Chọn mục nộp" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SUGGESTED.map((name) => (
+                          <SelectItem key={name} value={name}>
+                            {name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
+                      <input
+                        type="checkbox"
+                        className="size-3.5 accent-primary"
+                        checked={row.isRequired}
+                        onChange={(event) =>
+                          patch(index, { isRequired: event.target.checked })
+                        }
+                      />
+                      Bắt buộc
+                    </label>
+                  </div>
+
+                  <DateField
+                    id={`due-${round.id}-${index}`}
+                    label="Hạn nộp"
+                    value={row.due}
+                    invalid={hasSubmitted && row.due === ''}
+                    onChange={(due) => patch(index, { due })}
+                  />
+
+                  <div className="flex flex-col space-y-2">
+                    <Label className="invisible">X</Label>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-destructive"
+                      aria-label={`Xoá ${row.name || `mục ${index + 1}`}`}
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {hasSubmitted && duplicated && (
+            <p className="text-sm text-destructive">
+              Hai mục trùng tên — sinh viên sẽ không biết chọn cái nào.
+            </p>
+          )}
+
+          {hasSubmitted &&
+            problems.map((problem) => (
+              <p key={problem} className="text-sm text-destructive">
+                {problem}
+              </p>
+            ))}
+
+          <div className="flex items-center gap-4 pt-4">
+            {rows.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => add()}>
+                <Plus />
+                Thêm mục
+              </Button>
+            )}
+
+            <Button disabled={save.isPending} onClick={submit}>
+              {save.isPending ? <Loader2 className="animate-spin" /> : null}
+              Lưu danh sách
+            </Button>
+          </div>
+        </div>
       )}
-
-      {hasSubmitted && duplicated && (
-        <p className="text-sm text-destructive">
-          Hai mục trùng tên — sinh viên sẽ không biết chọn cái nào.
-        </p>
-      )}
-
-      {hasSubmitted &&
-        problems.map((problem) => (
-          <p key={problem} className="text-sm text-destructive">
-            {problem}
-          </p>
-        ))}
-
-      <div className="flex items-center gap-4 pt-4">
-        {rows.length > 0 && (
-          <Button variant="outline" size="sm" onClick={() => add()}>
-            <Plus />
-            Thêm mục
-          </Button>
-        )}
-
-        <Button disabled={save.isPending} onClick={submit}>
-          {save.isPending && <Loader2 className="animate-spin" />}
-          Lưu danh sách
-        </Button>
-      </div>
     </div>
   );
 }

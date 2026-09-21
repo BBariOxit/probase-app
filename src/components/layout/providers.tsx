@@ -17,10 +17,12 @@ function ThemeToaster() {
   const { theme } = useTheme();
   return (
     <Toaster
-      richColors
-      closeButton
       position="bottom-right"
       theme={(theme as 'light' | 'dark' | 'system') ?? 'system'}
+      toastOptions={{
+        className: 'w-auto min-w-0',
+        style: { width: 'fit-content', minWidth: 'min-content' },
+      }}
     />
   );
 }

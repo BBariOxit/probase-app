@@ -47,7 +47,7 @@ export function FinalizeRoundDialog({
         acknowledgeUnplaced: unplaced > 0,
         reason: unplaced > 0 ? trimmed : undefined,
       });
-      toast.success('Round finalized successfully. All members notified.');
+      toast.success('Đã chốt đợt thành công.');
       setOpen(false);
       setReason('');
     } catch (err) {

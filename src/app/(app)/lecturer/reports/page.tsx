@@ -198,7 +198,7 @@ function FeedbackDialog({
     setError(null);
     try {
       await answer.mutateAsync({ id: submission.id, feedback: trimmed });
-      toast.success('Feedback sent to the group.');
+      toast.success('Đã gửi phản hồi.');
       onClose();
     } catch (err) {
       setError(

@@ -354,7 +354,7 @@ export default function AccountsPage() {
         confirmLabel="Khoá tài khoản"
         onConfirm={async () => {
           await lock.mutateAsync(locking!.id);
-          toast.success(`Account ${locking!.email} locked.`);
+          toast.success(`Đã khóa tài khoản ${locking!.email}.`);
           setLocking(null);
         }}
       />
@@ -367,7 +367,7 @@ export default function AccountsPage() {
         confirmLabel="Cấp lại"
         onConfirm={async () => {
           await reset.mutateAsync(resetting!.id);
-          toast.success(`New password sent to ${resetting!.email}.`);
+          toast.success(`Đã gửi mật khẩu mới đến ${resetting!.email}.`);
           setResetting(null);
         }}
       />
