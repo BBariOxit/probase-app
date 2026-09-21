@@ -361,7 +361,7 @@ export default function AccountsPage() {
         open={locking !== null}
         onOpenChange={(open) => !open && setLocking(null)}
         title="Khoá tài khoản?"
-        description={`${locking?.email} sẽ không đăng nhập được nữa và mọi phiên đang mở bị ngắt ngay. Dữ liệu giữ nguyên — mở lại bất cứ lúc nào trong "Sửa tài khoản".`}
+        description={`Tài khoản ${locking?.email} sẽ bị chặn đăng nhập. Dữ liệu vẫn được giữ nguyên.`}
         confirmLabel="Khoá tài khoản"
         onConfirm={async () => {
           await lock.mutateAsync(locking!.id);
@@ -374,7 +374,7 @@ export default function AccountsPage() {
         open={resetting !== null}
         onOpenChange={(open) => !open && setResetting(null)}
         title="Cấp lại mật khẩu?"
-        description={`Hệ thống sẽ tạo mật khẩu tạm mới cho ${resetting?.email} và gửi qua email. Mật khẩu cũ ngừng hoạt động ngay.`}
+        description={`Hệ thống sẽ tạo mật khẩu tạm mới cho ${resetting?.email} và gửi qua email.`}
         confirmLabel="Cấp lại"
         onConfirm={async () => {
           await reset.mutateAsync(resetting!.id);
@@ -655,10 +655,6 @@ function EditUserDialog({
 
           <div className="space-y-2">
             <Label htmlFor="edit-role">Vai trò</Label>
-            <p className="-mt-1 text-xs text-muted-foreground">
-              Đổi vai trò không tạo hồ sơ mới — tài khoản sẽ không có hồ sơ của
-              vai trò vừa đổi sang.
-            </p>
             <Select
               value={role}
               onValueChange={(value) => setRole(value as Role)}
@@ -683,13 +679,7 @@ function EditUserDialog({
               checked={isActive}
               onChange={(event) => setIsActive(event.target.checked)}
             />
-            <span>
-              Cho phép đăng nhập
-              <span className="block text-xs text-muted-foreground">
-                Khoá tài khoản giữ lại toàn bộ dữ liệu, chỉ chặn đăng nhập — đây
-                là cách nên dùng thay cho xoá.
-              </span>
-            </span>
+            <span>Cho phép đăng nhập</span>
           </label>
         </div>
 

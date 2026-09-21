@@ -1,7 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CircleHelp, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+  CircleHelp,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  TriangleAlert,
+} from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import type { CatalogueInput } from '@/lib/api/master-data';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
@@ -263,11 +270,29 @@ function CatalogueDialog({
     <Dialog open onOpenChange={(next) => !next && !pending && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{item ? `Sửa ${noun}` : `Thêm ${noun}`}</DialogTitle>
-          <DialogDescription>
-            {item
-              ? 'Đổi mã sẽ ảnh hưởng tới các file nhập danh sách đang dùng mã cũ.'
-              : `Mã sẽ được viết hoa tự động.`}
+          <DialogTitle className="flex items-center gap-2">
+            {item ? `Sửa ${noun}` : `Thêm ${noun}`}
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    type="button"
+                    aria-label="Ghi chú"
+                    className="rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  />
+                }
+              >
+                <CircleHelp className="size-4" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs text-pretty">
+                {item
+                  ? 'Đổi mã sẽ ảnh hưởng tới các file nhập danh sách đang dùng mã cũ.'
+                  : 'Mã sẽ được viết hoa tự động.'}
+              </TooltipContent>
+            </Tooltip>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            {item ? `Sửa ${noun}` : `Thêm ${noun} mới`}
           </DialogDescription>
         </DialogHeader>
 
@@ -286,10 +311,9 @@ function CatalogueDialog({
 
           <div className="space-y-2">
             <Label htmlFor="catalogue-code">Mã</Label>
-            <p className="-mt-1 text-xs text-muted-foreground">{codeHint}</p>
             <Input
               id="catalogue-code"
-              className="w-40 uppercase"
+              className="uppercase"
               value={code}
               onChange={(event) => setCode(event.target.value)}
             />

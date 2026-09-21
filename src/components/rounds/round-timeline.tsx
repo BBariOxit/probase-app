@@ -77,10 +77,6 @@ export function RoundTimeline({
           );
         })}
       </ol>
-
-      <p className="mt-4 border-t pt-3 text-xs text-pretty text-muted-foreground">
-        {detail}
-      </p>
     </section>
   );
 }
