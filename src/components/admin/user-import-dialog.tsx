@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import {
+  AlertCircle,
   CheckCircle2,
   Download,
   FileUp,
@@ -38,6 +39,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -258,7 +265,21 @@ export function UserImportDialog() {
       >
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Nhập danh sách tài khoản</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              Nhập danh sách tài khoản
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <AlertCircle className="size-4 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[300px] text-xs font-normal">
+                    Dòng nào sai sẽ bị bỏ qua và báo lại riêng — một dòng hỏng
+                    không làm hỏng cả file. Mã chuyên ngành trong file phải khớp
+                    với danh mục Chuyên ngành.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </DialogTitle>
             <DialogDescription className="sr-only">
               Wizard nhập danh sách tài khoản hàng loạt
             </DialogDescription>
