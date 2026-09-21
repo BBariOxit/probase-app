@@ -212,7 +212,7 @@ function MemberSeat({
             title="Xóa thành viên"
             description={`Bạn có chắc chắn muốn xóa ${student.fullName} khỏi nhóm không? Họ sẽ bị mất đề tài và phải tìm nhóm khác.`}
             confirmLabel="Xóa khỏi nhóm"
-            onConfirm={onRemove}
+            onConfirm={async () => onRemove()}
           />
         </>
       )}

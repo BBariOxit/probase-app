@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/lib/api/client';
+import { api, request } from '@/lib/api/client';
 import type {
   BulkImportResult,
   ColumnMapping,
@@ -218,14 +218,17 @@ export function useSendImportEmails() {
 }
 
 /** Download pre-filled Excel template as a blob and trigger browser download. */
-export function downloadImportTemplate(role: 'STUDENT' | 'LECTURER') {
-  const url = `/api/users/import/template?role=${role}`;
+export async function downloadImportTemplate(role: 'STUDENT' | 'LECTURER') {
+  const response = await request(`/users/import/template?role=${role}`);
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = `import-template-${role.toLowerCase()}.xlsx`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
 }
 
 export function useUser(id: number | undefined) {

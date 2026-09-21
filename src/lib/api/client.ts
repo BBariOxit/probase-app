@@ -83,7 +83,7 @@ interface RequestOptions {
   anonymous?: boolean;
 }
 
-async function request(
+export async function request(
   path: string,
   { method = 'GET', body, anonymous = false }: RequestOptions = {},
 ): Promise<Response> {

@@ -15,7 +15,7 @@ const FIELD_LABELS: Record<SystemField, string> = {
   role: 'Vai trò',
   email: 'Email',
   fullName: 'Họ và tên',
-  code: 'Mã số (SV / GV)',
+  code: 'Mã số (SV bắt buộc, GV tùy chọn)',
   majorCode: 'Mã ngành (SV)',
   class: 'Mã lớp (SV, tùy chọn)',
   academicTitle: 'Học hàm / học vị (GV, tùy chọn)',
@@ -24,7 +24,7 @@ const FIELD_LABELS: Record<SystemField, string> = {
   bio: 'Giới thiệu bản thân (tùy chọn)',
 };
 
-const REQUIRED_FIELDS: SystemField[] = ['role', 'email', 'fullName', 'code'];
+const REQUIRED_FIELDS: SystemField[] = ['role', 'email', 'fullName'];
 
 const ALL_FIELDS: SystemField[] = [
   'role',
@@ -66,16 +66,11 @@ export function ImportColumnMapping({
   return (
     <div className="space-y-3">
       {/* Summary banner */}
-      {hasErrors ? (
+      {hasErrors && (
         <p className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           <AlertCircle className="mt-0.5 size-4 shrink-0" />
           Vui lòng chọn cột cho các trường bắt buộc:{' '}
           {unmappedRequired.map((f) => FIELD_LABELS[f]).join(', ')}.
-        </p>
-      ) : (
-        <p className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
-          <CheckCircle2 className="size-4 shrink-0" />
-          Tất cả trường bắt buộc đã được ánh xạ. Bạn có thể xem trước dữ liệu.
         </p>
       )}
 

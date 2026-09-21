@@ -45,6 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -158,7 +159,6 @@ export function UserImportDialog() {
     sent: number;
     failed: number;
   } | null>(null);
-  const [confirmSendEmail, setConfirmSendEmail] = useState(false);
 
   // ── Helpers ────────────────────────────────────────────
 
@@ -173,7 +173,6 @@ export function UserImportDialog() {
     setPreview(null);
     setCommitResult(null);
     setEmailResult(null);
-    setConfirmSendEmail(false);
   }
 
   function close() {
@@ -183,6 +182,12 @@ export function UserImportDialog() {
       commitImport.isPending ||
       sendEmails.isPending;
     if (isBusy) return;
+
+    // Block closing if accounts are created but emails haven't been sent yet
+    if (step === 'result' && commitResult && !emailResult) {
+      return;
+    }
+
     setOpen(false);
     reset();
   }
@@ -238,7 +243,6 @@ export function UserImportDialog() {
     try {
       const result = await sendEmails.mutateAsync(commitResult.sessionId);
       setEmailResult(result);
-      setConfirmSendEmail(false);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Lỗi khi gửi email');
     }
@@ -263,7 +267,14 @@ export function UserImportDialog() {
         open={open}
         onOpenChange={(next) => (next ? setOpen(true) : close())}
       >
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent
+          className={cn(
+            'transition-all duration-300',
+            step === 'upload' || step === 'result'
+              ? 'sm:max-w-lg'
+              : 'sm:max-w-4xl',
+          )}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               Nhập danh sách tài khoản
@@ -273,9 +284,8 @@ export function UserImportDialog() {
                     <AlertCircle className="size-4 text-muted-foreground hover:text-foreground transition-colors cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-[300px] text-xs font-normal">
-                    Dòng nào sai sẽ bị bỏ qua và báo lại riêng — một dòng hỏng
-                    không làm hỏng cả file. Mã chuyên ngành trong file phải khớp
-                    với danh mục Chuyên ngành.
+                    Hệ thống sẽ tự động gửi mật khẩu tạm thời qua email cho các
+                    tài khoản hợp lệ. Các dòng lỗi sẽ bị bỏ qua.
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -283,10 +293,9 @@ export function UserImportDialog() {
             <DialogDescription className="sr-only">
               Wizard nhập danh sách tài khoản hàng loạt
             </DialogDescription>
-            <StepIndicator current={step} />
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto max-h-[60vh] pr-2 -mr-2">
             <FormError message={error} />
 
             {/* ── Step 1: Upload ── */}
@@ -385,50 +394,19 @@ export function UserImportDialog() {
                     <p className="text-sm font-medium">
                       Gửi mật khẩu tạm thời qua email
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {commitResult.createdCount} tài khoản đã được tạo nhưng
-                      chưa nhận mật khẩu. Bấm &ldquo;Gửi email ngay&rdquo; để
-                      thông báo cho từng người.
-                    </p>
 
-                    {!confirmSendEmail ? (
-                      <Button
-                        onClick={() => setConfirmSendEmail(true)}
-                        size="sm"
-                      >
-                        <Mail className="size-3.5" />
-                        Gửi email ngay ({commitResult.createdCount} người)
-                      </Button>
-                    ) : (
-                      <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 space-y-2">
-                        <p className="text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2">
-                          <TriangleAlert className="mt-0.5 size-4 shrink-0" />
-                          Email chỉ có thể gửi <strong>
-                            1 lần duy nhất
-                          </strong>{' '}
-                          cho phiên import này. Xác nhận để tiếp tục?
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            disabled={sendEmails.isPending}
-                            onClick={handleSendEmails}
-                          >
-                            {sendEmails.isPending && (
-                              <Loader2 className="animate-spin" />
-                            )}
-                            Xác nhận gửi
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setConfirmSendEmail(false)}
-                          >
-                            Huỷ
-                          </Button>
-                        </div>
-                      </div>
-                    )}
+                    <Button
+                      size="sm"
+                      disabled={sendEmails.isPending}
+                      onClick={handleSendEmails}
+                    >
+                      {sendEmails.isPending ? (
+                        <Loader2 className="animate-spin mr-2 size-3.5" />
+                      ) : (
+                        <Mail className="mr-2 size-3.5" />
+                      )}
+                      Gửi email ({commitResult.createdCount} người)
+                    </Button>
                   </div>
                 ) : (
                   <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 space-y-1">
@@ -484,55 +462,61 @@ export function UserImportDialog() {
           </div>
 
           {/* ── Footer ── */}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" disabled={isLoading} onClick={close}>
-              {step === 'result' ? 'Đóng' : 'Huỷ'}
-            </Button>
-
-            {step === 'upload' && (
-              <Button
-                disabled={!file || parseImport.isPending}
-                onClick={handleParse}
-              >
-                {parseImport.isPending && <Loader2 className="animate-spin" />}
-                Phân tích file
+          {!(step === 'result' && commitResult && !emailResult) && (
+            <DialogFooter className="gap-2">
+              <Button variant="outline" disabled={isLoading} onClick={close}>
+                {step === 'result' ? 'Đóng' : 'Huỷ'}
               </Button>
-            )}
 
-            {step === 'mapping' && (
-              <>
-                <Button variant="outline" onClick={() => setStep('upload')}>
-                  Quay lại
-                </Button>
+              {step === 'upload' && (
                 <Button
-                  disabled={previewImport.isPending}
-                  onClick={handlePreview}
+                  disabled={!file || parseImport.isPending}
+                  onClick={handleParse}
                 >
-                  {previewImport.isPending && (
+                  {parseImport.isPending && (
                     <Loader2 className="animate-spin" />
                   )}
-                  Xem trước dữ liệu
+                  Phân tích file
                 </Button>
-              </>
-            )}
+              )}
 
-            {step === 'preview' && preview && (
-              <>
-                <Button variant="outline" onClick={() => setStep('mapping')}>
-                  Quay lại
-                </Button>
-                <Button
-                  disabled={commitImport.isPending || preview.validCount === 0}
-                  onClick={handleCommit}
-                >
-                  {commitImport.isPending && (
-                    <Loader2 className="animate-spin" />
-                  )}
-                  Xác nhận Import {preview.validCount} tài khoản
-                </Button>
-              </>
-            )}
-          </DialogFooter>
+              {step === 'mapping' && (
+                <>
+                  <Button variant="outline" onClick={() => setStep('upload')}>
+                    Quay lại
+                  </Button>
+                  <Button
+                    disabled={previewImport.isPending}
+                    onClick={handlePreview}
+                  >
+                    {previewImport.isPending && (
+                      <Loader2 className="animate-spin" />
+                    )}
+                    Xem trước dữ liệu
+                  </Button>
+                </>
+              )}
+
+              {step === 'preview' && preview && (
+                <>
+                  <Button variant="outline" onClick={() => setStep('mapping')}>
+                    Quay lại
+                  </Button>
+                  <Button
+                    disabled={
+                      commitImport.isPending || preview.validCount === 0
+                    }
+                    onClick={handleCommit}
+                  >
+                    {commitImport.isPending && (
+                      <Loader2 className="animate-spin" />
+                    )}
+                    Xác nhận Import {preview.validCount} tài khoản
+                  </Button>
+                </>
+              )}
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </>
