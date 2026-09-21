@@ -435,9 +435,8 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Thêm tài khoản</DialogTitle>
-          <DialogDescription>
-            Mật khẩu tạm sẽ được gửi tới email này. Người dùng phải đổi mật khẩu
-            ở lần đăng nhập đầu.
+          <DialogDescription className="sr-only">
+            Thêm tài khoản mới
           </DialogDescription>
         </DialogHeader>
 
@@ -494,12 +493,6 @@ function CreateUserDialog({ onClose }: { onClose: () => void }) {
                   <Label htmlFor="new-code">
                     {role === 'STUDENT' ? 'Mã sinh viên' : 'Mã giảng viên'}
                   </Label>
-                  {role === 'STUDENT' && (
-                    <p className="-mt-1 text-xs text-muted-foreground">
-                      Bảy chữ số, và phải trùng phần đầu của email — hai số đầu
-                      là khóa.
-                    </p>
-                  )}
                   <Input
                     id="new-code"
                     value={code}
