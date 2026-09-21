@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
+import { Brand } from '@/components/layout/brand';
 import { api, ApiError } from '@/lib/api/client';
 import type { LoginResponse, Role } from '@/lib/api/types';
 import { safeNextPath } from '@/lib/auth/next-path';
@@ -92,16 +93,16 @@ function LoginForm() {
 
   return (
     <Card className="px-6 py-8 border-none shadow-lg">
-      <div className="mb-6 space-y-1.5 text-center">
-        <h1 className="font-heading text-2xl font-semibold tracking-tight text-primary">
-          Chào mừng trở lại
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Đăng nhập vào hệ thống quản lý đồ án
-        </p>
+      <div className="mb-6 flex justify-center">
+        <Brand className="text-4xl" />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-5"
+        autoComplete="off"
+        noValidate
+      >
         <FormError message={formError} />
 
         <div className="space-y-2">
@@ -109,7 +110,7 @@ function LoginForm() {
           <Input
             id="email"
             type="email"
-            autoComplete="username"
+            autoComplete="new-password"
             autoFocus
             placeholder="sinhvien@probase.dev"
             aria-invalid={!!errors.email}
@@ -132,7 +133,7 @@ function LoginForm() {
           </div>
           <PasswordInput
             id="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             aria-invalid={!!errors.password}
             {...register('password')}
           />

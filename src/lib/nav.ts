@@ -294,12 +294,22 @@ export function breadcrumbsFor(
   const parts = pathname.split('/').filter(Boolean);
   if (parts.length === 0) return [];
 
+  const baseMatch = navItems
+    .filter(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    )
+    .sort((a, b) => b.href.length - a.href.length)[0];
+
   const segments: BreadcrumbSegment[] = [];
 
   for (let i = 0; i < parts.length; i++) {
     const cumPath = '/' + parts.slice(0, i + 1).join('/');
     const isLast = i === parts.length - 1;
     const rawSegment = parts[i];
+
+    if (baseMatch && cumPath.length < baseMatch.href.length) {
+      continue;
+    }
 
     // 1. Exact or prefix match in the role's nav items. We prefer the longest
     //    nav item that is a prefix of cumPath so that sub-paths inherit the

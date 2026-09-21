@@ -134,17 +134,20 @@ export function RoundRequirementsEditor({
     new Set(rows.map((row) => row.name.trim().toLowerCase())).size !==
     rows.length;
 
+  const isCompact =
+    saved || (data != null && data.length > 0 && draft === null);
+
   return (
     <div
       className={
-        saved
+        isCompact
           ? 'flex flex-wrap items-center justify-between gap-4 rounded-xl border p-4'
           : 'space-y-2.5 rounded-xl border p-4'
       }
     >
       <h3 className="text-sm font-medium">{round.projectType.name}</h3>
 
-      {saved ? (
+      {isCompact ? (
         <div className="inline-flex items-center gap-3 rounded-lg border bg-muted/30 pl-4 pr-1.5 py-1.5">
           <p className="text-sm">
             {rows.length === 0 ? (
@@ -159,7 +162,10 @@ export function RoundRequirementsEditor({
             variant="ghost"
             size="icon"
             className="size-7 shrink-0 text-muted-foreground hover:bg-background hover:text-foreground"
-            onClick={() => setSaved(false)}
+            onClick={() => {
+              setDraft(rows);
+              setSaved(false);
+            }}
           >
             <Pencil className="size-3.5" />
           </Button>

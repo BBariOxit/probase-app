@@ -89,7 +89,7 @@ export default function SemestersPage() {
             <TableHeader>
               <TableRow>
                 <TableHead className="min-w-56">Học kỳ</TableHead>
-                <TableHead className="w-48 text-center">Thời gian</TableHead>
+                <TableHead className="w-56">Thời gian</TableHead>
                 <TableHead className="w-40">Hạn nhập điểm</TableHead>
                 <TableHead className="w-32">Trạng thái</TableHead>
                 <TableHead className="w-44" />
@@ -99,7 +99,7 @@ export default function SemestersPage() {
               {data?.map((semester) => (
                 <TableRow key={semester.id}>
                   <TableCell className="font-medium">{semester.name}</TableCell>
-                  <TableCell className="text-muted-foreground text-center">
+                  <TableCell className="text-muted-foreground">
                     {dateFormat.format(new Date(semester.startDate))} –{' '}
                     {dateFormat.format(new Date(semester.endDate))}
                   </TableCell>
