@@ -16,22 +16,25 @@ import { Label } from '@/components/ui/label';
 import { FormError } from '@/components/shared/form-error';
 import { PasswordInput } from '@/components/shared/password-input';
 
-const ChangePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
-    newPassword: passwordSchema,
-    confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu mới'),
-  })
-  .refine((v) => v.newPassword !== v.currentPassword, {
-    message: 'Mật khẩu mới phải khác mật khẩu hiện tại',
-    path: ['newPassword'],
-  })
-  .refine((v) => v.newPassword === v.confirmPassword, {
-    message: 'Mật khẩu nhập lại không khớp',
-    path: ['confirmPassword'],
-  });
+const getSchema = (forced: boolean) =>
+  z
+    .object({
+      currentPassword: forced
+        ? z.string().optional()
+        : z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
+      newPassword: passwordSchema,
+      confirmPassword: z.string().min(1, 'Vui lòng nhập lại mật khẩu mới'),
+    })
+    .refine((v) => forced || v.newPassword !== v.currentPassword, {
+      message: 'Mật khẩu mới phải khác mật khẩu hiện tại',
+      path: ['newPassword'],
+    })
+    .refine((v) => v.newPassword === v.confirmPassword, {
+      message: 'Mật khẩu nhập lại không khớp',
+      path: ['confirmPassword'],
+    });
 
-type ChangePasswordValues = z.infer<typeof ChangePasswordSchema>;
+type ChangePasswordValues = z.infer<ReturnType<typeof getSchema>>;
 
 export default function ChangePasswordPage() {
   const router = useRouter();
@@ -45,7 +48,7 @@ export default function ChangePasswordPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordValues>({
-    resolver: zodResolver(ChangePasswordSchema),
+    resolver: zodResolver(getSchema(forced)),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
   });
@@ -99,23 +102,23 @@ export default function ChangePasswordPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <FormError message={formError} />
 
-        <div className="space-y-2">
-          <Label htmlFor="currentPassword">
-            {forced ? 'Mật khẩu tạm' : 'Mật khẩu hiện tại'}
-          </Label>
-          <PasswordInput
-            id="currentPassword"
-            autoComplete="current-password"
-            autoFocus
-            aria-invalid={!!errors.currentPassword}
-            {...register('currentPassword')}
-          />
-          {errors.currentPassword && (
-            <p className="text-xs text-destructive">
-              {errors.currentPassword.message}
-            </p>
-          )}
-        </div>
+        {!forced && (
+          <div className="space-y-2">
+            <Label htmlFor="currentPassword">Mật khẩu hiện tại</Label>
+            <PasswordInput
+              id="currentPassword"
+              autoComplete="current-password"
+              autoFocus
+              aria-invalid={!!errors.currentPassword}
+              {...register('currentPassword')}
+            />
+            {errors.currentPassword && (
+              <p className="text-xs text-destructive">
+                {errors.currentPassword.message}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="newPassword">Mật khẩu mới</Label>
