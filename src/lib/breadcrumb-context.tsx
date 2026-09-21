@@ -58,13 +58,16 @@ export function useBreadcrumbLabel(
 ) {
   const ctx = useContext(BreadcrumbContext);
 
+  const setSegmentLabel = ctx?.setSegmentLabel;
+  const clearSegmentLabel = ctx?.clearSegmentLabel;
+
   useEffect(() => {
-    if (!ctx || !label) return;
-    ctx.setSegmentLabel(segment, label);
+    if (!setSegmentLabel || !clearSegmentLabel || !label) return;
+    setSegmentLabel(segment, label);
     return () => {
-      ctx.clearSegmentLabel(segment);
+      clearSegmentLabel(segment);
     };
-  }, [ctx, segment, label]);
+  }, [setSegmentLabel, clearSegmentLabel, segment, label]);
 }
 
 export function useBreadcrumbContext() {
