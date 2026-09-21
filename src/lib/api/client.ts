@@ -1,7 +1,6 @@
 'use client';
 
 import { useSession } from '@/lib/auth/session';
-import type { TokenPair } from '@/lib/api/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -28,10 +27,26 @@ async function errorMessage(response: Response): Promise<string> {
 
   try {
     const body: unknown = await response.json();
-    if (body && typeof body === 'object' && 'message' in body) {
-      const { message } = body as { message: unknown };
-      if (typeof message === 'string') return message;
-      if (Array.isArray(message)) return message.join(', ');
+    if (body && typeof body === 'object') {
+      // NestJS Zod validation errors
+      if (
+        'errors' in body &&
+        Array.isArray(body.errors) &&
+        body.errors.length > 0
+      ) {
+        const errorMessages = body.errors
+          .map(
+            (err: Record<string, unknown> | null | undefined) => err?.message,
+          )
+          .filter((msg: unknown) => typeof msg === 'string');
+        if (errorMessages.length > 0) return errorMessages.join(', ');
+      }
+
+      if ('message' in body) {
+        const { message } = body as { message: unknown };
+        if (typeof message === 'string') return message;
+        if (Array.isArray(message)) return message.join(', ');
+      }
     }
   } catch {
     // Body was empty or not JSON; fall through to the generic message.

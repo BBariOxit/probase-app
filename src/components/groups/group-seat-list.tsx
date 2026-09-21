@@ -1,15 +1,29 @@
 'use client';
 
-import { CircleHelp, Loader2, Lock, UserRoundPlus, X } from 'lucide-react';
+import { useState } from 'react';
+import {
+  CircleHelp,
+  Loader2,
+  Lock,
+  UserRoundPlus,
+  MoreHorizontal,
+} from 'lucide-react';
 import { useRemoveMember, useUpdateGroup } from '@/lib/api/registration';
 import type { GroupMember, RegistrationGroup } from '@/lib/api/types';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { UserAvatar } from '@/components/shared/user-avatar';
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { cn } from '@/lib/utils';
 
 function hoursLeft(holdUntil: string): number {
@@ -136,6 +150,7 @@ function MemberSeat({
   busy: boolean;
 }) {
   const { student } = member;
+  const [confirming, setConfirming] = useState(false);
 
   return (
     <li className="flex items-center gap-3 px-3.5 py-3">
@@ -167,16 +182,39 @@ function MemberSeat({
       </div>
 
       {canRemove && (
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          disabled={busy}
-          onClick={onRemove}
-          aria-label={`Xoá ${student.fullName} khỏi nhóm`}
-          className="shrink-0 text-muted-foreground hover:text-destructive"
-        >
-          <X />
-        </Button>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  disabled={busy}
+                  className="shrink-0 text-muted-foreground"
+                />
+              }
+            >
+              <MoreHorizontal />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => setConfirming(true)}
+              >
+                Xóa khỏi nhóm
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <ConfirmDialog
+            open={confirming}
+            onOpenChange={setConfirming}
+            title="Xóa thành viên"
+            description={`Bạn có chắc chắn muốn xóa ${student.fullName} khỏi nhóm không? Họ sẽ bị mất đề tài và phải tìm nhóm khác.`}
+            confirmLabel="Xóa khỏi nhóm"
+            onConfirm={onRemove}
+          />
+        </>
       )}
     </li>
   );

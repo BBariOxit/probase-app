@@ -61,6 +61,7 @@ export interface RegisterTopicInput {
 }
 
 export function useRegisterTopic() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
@@ -69,17 +70,24 @@ export function useRegisterTopic() {
         method: 'POST',
         body,
       }),
-    onSuccess: invalidate,
+    onSuccess: (data) => {
+      queryClient.setQueryData(groupKeys.mine(), data);
+      return invalidate();
+    },
   });
 }
 
 export function useJoinTopic() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
     mutationFn: (topicId: number) =>
       api<RegistrationGroup>(`/topics/${topicId}/join`, { method: 'POST' }),
-    onSuccess: invalidate,
+    onSuccess: (data) => {
+      queryClient.setQueryData(groupKeys.mine(), data);
+      return invalidate();
+    },
   });
 }
 
@@ -94,6 +102,7 @@ export function useJoinPreview(code: string) {
 }
 
 export function useJoinByCode() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
@@ -102,7 +111,10 @@ export function useJoinByCode() {
         `/registration-groups/join/${encodeURIComponent(code)}`,
         { method: 'POST' },
       ),
-    onSuccess: invalidate,
+    onSuccess: (data) => {
+      queryClient.setQueryData(groupKeys.mine(), data);
+      return invalidate();
+    },
   });
 }
 
@@ -118,6 +130,7 @@ export interface GroupPatch {
 }
 
 export function useUpdateGroup(id: number) {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
@@ -126,11 +139,15 @@ export function useUpdateGroup(id: number) {
         method: 'PATCH',
         body: patch,
       }),
-    onSuccess: invalidate,
+    onSuccess: (data) => {
+      queryClient.setQueryData(groupKeys.mine(), data);
+      return invalidate();
+    },
   });
 }
 
 export function useLeaveGroup(id: number) {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
@@ -138,11 +155,15 @@ export function useLeaveGroup(id: number) {
       api<{ message: string }>(`/registration-groups/${id}/leave`, {
         method: 'POST',
       }),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      queryClient.setQueryData(groupKeys.mine(), null);
+      return invalidate();
+    },
   });
 }
 
 export function useRemoveMember(id: number) {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
@@ -151,11 +172,15 @@ export function useRemoveMember(id: number) {
         `/registration-groups/${id}/members/${studentId}`,
         { method: 'DELETE' },
       ),
-    onSuccess: invalidate,
+    onSuccess: (data) => {
+      queryClient.setQueryData(groupKeys.mine(), data);
+      return invalidate();
+    },
   });
 }
 
 export function useDisbandGroup(id: number) {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateRegistration();
 
   return useMutation({
@@ -163,6 +188,9 @@ export function useDisbandGroup(id: number) {
       api<{ message: string }>(`/registration-groups/${id}`, {
         method: 'DELETE',
       }),
-    onSuccess: invalidate,
+    onSuccess: () => {
+      queryClient.setQueryData(groupKeys.mine(), null);
+      return invalidate();
+    },
   });
 }

@@ -93,13 +93,14 @@ export default function JoinByCodePage({
           <p className="text-sm text-muted-foreground">
             Bạn đã ở trong nhóm này rồi.
           </p>
-          <Button render={<Link href="/student/groups" />}>
+          <Button className="w-full" render={<Link href="/student/groups" />}>
             Xem nhóm của tôi
           </Button>
         </>
       ) : data.canJoin ? (
-        <>
+        <div className="w-full space-y-3 pt-2">
           <Button
+            className="w-full"
             onClick={() =>
               join.mutate(code, {
                 onSuccess: () => router.push('/student/groups'),
@@ -110,20 +111,21 @@ export default function JoinByCodePage({
             {join.isPending && <Loader2 className="size-4 animate-spin" />}
             Tham gia nhóm
           </Button>
-          <p className="text-xs text-muted-foreground">
-            Mỗi học kỳ bạn chỉ tham gia được một nhóm.
-          </p>
           {join.error && (
             <p className="text-sm text-destructive">{join.error.message}</p>
           )}
-        </>
+        </div>
       ) : (
-        <>
+        <div className="w-full space-y-3 pt-2">
           <p className="text-sm text-destructive">{data.blockedReason}</p>
-          <Button variant="outline" render={<Link href="/student" />}>
+          <Button
+            className="w-full"
+            variant="outline"
+            render={<Link href="/student" />}
+          >
             Xem danh sách đề tài
           </Button>
-        </>
+        </div>
       )}
     </Card>
   );
@@ -131,8 +133,10 @@ export default function JoinByCodePage({
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-start gap-4 rounded-xl border bg-card p-5">
-      {children}
+    <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center py-8 pb-32">
+      <div className="mx-auto flex w-full max-w-sm flex-col items-stretch gap-5 rounded-xl border bg-card p-6 shadow-sm">
+        {children}
+      </div>
     </div>
   );
 }
