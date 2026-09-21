@@ -2,14 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  ArrowUpRight,
-  BookOpen,
-  GraduationCap,
-  Layers,
-  Loader2,
-  Search,
-} from 'lucide-react';
+import { BookOpen, Loader2, Search } from 'lucide-react';
 import {
   useActiveSemester,
   useMyEligibleProjectTypes,
@@ -26,6 +19,7 @@ import { PaginationBar } from '@/components/shared/pagination-bar';
 import { RegistrationPhaseNotice } from '@/components/rounds/registration-phase-notice';
 import { SeatBadge } from '@/components/groups/seat-indicator';
 import { TopicRegisterButton } from '@/components/topics/topic-register-button';
+import { TopicDetailSheet } from '@/components/topics/topic-detail-sheet';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -34,6 +28,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 const PAGE_SIZE = 12;
 const ANY = 0;
@@ -52,6 +55,7 @@ export default function StudentTopicsPage() {
   const [search, setSearch] = useState('');
   const [projectTypeId, setProjectTypeId] = useState(MY_COHORT);
   const [lecturerId, setLecturerId] = useState(ANY);
+  const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null);
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, isPending, error } = useTopics(
@@ -216,49 +220,69 @@ export default function StudentTopicsPage() {
       )}
 
       {topics.length > 0 && (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {topics.map((topic) => (
-            <li key={topic.id}>
-              <div className="group relative flex h-full flex-col gap-3 rounded-xl border bg-card p-4 transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-md focus-within:ring-2 focus-within:ring-ring">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="line-clamp-2 text-sm font-medium">
-                    <Link
-                      href={`/student/topics/${topic.id}`}
-                      className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none"
-                    >
-                      {topic.title}
-                    </Link>
-                  </h2>
-                  <SeatBadge topic={topic} />
-                </div>
-
-                <div className="mt-auto flex items-end justify-between gap-2">
-                  <div className="min-w-0 space-y-1 text-xs text-muted-foreground">
-                    <p className="flex items-center gap-1.5">
-                      <GraduationCap className="size-3.5 shrink-0" />
-                      <span className="truncate">
-                        {topic.lecturer.academicTitle
-                          ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
-                          : topic.lecturer.fullName}
+        <div className="overflow-hidden rounded-xl border">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="min-w-64">Đề tài</TableHead>
+                  <TableHead className="w-56">Giảng viên</TableHead>
+                  <TableHead className="w-32">Tình trạng</TableHead>
+                  <TableHead className="w-32 text-right">Hành động</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {topics.map((topic) => (
+                  <TableRow
+                    key={topic.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => setSelectedTopicId(topic.id)}
+                  >
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/student/topics/${topic.id}`}
+                        className="rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedTopicId(topic.id);
+                        }}
+                      >
+                        {topic.title}
+                      </Link>
+                      <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                        {topic.projectType.name}
                       </span>
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <Layers className="size-3.5 shrink-0" />
-                      {topic.projectType.name} · tối đa {topic.maxStudents} SV
-                    </p>
-                  </div>
-
-                  <TopicRegisterButton
-                    topic={topic}
-                    idle={
-                      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground/50 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
-                    }
-                  />
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {topic.lecturer.academicTitle
+                        ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
+                        : topic.lecturer.fullName}
+                    </TableCell>
+                    <TableCell>
+                      <SeatBadge topic={topic} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <TopicRegisterButton
+                          topic={topic}
+                          idle={
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setSelectedTopicId(topic.id)}
+                            >
+                              Xem chi tiết
+                            </Button>
+                          }
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       )}
 
       {data && (
@@ -268,6 +292,11 @@ export default function StudentTopicsPage() {
           onPageChange={setPage}
         />
       )}
+
+      <TopicDetailSheet
+        topicId={selectedTopicId}
+        onClose={() => setSelectedTopicId(null)}
+      />
     </div>
   );
 }

@@ -40,7 +40,7 @@ export default function EditTopicPage({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <PageHeading
           title="Sửa đề tài"

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider, useTheme } from 'next-themes';
 import { Toaster } from 'sonner';
 import { ApiError } from '@/lib/api/client';
 import { useSessionBootstrap } from '@/lib/auth/use-session-bootstrap';
@@ -11,6 +11,20 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 function SessionBootstrap() {
   useSessionBootstrap();
   return null;
+}
+
+function ThemeToaster() {
+  const { theme } = useTheme();
+  return (
+    <Toaster
+      position="bottom-right"
+      theme={(theme as 'light' | 'dark' | 'system') ?? 'system'}
+      toastOptions={{
+        className: 'w-auto min-w-0',
+        style: { width: 'fit-content', minWidth: 'min-content' },
+      }}
+    />
+  );
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -46,7 +60,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {children}
         </TooltipProvider>
       </QueryClientProvider>
-      <Toaster richColors closeButton position="top-right" />
+      <ThemeToaster />
     </ThemeProvider>
   );
 }

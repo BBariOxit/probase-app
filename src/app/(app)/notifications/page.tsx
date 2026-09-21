@@ -14,6 +14,14 @@ import { notificationHref, timeAgo } from '@/lib/notifications';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 const PAGE_SIZE = 20;
 
@@ -22,6 +30,9 @@ export default function NotificationsPage() {
   const user = useSession((state) => state.user);
   const [page, setPage] = useState(1);
   const [unreadOnly, setUnreadOnly] = useState(false);
+  const [selectedNotice, setSelectedNotice] = useState<AppNotification | null>(
+    null,
+  );
 
   const { data, isPending, error } = useNotifications({
     page,
@@ -42,9 +53,7 @@ export default function NotificationsPage() {
 
   function open(notice: AppNotification) {
     if (!notice.isRead) markRead.mutate(notice.id);
-
-    const href = user ? notificationHref(notice, user.role) : null;
-    if (href) router.push(href);
+    setSelectedNotice(notice);
   }
 
   function toggleFilter() {
@@ -135,6 +144,54 @@ export default function NotificationsPage() {
         totalPages={data?.totalPages ?? 1}
         onPageChange={setPage}
       />
+
+      <Sheet
+        open={selectedNotice !== null}
+        onOpenChange={(open) => !open && setSelectedNotice(null)}
+      >
+        <SheetContent side="right" className="flex w-full flex-col sm:max-w-md">
+          {selectedNotice && (
+            <>
+              <SheetHeader className="border-b pb-4">
+                <SheetTitle className="font-heading text-lg leading-snug">
+                  {selectedNotice.title}
+                </SheetTitle>
+                <SheetDescription>
+                  {new Intl.DateTimeFormat('vi-VN', {
+                    dateStyle: 'full',
+                    timeStyle: 'short',
+                  }).format(new Date(selectedNotice.createdAt))}
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                  {selectedNotice.content}
+                </p>
+              </div>
+
+              <SheetFooter className="border-t pt-4 flex-row justify-end gap-2">
+                <Button variant="ghost" onClick={() => setSelectedNotice(null)}>
+                  Đóng
+                </Button>
+                {user && notificationHref(selectedNotice, user.role) && (
+                  <Button
+                    onClick={() => {
+                      const href = notificationHref(selectedNotice, user.role);
+                      if (href) {
+                        router.push(href);
+                        setSelectedNotice(null);
+                      }
+                    }}
+                  >
+                    Đi tới
+                  </Button>
+                )}
+              </SheetFooter>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

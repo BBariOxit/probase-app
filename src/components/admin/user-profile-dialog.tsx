@@ -145,7 +145,6 @@ function StudentForm({
           <Field
             label="Mã sinh viên"
             id="p-code"
-            hint="Bảy chữ số. Hai số đầu là khóa, và khóa quyết định đợt nào bạn ấy được đăng ký."
             error={
               studentCode !== '' && !validCode
                 ? 'Mã sinh viên phải gồm 7 chữ số.'
@@ -160,14 +159,6 @@ function StudentForm({
             />
           </Field>
         </div>
-
-        {profile?.cohort && (
-          <p className="flex items-start gap-2 text-xs text-muted-foreground">
-            <Info className="mt-0.5 size-3.5 shrink-0" />
-            Khóa hiện tại là {profile.cohort}, đọc ra từ mã sinh viên — sửa mã
-            là đổi khóa, và đổi khóa là đổi đợt bạn ấy thuộc về.
-          </p>
-        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Lớp" id="p-class">
@@ -215,11 +206,7 @@ function StudentForm({
           />
         </Field>
 
-        <Field
-          label="Ghi chú của khoa"
-          id="p-note"
-          hint="Chỉ khoa đọc được. Sinh viên không bao giờ thấy ô này."
-        >
+        <Field label="Ghi chú của khoa" id="p-note">
           <Textarea
             id="p-note"
             rows={2}
@@ -332,7 +319,6 @@ function LecturerForm({
           <Field
             label="Hạn mức hướng dẫn"
             id="p-quota"
-            hint="Số nhóm tối đa mỗi kỳ. Để trống là không giới hạn."
             error={
               !validQuota
                 ? 'Nhập một số từ 1 đến 99, hoặc để trống.'
@@ -352,19 +338,6 @@ function LecturerForm({
           </Field>
         </div>
 
-        {/*
-          Said here rather than left to be discovered at the moment it bites: the
-          API checks this number before letting a lecturer accept a proposal, and
-          it counts topics already promised to a student as well as groups that
-          exist. Somebody lowering it is deciding about another person's workload.
-        */}
-        <p className="flex items-start gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          <Info className="mt-0.5 size-3.5 shrink-0" />
-          Khi đã đủ hạn mức, giảng viên không nhận thêm đề xuất được — hệ thống
-          đếm cả nhóm đang hướng dẫn lẫn đề tài đã nhận mà sinh viên chưa đăng
-          ký.
-        </p>
-
         <Field label="Số điện thoại" id="p-phone">
           <Input
             id="p-phone"
@@ -374,11 +347,7 @@ function LecturerForm({
           />
         </Field>
 
-        <Field
-          label="Hướng nghiên cứu"
-          id="p-interests"
-          hint="Sinh viên đọc dòng này khi chọn người gửi đề xuất."
-        >
+        <Field label="Hướng nghiên cứu" id="p-interests">
           <Textarea
             id="p-interests"
             rows={2}

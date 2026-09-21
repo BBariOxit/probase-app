@@ -8,6 +8,7 @@ import { useRequireRole } from '@/lib/auth/use-require-role';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PaginationBar } from '@/components/shared/pagination-bar';
+import { TopicReviewSheet } from '@/components/admin/topic-review-sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -31,6 +32,7 @@ export default function AdminTopicQueuePage() {
   const allowed = useRequireRole('ADMIN');
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null);
   const debouncedSearch = useDebouncedValue(search);
   const transition = useTopicTransition();
 
@@ -87,11 +89,19 @@ export default function AdminTopicQueuePage() {
             </TableHeader>
             <TableBody>
               {topics.map((topic) => (
-                <TableRow key={topic.id}>
+                <TableRow
+                  key={topic.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => setSelectedTopicId(topic.id)}
+                >
                   <TableCell className="font-medium">
                     <Link
                       href={`/admin/topics/${topic.id}`}
                       className="rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedTopicId(topic.id);
+                      }}
                     >
                       {topic.title}
                     </Link>
@@ -111,11 +121,11 @@ export default function AdminTopicQueuePage() {
                   <TableCell className="text-right">
                     <Button
                       size="sm"
-                      variant="outline"
                       disabled={transition.isPending}
-                      onClick={() =>
-                        transition.mutate({ id: topic.id, to: 'approve' })
-                      }
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        transition.mutate({ id: topic.id, to: 'approve' });
+                      }}
                     >
                       {transition.isPending &&
                       transition.variables?.id === topic.id ? (
@@ -157,6 +167,11 @@ export default function AdminTopicQueuePage() {
           onPageChange={setPage}
         />
       )}
+
+      <TopicReviewSheet
+        topicId={selectedTopicId}
+        onClose={() => setSelectedTopicId(null)}
+      />
     </div>
   );
 }

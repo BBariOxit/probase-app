@@ -69,7 +69,7 @@ export function ProfileDetailsForm({ profile }: { profile: MyProfile }) {
     update.mutate(input, {
       onSuccess: () => {
         setSaved(true);
-        toast.success('Profile updated successfully.');
+        toast.success('Đã cập nhật hồ sơ.');
       },
       onError: (err) => toast.error(extractErrorMessage(err)),
     });

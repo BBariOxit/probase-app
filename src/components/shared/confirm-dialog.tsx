@@ -53,7 +53,9 @@ export function ConfirmDialog({
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogDescription className="pt-2 pb-4 text-sm leading-relaxed">
+            {description}
+          </DialogDescription>
         </DialogHeader>
 
         {error && <p className="text-sm text-destructive">{error}</p>}

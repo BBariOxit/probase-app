@@ -40,7 +40,7 @@ export function AcceptProposalDialog({
     setError(null);
     try {
       await accept.mutateAsync({ id: proposal.id, maxStudents: size });
-      toast.success('Proposal accepted. Topic created and pending approval.');
+      toast.success('Đã chấp nhận đề xuất.');
       onOpenChange(false);
     } catch (err) {
       setError(
@@ -132,7 +132,7 @@ export function RejectProposalDialog({
     setError(null);
     try {
       await reject.mutateAsync({ id: proposal.id, feedback: trimmed });
-      toast.success('Feedback sent to student.');
+      toast.success('Đã gửi phản hồi.');
       onOpenChange(false);
     } catch (err) {
       setError(

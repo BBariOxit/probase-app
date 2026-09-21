@@ -142,7 +142,7 @@ export function MyGroupPanel({
         open={confirming === 'leave'}
         onOpenChange={(open) => setConfirming(open ? 'leave' : null)}
         title="Rời nhóm?"
-        description="Bạn sẽ không còn đề tài nào trong học kỳ này, và chỗ của bạn được nhả lại cho người khác."
+        description="Bạn sẽ không còn trong nhóm này nữa, và chỗ của bạn sẽ được nhả lại cho người khác."
         confirmLabel="Rời nhóm"
         onConfirm={() => leave.mutateAsync()}
       />
