@@ -253,8 +253,8 @@ function PlanForm({
                   }
                   onChange={(end) => patch(type.id, { end })}
                 />
-                <div className="space-y-1.5">
-                  <Label htmlFor={`cohorts-${type.id}`} className="text-xs">
+                <div className="space-y-2">
+                  <Label htmlFor={`cohorts-${type.id}`}>
                     Khóa được đăng ký
                   </Label>
                   <Select
@@ -264,7 +264,7 @@ function PlanForm({
                       patch(type.id, { cohorts: value })
                     }
                   >
-                    <SelectTrigger id={`cohorts-${type.id}`}>
+                    <SelectTrigger id={`cohorts-${type.id}`} className="w-full">
                       <SelectValue placeholder="Chọn khoá" />
                     </SelectTrigger>
                     <SelectContent>

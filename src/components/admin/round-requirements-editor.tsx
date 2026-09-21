@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Pencil } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import {
   useRoundRequirements,
@@ -13,6 +13,14 @@ import { FormError } from '@/components/shared/form-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface Row {
   id?: number;
@@ -21,7 +29,7 @@ interface Row {
   isRequired: boolean;
 }
 
-const SUGGESTED = ['Đề cương', 'Quyển báo cáo', 'Mã nguồn', 'Slide bảo vệ'];
+const SUGGESTED = ['Đề cương', 'Báo cáo', 'Mã nguồn', 'Slide'];
 
 function toDateInput(iso: string): string {
   return iso.slice(0, 10);
@@ -98,6 +106,7 @@ export function RoundRequirementsEditor({
 
       setDraft(next.map(toRow));
       setSaved(true);
+      toast.success('Đã lưu danh sách bài nộp.');
     } catch (err) {
       // The refusal worth reading comes from the API: a document groups have
       // already handed work in against cannot be taken off the list.
@@ -126,15 +135,31 @@ export function RoundRequirementsEditor({
     new Set(rows.map((row) => row.name.trim().toLowerCase())).size !==
     rows.length;
 
+  if (saved) {
+    return (
+      <div className="flex items-center justify-between gap-4 rounded-lg border bg-muted/20 px-4 py-3">
+        <p className="text-sm">
+          {rows.length === 0 ? (
+            <span className="text-muted-foreground">Không có bài nộp nào.</span>
+          ) : (
+            rows.map((r) => r.name).join(', ')
+          )}
+        </p>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="shrink-0 text-muted-foreground hover:text-foreground"
+          onClick={() => setSaved(false)}
+        >
+          <Pencil />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <FormError message={error} />
-
-      {saved && (
-        <p className="rounded-lg border border-status-success/30 bg-status-success-bg/40 px-3 py-2 text-sm">
-          Đã lưu danh sách bài nộp.
-        </p>
-      )}
 
       {rows.length === 0 ? (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed px-3 py-3">
@@ -162,16 +187,26 @@ export function RoundRequirementsEditor({
             >
               <div className="space-y-2">
                 <Label htmlFor={`name-${round.id}-${index}`}>Tên mục nộp</Label>
-                <Input
-                  id={`name-${round.id}-${index}`}
-                  aria-label={`Tên mục ${index + 1}`}
-                  placeholder="Đề cương"
+                <Select
                   value={row.name}
-                  aria-invalid={hasSubmitted && row.name.trim() === ''}
-                  onChange={(event) =>
-                    patch(index, { name: event.target.value })
-                  }
-                />
+                  onValueChange={(value) => patch(index, { name: value })}
+                >
+                  <SelectTrigger
+                    id={`name-${round.id}-${index}`}
+                    aria-label={`Tên mục ${index + 1}`}
+                    className="w-full"
+                    aria-invalid={hasSubmitted && row.name.trim() === ''}
+                  >
+                    <SelectValue placeholder="Chọn mục nộp" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUGGESTED.map((name) => (
+                      <SelectItem key={name} value={name}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
                   <input
                     type="checkbox"
