@@ -65,8 +65,6 @@ function RowActions({ topic }: { topic: TopicListItem }) {
   const remove = useDeleteTopic();
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const canOpen = topic.status === 'APPROVED';
-  const canClose = topic.status === 'OPEN';
   const canEdit =
     topic.status !== 'IN_PROGRESS' && topic.status !== 'COMPLETED';
   const canDelete = topic.activeGroup === null;
@@ -94,22 +92,7 @@ function RowActions({ topic }: { topic: TopicListItem }) {
               Sửa
             </DropdownMenuItem>
           )}
-          {canOpen && (
-            <DropdownMenuItem
-              onClick={() => transition.mutate({ id: topic.id, to: 'open' })}
-            >
-              <DoorOpen />
-              Mở đăng ký
-            </DropdownMenuItem>
-          )}
-          {canClose && (
-            <DropdownMenuItem
-              onClick={() => transition.mutate({ id: topic.id, to: 'close' })}
-            >
-              <DoorClosed />
-              Đóng đăng ký
-            </DropdownMenuItem>
-          )}
+
           {canDelete && (
             <DropdownMenuItem
               variant="destructive"
