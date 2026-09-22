@@ -193,12 +193,7 @@ export default function AdminTopicRegistryPage() {
     <div className="space-y-4">
       {/* ── Header ── */}
       <div className="flex flex-wrap items-center gap-3">
-        <div>
-          <h1 className="text-lg font-semibold">Quản lý đề tài</h1>
-          <p className="text-sm text-muted-foreground">
-            Theo dõi, mở và đóng đăng ký đề tài theo học kỳ.
-          </p>
-        </div>
+        <h1 className="text-lg font-semibold">Quản lý đề tài</h1>
 
         <Button
           className="ml-auto gap-2"
@@ -232,18 +227,17 @@ export default function AdminTopicRegistryPage() {
         </div>
 
         <Select
-          value={semesterId?.toString() ?? 'all'}
+          value={semesterId ? semesterId.toString() : 'ALL'}
           onValueChange={(v) => {
-            setSemesterId(v === 'all' ? undefined : Number(v));
+            setSemesterId(v === 'ALL' ? undefined : Number(v));
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-48" aria-label="Lọc theo học kỳ">
-            <SelectValue placeholder="Tất cả học kỳ" />
-            <ChevronDown className="ml-auto size-4 shrink-0 opacity-50" />
+          <SelectTrigger className="w-[280px]" aria-label="Lọc theo học kỳ">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tất cả học kỳ</SelectItem>
+            <SelectItem value="ALL">Tất cả học kỳ</SelectItem>
             {semesters.map((s) => (
               <SelectItem key={s.id} value={s.id.toString()}>
                 {s.name}
@@ -261,7 +255,6 @@ export default function AdminTopicRegistryPage() {
         >
           <SelectTrigger className="w-48" aria-label="Lọc theo trạng thái">
             <SelectValue />
-            <ChevronDown className="ml-auto size-4 shrink-0 opacity-50" />
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((opt) => (
@@ -293,10 +286,10 @@ export default function AdminTopicRegistryPage() {
                 <TableHead className="w-44">Giảng viên</TableHead>
                 <TableHead className="w-32">Loại ĐA</TableHead>
                 <TableHead className="w-20 text-center">Chỗ</TableHead>
-                <TableHead className="w-36">Xuất xứ</TableHead>
-                <TableHead className="w-28">Trạng thái</TableHead>
-                <TableHead className="w-24">Tạo lúc</TableHead>
-                <TableHead className="w-24" />
+                <TableHead className="w-36">Nguồn gốc</TableHead>
+                <TableHead className="w-32">Trạng thái</TableHead>
+                <TableHead className="w-28 text-right">Tạo lúc</TableHead>
+                <TableHead className="w-24 text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -333,7 +326,7 @@ export default function AdminTopicRegistryPage() {
                       {STATUS_LABELS[topic.status]?.label ?? topic.status}
                     </span>
                   </TableCell>
-                  <TableCell className="tabular-nums text-muted-foreground">
+                  <TableCell className="tabular-nums text-right text-muted-foreground">
                     {dateFormat.format(new Date(topic.createdAt))}
                   </TableCell>
                   <TableCell
