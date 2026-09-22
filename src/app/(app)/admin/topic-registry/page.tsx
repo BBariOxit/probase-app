@@ -234,7 +234,13 @@ export default function AdminTopicRegistryPage() {
           }}
         >
           <SelectTrigger className="w-[280px]" aria-label="Lọc theo học kỳ">
-            <SelectValue />
+            <SelectValue>
+              {(value) =>
+                value === 'ALL'
+                  ? 'Tất cả học kỳ'
+                  : semesters.find((s) => s.id.toString() === value)?.name
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL">Tất cả học kỳ</SelectItem>
@@ -254,7 +260,11 @@ export default function AdminTopicRegistryPage() {
           }}
         >
           <SelectTrigger className="w-48" aria-label="Lọc theo trạng thái">
-            <SelectValue />
+            <SelectValue>
+              {(value) =>
+                STATUS_OPTIONS.find((opt) => opt.value === value)?.label
+              }
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((opt) => (
@@ -284,7 +294,7 @@ export default function AdminTopicRegistryPage() {
               <TableRow>
                 <TableHead className="min-w-64">Tiêu đề</TableHead>
                 <TableHead className="w-44">Giảng viên</TableHead>
-                <TableHead className="w-32">Loại ĐA</TableHead>
+                <TableHead className="w-32">Loại đồ án</TableHead>
                 <TableHead className="w-20 text-center">Chỗ</TableHead>
                 <TableHead className="w-36">Nguồn gốc</TableHead>
                 <TableHead className="w-32">Trạng thái</TableHead>
