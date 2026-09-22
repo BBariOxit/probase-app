@@ -17,8 +17,8 @@ export function InfoTooltip({
   className?: string;
 }) {
   return (
-    <TooltipProvider>
-      <Tooltip delay={100}>
+    <TooltipProvider delay={100}>
+      <Tooltip>
         <TooltipTrigger
           type="button"
           className={`cursor-help text-muted-foreground hover:text-foreground ${className || ''}`}

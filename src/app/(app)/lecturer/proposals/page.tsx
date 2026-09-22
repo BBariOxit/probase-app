@@ -327,13 +327,12 @@ function Outcome({ proposal }: { proposal: TopicProposal }) {
       >
         Mở đề tài
       </Link>
-      {/* Which of the two is holding it up, in the lecturer's own terms: a
-          PENDING topic is waiting on the faculty office, an APPROVED one is
-          waiting on them to open registration. */}
+      {/* Which of the two is holding it up: a PENDING topic is waiting on the
+          faculty office, an APPROVED one is waiting on them to open registration. */}
       {proposal.convertedTopic.status === 'PENDING'
         ? ' — đang chờ khoa duyệt.'
         : proposal.convertedTopic.status === 'APPROVED'
-          ? ' — khoa đã duyệt, bạn mở đăng ký để sinh viên giữ chỗ.'
+          ? ' — khoa đã duyệt, chờ khoa mở đăng ký.'
           : '.'}
     </p>
   );
