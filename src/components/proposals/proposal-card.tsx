@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { CalendarDays, Layers } from 'lucide-react';
 import type { ProposalStatus, TopicProposal } from '@/lib/api/types';
 import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
@@ -37,15 +36,36 @@ export function ProposalCard({
   counterparty?: React.ReactNode;
   actions?: React.ReactNode;
   footer?: React.ReactNode;
+  onClick?: () => void;
 }) {
   return (
-    <article className="space-y-3 rounded-xl border bg-card p-4">
+    <article
+      className={`space-y-3 rounded-xl border bg-card p-4 ${
+        onClick
+          ? 'cursor-pointer transition-colors hover:border-foreground/20 hover:bg-muted/30'
+          : ''
+      }`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(e) => {
+        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+    >
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-sm font-medium">{proposal.title}</h2>
+        <h2 className="text-sm font-medium group-hover:underline">
+          {proposal.title}
+        </h2>
         <ProposalStatusBadge status={proposal.status} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+      <div
+        className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground"
+        onClick={(e) => e.stopPropagation()}
+      >
         {counterparty}
         <span className="inline-flex items-center gap-1.5">
           <Layers className="size-3.5 shrink-0" />
@@ -57,51 +77,30 @@ export function ProposalCard({
         </span>
       </div>
 
-      <Prose label="Mô tả" body={proposal.description} clamp />
-      <Prose label="Yêu cầu đầu ra" body={proposal.expectedOutcomes} />
+      <Prose label="Mô tả" body={proposal.description} />
+      {/* Hide expected outcomes on card to keep it compact */}
 
-      {footer}
+      {footer && <div onClick={(e) => e.stopPropagation()}>{footer}</div>}
 
       {actions && (
-        <div className="flex flex-wrap items-center gap-2 pt-1">{actions}</div>
+        <div
+          className="flex flex-wrap items-center gap-2 pt-1"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {actions}
+        </div>
       )}
     </article>
   );
 }
 
-function Prose({
-  label,
-  body,
-  clamp = false,
-}: {
-  label: string;
-  body: string;
-  clamp?: boolean;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const long = clamp && (body.length > 260 || body.includes('\n'));
-
+function Prose({ label, body }: { label: string; body: string }) {
   return (
     <section className="space-y-1">
       <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
-      <p
-        className={
-          long && !expanded
-            ? 'line-clamp-3 text-sm whitespace-pre-line break-words'
-            : 'text-sm whitespace-pre-line break-words'
-        }
-      >
+      <p className="line-clamp-3 text-sm whitespace-pre-line break-words">
         {body}
       </p>
-      {long && (
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          className="rounded-sm text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        >
-          {expanded ? 'Thu gọn' : 'Xem thêm'}
-        </button>
-      )}
     </section>
   );
 }
