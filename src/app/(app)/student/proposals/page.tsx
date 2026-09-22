@@ -229,7 +229,7 @@ function Answer({
         <h3 className="text-xs font-medium text-status-danger">
           Nhận xét của giảng viên
         </h3>
-        <p className="text-sm whitespace-pre-line">
+        <p className="text-sm whitespace-pre-line break-words">
           {proposal.lecturerFeedback ?? 'Giảng viên chưa để lại nhận xét nào.'}
         </p>
       </section>

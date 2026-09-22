@@ -165,7 +165,7 @@ export default function NotificationsPage() {
               </SheetHeader>
 
               <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+                <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line break-words">
                   {selectedNotice.content}
                 </p>
               </div>

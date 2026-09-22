@@ -87,8 +87,8 @@ function Prose({
       <p
         className={
           long && !expanded
-            ? 'line-clamp-3 text-sm whitespace-pre-line'
-            : 'text-sm whitespace-pre-line'
+            ? 'line-clamp-3 text-sm whitespace-pre-line break-words'
+            : 'text-sm whitespace-pre-line break-words'
         }
       >
         {body}

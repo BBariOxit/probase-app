@@ -22,7 +22,7 @@ function Section({ title, body }: { title: string; body: string }) {
   return (
     <section className="space-y-1.5">
       <h2 className="text-sm font-medium">{title}</h2>
-      <p className="text-sm whitespace-pre-line text-muted-foreground">
+      <p className="text-sm whitespace-pre-line break-words text-muted-foreground">
         {body}
       </p>
     </section>

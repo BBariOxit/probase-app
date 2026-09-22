@@ -98,7 +98,7 @@ export function SubmissionCard({
             <MessageSquareText className="size-3.5" />
             Nhận xét của giảng viên
           </h4>
-          <p className="text-sm whitespace-pre-line">
+          <p className="text-sm whitespace-pre-line break-words">
             {submission.lecturerFeedback}
           </p>
         </section>

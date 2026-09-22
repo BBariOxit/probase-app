@@ -33,7 +33,7 @@ function Section({ title, body }: { title: string; body: string }) {
   return (
     <section className="space-y-1.5">
       <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-sm whitespace-pre-line text-muted-foreground">
+      <p className="text-sm whitespace-pre-line break-words text-muted-foreground">
         {body}
       </p>
     </section>

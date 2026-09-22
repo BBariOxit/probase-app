@@ -267,7 +267,7 @@ function Outcome({ proposal }: { proposal: TopicProposal }) {
         <h3 className="text-xs font-medium text-muted-foreground">
           Nhận xét bạn đã gửi
         </h3>
-        <p className="text-sm whitespace-pre-line">
+        <p className="text-sm whitespace-pre-line break-words">
           {proposal.lecturerFeedback}
         </p>
       </section>

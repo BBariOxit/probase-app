@@ -33,7 +33,7 @@ function Section({ title, body }: { title: string; body: string }) {
     <div className="space-y-1.5">
       <h3 className="text-sm font-medium">{title}</h3>
       {/* The body is free text a lecturer typed, newlines and all. */}
-      <p className="text-sm leading-relaxed whitespace-pre-line text-muted-foreground">
+      <p className="text-sm leading-relaxed whitespace-pre-line break-words text-muted-foreground">
         {body}
       </p>
     </div>
