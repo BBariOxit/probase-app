@@ -1,7 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronsUpDown, Loader2, Search, UserSearch } from 'lucide-react';
+import {
+  ChevronsUpDown,
+  Loader2,
+  Search,
+  UserSearch,
+  CircleHelp,
+} from 'lucide-react';
 import { useLecturerDirectory } from '@/lib/api/lecturers';
 import type { LecturerDirectoryEntry } from '@/lib/api/types';
 import { useDebouncedValue } from '@/lib/use-debounced-value';
@@ -18,6 +24,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const PAGE_SIZE = 20;
 
@@ -104,8 +116,24 @@ function Panel({
   return (
     <>
       <DialogHeader className="gap-1 border-b p-4">
-        <DialogTitle>Chọn giảng viên hướng dẫn</DialogTitle>
-        <DialogDescription>
+        <div className="flex items-center gap-1.5">
+          <DialogTitle>Chọn giảng viên hướng dẫn</DialogTitle>
+          <TooltipProvider>
+            <Tooltip delay={100}>
+              <TooltipTrigger
+                type="button"
+                className="cursor-help text-muted-foreground hover:text-foreground"
+              >
+                <CircleHelp className="h-4 w-4" />
+                <span className="sr-only">Thông tin thêm</span>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-[280px]">
+                Đề xuất sẽ được gửi riêng cho người bạn chọn.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <DialogDescription className="sr-only">
           Đề xuất sẽ được gửi riêng cho người bạn chọn.
         </DialogDescription>
 

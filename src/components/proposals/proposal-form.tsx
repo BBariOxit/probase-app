@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { InfoTooltip } from '@/components/shared/info-tooltip';
 
 const ProposalSchema = z.object({
   projectTypeId: z.number('Vui lòng chọn loại đồ án').int().positive(),
@@ -65,13 +66,10 @@ function Field({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {/*
-        Above the control rather than below it. These say what to write, and a
-        hint read after the box has already been filled in is a hint that came
-        too late.
-      */}
-      {hint && <p className="-mt-1 text-xs text-muted-foreground">{hint}</p>}
+      <div className="flex items-center gap-1.5">
+        <Label htmlFor={htmlFor}>{label}</Label>
+        {hint && <InfoTooltip text={hint} />}
+      </div>
       {children}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>

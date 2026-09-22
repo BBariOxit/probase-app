@@ -20,6 +20,7 @@ import {
   RejectProposalDialog,
 } from '@/components/proposals/proposal-answer-dialogs';
 import { ProposalCard } from '@/components/proposals/proposal-card';
+import { ProposalDetailSheet } from '@/components/proposals/proposal-detail-sheet';
 import { UserAvatar } from '@/components/shared/user-avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,9 +34,9 @@ import {
 const PAGE_SIZE = 10;
 
 const STATUS_FILTERS: { value: ProposalStatus | 'ALL'; label: string }[] = [
-  { value: 'PENDING', label: 'Chờ bạn trả lời' },
+  { value: 'PENDING', label: 'Chờ trả lời' },
   { value: 'ACCEPTED', label: 'Đã nhận' },
-  { value: 'REJECTED', label: 'Chưa nhận' },
+  { value: 'REJECTED', label: 'Từ chối' },
   { value: 'ALL', label: 'Mọi trạng thái' },
 ];
 
@@ -191,12 +192,14 @@ function MentoringLoadCard({ load }: { load: MentoringLoad }) {
 
 function ReceivedProposal({ proposal }: { proposal: TopicProposal }) {
   const [answering, setAnswering] = useState<'accept' | 'reject' | null>(null);
+  const [viewing, setViewing] = useState(false);
   const student = proposal.student;
 
   return (
     <>
       <ProposalCard
         proposal={proposal}
+        onClick={() => setViewing(true)}
         counterparty={
           /*
             The person, not just a name. A lecturer's inbox is a queue of
@@ -230,7 +233,7 @@ function ReceivedProposal({ proposal }: { proposal: TopicProposal }) {
                 onClick={() => setAnswering('reject')}
               >
                 <X />
-                Chưa nhận
+                Từ chối
               </Button>
             </>
           )
@@ -256,6 +259,45 @@ function ReceivedProposal({ proposal }: { proposal: TopicProposal }) {
           onOpenChange={(open) => !open && setAnswering(null)}
         />
       )}
+
+      <ProposalDetailSheet
+        proposal={viewing ? proposal : null}
+        onClose={() => setViewing(false)}
+        counterparty={
+          <span>
+            Sinh viên: {student.fullName} ({student.studentCode}
+            {student.class && ` - ${student.class}`})
+          </span>
+        }
+        footer={<Outcome proposal={proposal} />}
+        actions={
+          proposal.status === 'PENDING' && (
+            <>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setViewing(false);
+                  setAnswering('accept');
+                }}
+              >
+                <Check />
+                Nhận hướng dẫn
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setViewing(false);
+                  setAnswering('reject');
+                }}
+              >
+                <X />
+                Từ chối
+              </Button>
+            </>
+          )
+        }
+      />
     </>
   );
 }
@@ -267,7 +309,7 @@ function Outcome({ proposal }: { proposal: TopicProposal }) {
         <h3 className="text-xs font-medium text-muted-foreground">
           Nhận xét bạn đã gửi
         </h3>
-        <p className="text-sm whitespace-pre-line">
+        <p className="text-sm whitespace-pre-line break-words">
           {proposal.lecturerFeedback}
         </p>
       </section>

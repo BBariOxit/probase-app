@@ -24,6 +24,7 @@ import { PageWithRail } from '@/components/layout/page-with-rail';
 import { PaginationBar } from '@/components/shared/pagination-bar';
 import { RoundTimeline } from '@/components/rounds/round-timeline';
 import { ProposalCard } from '@/components/proposals/proposal-card';
+import { ProposalDetailSheet } from '@/components/proposals/proposal-detail-sheet';
 import { Button } from '@/components/ui/button';
 
 const PAGE_SIZE = 20;
@@ -34,6 +35,10 @@ export default function StudentProposalsPage() {
   const { data: rounds } = useMyRounds(semester?.id);
   const { data: group } = useMyGroup();
   const [page, setPage] = useState(1);
+
+  const [viewingProposal, setViewingProposal] = useState<TopicProposal | null>(
+    null,
+  );
 
   const { data, isPending, error } = useProposals({ page, limit: PAGE_SIZE });
 
@@ -61,100 +66,122 @@ export default function StudentProposalsPage() {
       : closedReason;
 
   return (
-    /*
-      The round beside the outbox. A proposal is only worth anything while the
-      gate is still open — once it shuts, an unanswered one is a message to
-      nobody — so how long is left is the fact that decides what to do with this
-      screen, and it was nowhere on it.
-    */
-    <PageWithRail
-      rail={
-        rounds?.[0] && (
-          <RoundTimeline round={rounds[0]} hasGroup={group != null} />
-        )
-      }
-    >
-      {/*
-        The reason comes before the button, not instead of it: a student who
-        cannot send one right now still needs to know why, and the sentence is
-        the same one the API would answer with.
-      */}
-      {blocked ? (
-        <p className="flex items-start gap-2.5 rounded-xl border bg-muted/40 px-4 py-3 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <span className="text-muted-foreground">{blocked}</span>
-        </p>
-      ) : (
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground">
-            Có ý tưởng riêng? Gửi cho giảng viên bạn muốn được hướng dẫn.
+    <>
+      <PageWithRail
+        rail={
+          rounds?.[0] && (
+            <RoundTimeline round={rounds[0]} hasGroup={group != null} />
+          )
+        }
+      >
+        {/*
+          The reason comes before the button, not instead of it: a student who
+          cannot send one right now still needs to know why, and the sentence is
+          the same one the API would answer with.
+        */}
+        {blocked ? (
+          <p className="flex items-start gap-2.5 rounded-xl border bg-muted/40 px-4 py-3 text-sm">
+            <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+            <span className="text-muted-foreground">{blocked}</span>
           </p>
-          <Button render={<Link href="/student/proposals/moi" />}>
-            <Plus />
-            Gửi đề xuất
-          </Button>
-        </div>
-      )}
+        ) : (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              Có ý tưởng riêng? Gửi cho giảng viên bạn muốn được hướng dẫn.
+            </p>
+            <Button render={<Link href="/student/proposals/moi" />}>
+              <Plus />
+              Gửi đề xuất
+            </Button>
+          </div>
+        )}
 
-      {error && (
-        <p className="text-sm text-destructive">Không tải được đề xuất.</p>
-      )}
+        {error && (
+          <p className="text-sm text-destructive">Không tải được đề xuất.</p>
+        )}
 
-      {isPending && (
-        <div className="flex justify-center py-16">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
-        </div>
-      )}
+        {isPending && (
+          <div className="flex justify-center py-16">
+            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+          </div>
+        )}
 
-      {!isPending && proposals.length === 0 && (
-        <div className="rounded-xl border">
-          <EmptyState
-            icon={Lightbulb}
-            title="Bạn chưa gửi đề xuất nào."
-            action={
-              blocked ? undefined : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  render={<Link href="/student/proposals/moi" />}
-                >
-                  <Plus />
-                  Gửi đề xuất đầu tiên
-                </Button>
-              )
-            }
+        {!isPending && proposals.length === 0 && (
+          <div className="rounded-xl border">
+            <EmptyState
+              icon={Lightbulb}
+              title="Bạn chưa gửi đề xuất nào."
+              action={
+                blocked ? undefined : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    render={<Link href="/student/proposals/moi" />}
+                  >
+                    <Plus />
+                    Gửi đề xuất đầu tiên
+                  </Button>
+                )
+              }
+            />
+          </div>
+        )}
+
+        <ul className="space-y-3">
+          {proposals.map((proposal) => (
+            <li key={proposal.id}>
+              <SentProposal
+                proposal={proposal}
+                registeredTopicId={group?.topicId ?? null}
+                onClick={() => setViewingProposal(proposal)}
+              />
+            </li>
+          ))}
+        </ul>
+
+        {data && (
+          <PaginationBar
+            page={data.page}
+            totalPages={data.totalPages}
+            onPageChange={setPage}
           />
-        </div>
-      )}
+        )}
+      </PageWithRail>
 
-      <ul className="space-y-3">
-        {proposals.map((proposal) => (
-          <li key={proposal.id}>
-            <SentProposal
-              proposal={proposal}
+      <ProposalDetailSheet
+        proposal={viewingProposal}
+        onClose={() => setViewingProposal(null)}
+        counterparty={
+          viewingProposal && (
+            <span>
+              Giảng viên:{' '}
+              {viewingProposal.requestedLecturer.academicTitle
+                ? `${viewingProposal.requestedLecturer.academicTitle} ${viewingProposal.requestedLecturer.fullName}`
+                : viewingProposal.requestedLecturer.fullName}
+            </span>
+          )
+        }
+        footer={
+          viewingProposal && (
+            <Answer
+              proposal={viewingProposal}
               registeredTopicId={group?.topicId ?? null}
             />
-          </li>
-        ))}
-      </ul>
-
-      {data && (
-        <PaginationBar
-          page={data.page}
-          totalPages={data.totalPages}
-          onPageChange={setPage}
-        />
-      )}
-    </PageWithRail>
+          )
+        }
+      />
+    </>
   );
 }
 
 function SentProposal({
   proposal,
   registeredTopicId,
+  onClick,
 }: {
   proposal: TopicProposal;
   registeredTopicId: number | null;
+  onClick: () => void;
 }) {
   const withdraw = useWithdrawProposal();
   const [confirming, setConfirming] = useState(false);
@@ -164,6 +191,7 @@ function SentProposal({
     <>
       <ProposalCard
         proposal={proposal}
+        onClick={onClick}
         counterparty={
           <span className="inline-flex items-center gap-1.5">
             <GraduationCap className="size-3.5 shrink-0" />
@@ -229,7 +257,7 @@ function Answer({
         <h3 className="text-xs font-medium text-status-danger">
           Nhận xét của giảng viên
         </h3>
-        <p className="text-sm whitespace-pre-line">
+        <p className="text-sm whitespace-pre-line break-words">
           {proposal.lecturerFeedback ?? 'Giảng viên chưa để lại nhận xét nào.'}
         </p>
       </section>
