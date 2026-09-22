@@ -11,6 +11,7 @@ import {
   GraduationCap,
   Inbox,
   Layers,
+  LibraryBig,
   Lightbulb,
   MessageSquareText,
   ScrollText,
@@ -134,6 +135,12 @@ export const NAV_BY_ROLE: Record<Role, NavGroup[]> = {
           href: '/admin',
           label: 'Duyệt đề tài',
           icon: ClipboardCheck,
+          ready: true,
+        },
+        {
+          href: '/admin/topic-registry',
+          label: 'Quản lý đề tài',
+          icon: LibraryBig,
           ready: true,
         },
         // Between approving topics and running councils, which is where it sits

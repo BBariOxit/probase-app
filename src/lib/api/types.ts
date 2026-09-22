@@ -202,6 +202,10 @@ export interface TopicDetail extends TopicAvailability {
 
 export type GroupJoinSource = 'SELF' | 'LINK' | 'ASSIGNED';
 
+export interface BulkOpenResult {
+  updated: number;
+}
+
 export interface GroupMember {
   id: number;
   joinSource: GroupJoinSource;

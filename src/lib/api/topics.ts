@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api/client';
 import type {
+  BulkOpenResult,
   Paginated,
   TopicDetail,
   TopicListItem,
@@ -136,5 +137,19 @@ export function useTopicTransition() {
       queryClient.setQueryData(topicKeys.detail(topic.id), topic);
       return queryClient.invalidateQueries({ queryKey: topicKeys.lists() });
     },
+  });
+}
+
+export function useBulkOpenTopics() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (semesterId: number) =>
+      api<BulkOpenResult>('/topics/bulk-open', {
+        method: 'PATCH',
+        body: { semesterId },
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: topicKeys.lists() }),
   });
 }

@@ -36,13 +36,15 @@ export function TopicReviewSheet({ topicId, onClose }: TopicReviewSheetProps) {
 
   const isTransitioning = transition.isPending;
 
-  async function handleTransition(to: 'APPROVE' | 'REJECT') {
+  async function handleTransition(to: 'approve' | 'open' | 'close') {
     if (!topic) return;
-    await transition.mutateAsync({
-      id: topic.id,
-      to: to.toLowerCase() as 'approve' | 'reject',
-    });
-    toast.success(to === 'APPROVE' ? 'Đã duyệt đề tài.' : 'Đã từ chối đề tài.');
+    await transition.mutateAsync({ id: topic.id, to });
+    const messages = {
+      approve: 'Đã duyệt đề tài.',
+      open: 'Đã mở đăng ký.',
+      close: 'Đã đóng đăng ký.',
+    };
+    toast.success(messages[to]);
     onClose();
   }
 
@@ -65,27 +67,19 @@ export function TopicReviewSheet({ topicId, onClose }: TopicReviewSheetProps) {
       </Button>
 
       {topic.status === 'PENDING' && (
-        <>
-          <Button
-            variant="destructive"
-            onClick={() => handleTransition('REJECT')}
-            disabled={isTransitioning}
-          >
-            Từ chối
-          </Button>
-          <Button
-            onClick={() => handleTransition('APPROVE')}
-            disabled={isTransitioning}
-          >
-            Duyệt đề tài
-          </Button>
-        </>
+        <Button
+          onClick={() => handleTransition('approve')}
+          disabled={isTransitioning}
+        >
+          {isTransitioning ? <Loader2 className="animate-spin" /> : <Check />}
+          Duyệt đề tài
+        </Button>
       )}
 
       {topic.status === 'APPROVED' && (
         <Button
           variant="outline"
-          onClick={() => handleTransition('REJECT')}
+          onClick={() => handleTransition('close')}
           disabled={isTransitioning}
         >
           Thu hồi quyết định
@@ -102,11 +96,7 @@ export function TopicReviewSheet({ topicId, onClose }: TopicReviewSheetProps) {
       title={topic?.title}
       badge={
         topic ? (
-          <TopicStatusBadge
-            status={topic.status}
-            className="mt-0.5"
-            isTransitioning={isTransitioning}
-          />
+          <TopicStatusBadge status={topic.status} className="mt-0.5" />
         ) : null
       }
       meta={meta}
@@ -117,13 +107,6 @@ export function TopicReviewSheet({ topicId, onClose }: TopicReviewSheetProps) {
         <>
           <TextSection title="Mô tả" body={topic.description} />
           <TextSection title="Yêu cầu đầu ra" body={topic.expectedOutcomes} />
-
-          {topic.status === 'REJECTED' && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
-              <span className="font-medium">Lý do từ chối:</span> Đề tài chưa
-              đáp ứng đủ yêu cầu của hội đồng. Vui lòng bổ sung thêm nội dung.
-            </div>
-          )}
         </>
       )}
     </DetailSheet>
