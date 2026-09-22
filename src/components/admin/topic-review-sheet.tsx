@@ -5,14 +5,7 @@ import { useTopic, useTopicTransition } from '@/lib/api/topics';
 import { TopicStatusBadge } from '@/components/topics/topic-status-badge';
 import { TextSection } from '@/components/shared/text-section';
 import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { DetailSheet } from '@/components/shared/detail-sheet';
 import { toast } from 'sonner';
 
 function Meta({
@@ -41,69 +34,98 @@ export function TopicReviewSheet({ topicId, onClose }: TopicReviewSheetProps) {
 
   const isOpen = topicId !== null;
 
-  async function approve() {
+  const isTransitioning = transition.isPending;
+
+  async function handleTransition(to: 'APPROVE' | 'REJECT') {
     if (!topic) return;
-    await transition.mutateAsync({ id: topic.id, to: 'approve' });
-    toast.success('Đã duyệt đề tài.');
+    await transition.mutateAsync({
+      id: topic.id,
+      to: to.toLowerCase() as 'approve' | 'reject',
+    });
+    toast.success(to === 'APPROVE' ? 'Đã duyệt đề tài.' : 'Đã từ chối đề tài.');
     onClose();
   }
 
+  const meta = topic ? (
+    <>
+      <Meta icon={GraduationCap}>
+        {topic.lecturer.academicTitle
+          ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
+          : topic.lecturer.fullName}
+      </Meta>
+      <Meta icon={Layers}>{topic.projectType.name}</Meta>
+      <Meta icon={Users}>{topic.maxStudents} sinh viên</Meta>
+    </>
+  ) : null;
+
+  const footerActions = topic ? (
+    <>
+      <Button variant="ghost" onClick={onClose} disabled={isTransitioning}>
+        Huỷ
+      </Button>
+
+      {topic.status === 'PENDING' && (
+        <>
+          <Button
+            variant="destructive"
+            onClick={() => handleTransition('REJECT')}
+            disabled={isTransitioning}
+          >
+            Từ chối
+          </Button>
+          <Button
+            onClick={() => handleTransition('APPROVE')}
+            disabled={isTransitioning}
+          >
+            Duyệt đề tài
+          </Button>
+        </>
+      )}
+
+      {topic.status === 'APPROVED' && (
+        <Button
+          variant="outline"
+          onClick={() => handleTransition('REJECT')}
+          disabled={isTransitioning}
+        >
+          Thu hồi quyết định
+        </Button>
+      )}
+    </>
+  ) : null;
+
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-lg">
-        {isPending || !topic ? (
-          <div className="flex flex-1 items-center justify-center">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <>
-            <SheetHeader className="border-b pb-4">
-              <div className="flex flex-wrap items-start gap-x-3 gap-y-1.5 pr-8">
-                <SheetTitle className="font-heading text-base leading-snug">
-                  {topic.title}
-                </SheetTitle>
-                <TopicStatusBadge status={topic.status} className="mt-0.5" />
-              </div>
-              <SheetDescription className="sr-only">
-                Xem nội dung và duyệt đề tài
-              </SheetDescription>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 pt-0.5">
-                <Meta icon={GraduationCap}>
-                  {topic.lecturer.academicTitle
-                    ? `${topic.lecturer.academicTitle} ${topic.lecturer.fullName}`
-                    : topic.lecturer.fullName}
-                </Meta>
-                <Meta icon={Layers}>{topic.projectType.name}</Meta>
-                <Meta icon={Users}>{topic.maxStudents} sinh viên</Meta>
-              </div>
-            </SheetHeader>
+    <DetailSheet
+      open={!!topicId}
+      onOpenChange={(open) => !open && onClose()}
+      loading={isPending}
+      title={topic?.title}
+      badge={
+        topic ? (
+          <TopicStatusBadge
+            status={topic.status}
+            className="mt-0.5"
+            isTransitioning={isTransitioning}
+          />
+        ) : null
+      }
+      meta={meta}
+      footer={footerActions}
+      descriptionAria="Duyệt nội dung đề tài"
+    >
+      {topic && (
+        <>
+          <TextSection title="Mô tả" body={topic.description} />
+          <TextSection title="Yêu cầu đầu ra" body={topic.expectedOutcomes} />
 
-            <div className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
-              <TextSection title="Mô tả" body={topic.description} />
-              <TextSection
-                title="Yêu cầu đầu ra"
-                body={topic.expectedOutcomes}
-              />
+          {topic.status === 'REJECTED' && (
+            <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive">
+              <span className="font-medium">Lý do từ chối:</span> Đề tài chưa
+              đáp ứng đủ yêu cầu của hội đồng. Vui lòng bổ sung thêm nội dung.
             </div>
-
-            <SheetFooter className="border-t pt-4 flex-row justify-end gap-2">
-              <Button variant="ghost" onClick={onClose}>
-                Bỏ qua
-              </Button>
-              {topic.status === 'PENDING' && (
-                <Button disabled={transition.isPending} onClick={approve}>
-                  {transition.isPending ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Check />
-                  )}
-                  Duyệt đề tài
-                </Button>
-              )}
-            </SheetFooter>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+          )}
+        </>
+      )}
+    </DetailSheet>
   );
 }

@@ -34,9 +34,9 @@ import {
 const PAGE_SIZE = 10;
 
 const STATUS_FILTERS: { value: ProposalStatus | 'ALL'; label: string }[] = [
-  { value: 'PENDING', label: 'Chờ bạn trả lời' },
+  { value: 'PENDING', label: 'Chờ trả lời' },
   { value: 'ACCEPTED', label: 'Đã nhận' },
-  { value: 'REJECTED', label: 'Chưa nhận' },
+  { value: 'REJECTED', label: 'Từ chối' },
   { value: 'ALL', label: 'Mọi trạng thái' },
 ];
 
@@ -233,7 +233,7 @@ function ReceivedProposal({ proposal }: { proposal: TopicProposal }) {
                 onClick={() => setAnswering('reject')}
               >
                 <X />
-                Chưa nhận
+                Từ chối
               </Button>
             </>
           )
@@ -292,7 +292,7 @@ function ReceivedProposal({ proposal }: { proposal: TopicProposal }) {
                 }}
               >
                 <X />
-                Chưa nhận
+                Từ chối
               </Button>
             </>
           )

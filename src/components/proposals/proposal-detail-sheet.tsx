@@ -5,14 +5,7 @@ import type { TopicProposal } from '@/lib/api/types';
 import { ProposalStatusBadge } from '@/components/proposals/proposal-card';
 import { Button } from '@/components/ui/button';
 import { TextSection } from '@/components/shared/text-section';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
+import { DetailSheet } from '@/components/shared/detail-sheet';
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   day: '2-digit',
@@ -45,63 +38,55 @@ interface ProposalDetailSheetProps {
 
 export function ProposalDetailSheet({
   proposal,
-  onClose,
   counterparty,
   actions,
   footer,
+  onClose,
 }: ProposalDetailSheetProps) {
-  const isOpen = proposal !== null;
+  const meta = proposal ? (
+    <>
+      {counterparty && (
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <User className="size-3.5 shrink-0 text-muted-foreground/70" />
+          {counterparty}
+        </span>
+      )}
+      <Meta icon={Layers}>{proposal.projectType.name}</Meta>
+      <Meta icon={CalendarDays}>
+        Gửi {dateFormat.format(new Date(proposal.createdAt))}
+      </Meta>
+    </>
+  ) : null;
+
+  const footerActions = proposal ? (
+    <>
+      <Button variant="ghost" onClick={onClose}>
+        Đóng
+      </Button>
+      {actions}
+    </>
+  ) : null;
 
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="flex w-full flex-col sm:max-w-lg">
-        {proposal && (
-          <>
-            <SheetHeader className="border-b pb-4">
-              <div className="flex flex-wrap items-start gap-x-3 gap-y-1.5 pr-8">
-                <SheetTitle className="font-heading text-base leading-snug">
-                  {proposal.title}
-                </SheetTitle>
-                <ProposalStatusBadge
-                  status={proposal.status}
-                  className="mt-0.5"
-                />
-              </div>
-              <SheetDescription className="sr-only">
-                Xem chi tiết đề xuất
-              </SheetDescription>
-              <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1 text-sm">
-                {counterparty && (
-                  <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-                    <User className="size-3.5 shrink-0 text-muted-foreground/70" />
-                    {counterparty}
-                  </span>
-                )}
-                <Meta icon={Layers}>{proposal.projectType.name}</Meta>
-                <Meta icon={CalendarDays}>
-                  Gửi {dateFormat.format(new Date(proposal.createdAt))}
-                </Meta>
-              </div>
-            </SheetHeader>
-
-            <div className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
-              <TextSection title="Mô tả" body={proposal.description} />
-              <TextSection
-                title="Yêu cầu đầu ra"
-                body={proposal.expectedOutcomes}
-              />
-              {footer}
-            </div>
-
-            <SheetFooter className="flex-row justify-end gap-2 border-t pt-4">
-              <Button variant="ghost" onClick={onClose}>
-                Đóng
-              </Button>
-              {actions}
-            </SheetFooter>
-          </>
-        )}
-      </SheetContent>
-    </Sheet>
+    <DetailSheet
+      open={!!proposal}
+      onOpenChange={(open) => !open && onClose()}
+      title={proposal?.title}
+      badge={proposal ? <ProposalStatusBadge status={proposal.status} /> : null}
+      meta={meta}
+      footer={footerActions}
+      descriptionAria="Xem chi tiết đề xuất"
+    >
+      {proposal && (
+        <>
+          <TextSection title="Mô tả" body={proposal.description} />
+          <TextSection
+            title="Yêu cầu đầu ra"
+            body={proposal.expectedOutcomes}
+          />
+          {footer}
+        </>
+      )}
+    </DetailSheet>
   );
 }

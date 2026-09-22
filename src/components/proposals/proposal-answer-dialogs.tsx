@@ -150,7 +150,7 @@ export function RejectProposalDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Chưa nhận đề xuất này</DialogTitle>
+          <DialogTitle>Từ chối đề xuất này</DialogTitle>
           <DialogDescription>{proposal.title}</DialogDescription>
         </DialogHeader>
 
@@ -160,7 +160,7 @@ export function RejectProposalDialog({
           <div className="space-y-2">
             <Label htmlFor="feedback">Nhận xét cho sinh viên</Label>
             <p className="-mt-1 text-xs text-muted-foreground">
-              Vài câu là đủ: vì sao chưa nhận, và sinh viên nên sửa hướng nào.
+              Vài câu là đủ: vì sao từ chối, và sinh viên nên sửa hướng nào.
               Sinh viên sẽ đọc được nguyên văn.
             </p>
             <Textarea
