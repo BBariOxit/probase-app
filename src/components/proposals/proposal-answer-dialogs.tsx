@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { InfoTooltip } from '@/components/shared/info-tooltip';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -58,7 +59,10 @@ export function AcceptProposalDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Nhận hướng dẫn đề tài này?</DialogTitle>
+          <DialogTitle className="flex items-center gap-1.5">
+            Nhận hướng dẫn đề tài này?
+            <InfoTooltip text="Đề tài được tạo ở trạng thái chờ khoa duyệt, giống như đề tài bạn tự ra. Sau khi khoa duyệt và bạn mở đăng ký, sinh viên mới giữ chỗ được." />
+          </DialogTitle>
           <DialogDescription>{proposal.title}</DialogDescription>
         </DialogHeader>
 
@@ -67,10 +71,6 @@ export function AcceptProposalDialog({
 
           <div className="space-y-2">
             <Label htmlFor="maxStudents">Số sinh viên tối đa</Label>
-            <p className="-mt-1 text-xs text-muted-foreground">
-              Đề tài sẽ nhận tối đa bấy nhiêu sinh viên. Sinh viên đề xuất được
-              giữ chỗ cho tới khi đợt đăng ký đóng.
-            </p>
             <Input
               id="maxStudents"
               type="number"
@@ -87,12 +87,6 @@ export function AcceptProposalDialog({
               </p>
             )}
           </div>
-
-          <p className="rounded-lg border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-            Đề tài được tạo ở trạng thái chờ khoa duyệt, giống như đề tài bạn tự
-            ra. Sau khi khoa duyệt và bạn mở đăng ký, sinh viên mới giữ chỗ
-            được.
-          </p>
         </div>
 
         <DialogFooter>

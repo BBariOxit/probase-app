@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Info } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { ApiError } from '@/lib/api/client';
 import type { ProposalInput } from '@/lib/api/proposals';
 import type { LecturerDirectoryEntry, ProjectType } from '@/lib/api/types';
@@ -24,12 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { InfoTooltip } from '@/components/shared/info-tooltip';
 
 const ProposalSchema = z.object({
   projectTypeId: z.number('Vui lòng chọn loại đồ án').int().positive(),
@@ -73,22 +68,7 @@ function Field({
     <div className="space-y-2">
       <div className="flex items-center gap-1.5">
         <Label htmlFor={htmlFor}>{label}</Label>
-        {hint && (
-          <TooltipProvider>
-            <Tooltip delay={100}>
-              <TooltipTrigger
-                type="button"
-                className="cursor-help text-muted-foreground hover:text-foreground"
-              >
-                <Info className="h-4 w-4" />
-                <span className="sr-only">Thông tin thêm</span>
-              </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-[280px]">
-                {hint}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        {hint && <InfoTooltip text={hint} />}
       </div>
       {children}
       {error && <p className="text-xs text-destructive">{error}</p>}
