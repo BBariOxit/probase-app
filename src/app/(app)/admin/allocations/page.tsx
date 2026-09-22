@@ -25,6 +25,7 @@ import type {
 import { useRequireRole } from '@/lib/auth/use-require-role';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/shared/empty-state';
+import { InfoTooltip } from '@/components/shared/info-tooltip';
 import { FinalizeRoundDialog } from '@/components/admin/finalize-round-dialog';
 import { UnlockRoundDialog } from '@/components/admin/unlock-round-dialog';
 import { UserAvatar } from '@/components/shared/user-avatar';
@@ -270,13 +271,6 @@ function Summary({ desk }: { desk: AllocationDesk }) {
 
   return (
     <div className="space-y-3">
-      {!desk.canPlace && desk.blockedReason && (
-        <p className="flex items-start gap-2.5 rounded-xl border bg-muted/40 px-4 py-3 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-          <span className="text-muted-foreground">{desk.blockedReason}</span>
-        </p>
-      )}
-
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border px-4 py-3 text-sm">
         <Figure
           value={summary.unplacedCount}
@@ -287,31 +281,25 @@ function Summary({ desk }: { desk: AllocationDesk }) {
           <span className="inline-flex items-center gap-1.5 font-medium text-status-danger">
             <TriangleAlert className="size-4 shrink-0" />
             Thiếu {summary.shortfall} chỗ
+            {summary.unopenedTopics > 0 && (
+              <InfoTooltip
+                text={`Còn ${summary.unopenedTopics} đề tài đã duyệt chưa mở (${summary.unopenedSeats} chỗ). Bạn có thể mở đồng loạt ở mục Quản lý đề tài.`}
+              />
+            )}
+            {summary.unopenedTopics === 0 && (
+              <InfoTooltip
+                text={`Không còn đề tài nào để mở thêm. ${summary.shortfall} sinh viên sẽ không có chỗ, hãy yêu cầu giảng viên ra thêm đề tài.`}
+              />
+            )}
+          </span>
+        )}
+        {!desk.canPlace && desk.blockedReason && (
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <Info className="size-4 shrink-0" />
+            {desk.blockedReason}
           </span>
         )}
       </div>
-
-      {summary.shortfall > 0 && summary.unopenedTopics > 0 && (
-        <p className="flex items-start gap-2.5 rounded-xl border border-status-waiting/30 bg-status-waiting-bg/40 px-4 py-3 text-sm">
-          <Info className="mt-0.5 size-4 shrink-0 text-status-waiting" />
-          <span>
-            Còn {summary.unopenedTopics} đề tài đã duyệt nhưng giảng viên chưa
-            mở đăng ký, tổng {summary.unopenedSeats} chỗ. Đề nghị các thầy cô mở
-            để đủ chỗ cho {summary.shortfall} sinh viên còn lại — khoa không mở
-            thay được.
-          </span>
-        </p>
-      )}
-
-      {summary.shortfall > 0 && summary.unopenedTopics === 0 && (
-        <p className="flex items-start gap-2.5 rounded-xl border border-status-danger/30 bg-status-danger-bg/40 px-4 py-3 text-sm">
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-status-danger" />
-          <span>
-            Không còn đề tài nào để mở thêm. {summary.shortfall} sinh viên sẽ
-            không có chỗ trừ khi có giảng viên ra thêm đề tài cho đợt này.
-          </span>
-        </p>
-      )}
     </div>
   );
 }
