@@ -2,6 +2,7 @@
 
 import { useTopic } from '@/lib/api/topics';
 import { Skeleton } from '@/components/ui/skeleton';
+import { TextSection } from '@/components/shared/text-section';
 
 export function GroupTopicBrief({ topicId }: { topicId: number }) {
   const { data: topic, isPending } = useTopic(topicId);
@@ -22,20 +23,16 @@ export function GroupTopicBrief({ topicId }: { topicId: number }) {
 
   return (
     <section className="space-y-5 rounded-xl border bg-card p-5">
-      <Section title="Mô tả đề tài" body={topic.description} />
-      <Section title="Yêu cầu đầu ra" body={topic.expectedOutcomes} />
+      <TextSection
+        title="Mô tả"
+        body={topic.description}
+        bodyClassName="leading-relaxed"
+      />
+      <TextSection
+        title="Yêu cầu đầu ra"
+        body={topic.expectedOutcomes}
+        bodyClassName="leading-relaxed"
+      />
     </section>
-  );
-}
-
-function Section({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="space-y-1.5">
-      <h3 className="text-sm font-medium">{title}</h3>
-      {/* The body is free text a lecturer typed, newlines and all. */}
-      <p className="text-sm leading-relaxed whitespace-pre-line break-words text-muted-foreground">
-        {body}
-      </p>
-    </div>
   );
 }

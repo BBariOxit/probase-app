@@ -3,6 +3,7 @@
 import { Check, GraduationCap, Layers, Loader2, Users } from 'lucide-react';
 import { useTopic, useTopicTransition } from '@/lib/api/topics';
 import { TopicStatusBadge } from '@/components/topics/topic-status-badge';
+import { TextSection } from '@/components/shared/text-section';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -26,17 +27,6 @@ function Meta({
       <Icon className="size-3.5 shrink-0 text-muted-foreground/70" />
       {children}
     </span>
-  );
-}
-
-function Section({ title, body }: { title: string; body: string }) {
-  return (
-    <section className="space-y-1.5">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-sm whitespace-pre-line break-words text-muted-foreground">
-        {body}
-      </p>
-    </section>
   );
 }
 
@@ -88,9 +78,12 @@ export function TopicReviewSheet({ topicId, onClose }: TopicReviewSheetProps) {
               </div>
             </SheetHeader>
 
-            <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4">
-              <Section title="Mô tả" body={topic.description} />
-              <Section title="Yêu cầu đầu ra" body={topic.expectedOutcomes} />
+            <div className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
+              <TextSection title="Mô tả" body={topic.description} />
+              <TextSection
+                title="Yêu cầu đầu ra"
+                body={topic.expectedOutcomes}
+              />
             </div>
 
             <SheetFooter className="border-t pt-4 flex-row justify-end gap-2">

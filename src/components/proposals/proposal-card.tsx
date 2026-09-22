@@ -3,6 +3,7 @@
 import { CalendarDays, Layers } from 'lucide-react';
 import type { ProposalStatus, TopicProposal } from '@/lib/api/types';
 import { StatusPill, type StatusLabel } from '@/components/shared/status-pill';
+import { TextSection } from '@/components/shared/text-section';
 
 const PROPOSAL_STATUS: Record<ProposalStatus, StatusLabel> = {
   PENDING: { label: 'Chờ trả lời', tone: 'waiting' },
@@ -31,6 +32,7 @@ export function ProposalCard({
   counterparty,
   actions,
   footer,
+  onClick,
 }: {
   proposal: TopicProposal;
   counterparty?: React.ReactNode;
@@ -77,7 +79,13 @@ export function ProposalCard({
         </span>
       </div>
 
-      <Prose label="Mô tả" body={proposal.description} />
+      <TextSection
+        title="Mô tả"
+        body={proposal.description}
+        titleAs="h3"
+        titleClassName="text-xs text-muted-foreground"
+        bodyClassName="line-clamp-3 text-foreground"
+      />
       {/* Hide expected outcomes on card to keep it compact */}
 
       {footer && <div onClick={(e) => e.stopPropagation()}>{footer}</div>}
@@ -91,16 +99,5 @@ export function ProposalCard({
         </div>
       )}
     </article>
-  );
-}
-
-function Prose({ label, body }: { label: string; body: string }) {
-  return (
-    <section className="space-y-1">
-      <h3 className="text-xs font-medium text-muted-foreground">{label}</h3>
-      <p className="line-clamp-3 text-sm whitespace-pre-line break-words">
-        {body}
-      </p>
-    </section>
   );
 }

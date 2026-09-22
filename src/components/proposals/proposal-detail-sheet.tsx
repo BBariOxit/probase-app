@@ -4,6 +4,7 @@ import { CalendarDays, Layers, Users, User } from 'lucide-react';
 import type { TopicProposal } from '@/lib/api/types';
 import { ProposalStatusBadge } from '@/components/proposals/proposal-card';
 import { Button } from '@/components/ui/button';
+import { TextSection } from '@/components/shared/text-section';
 import {
   Sheet,
   SheetContent,
@@ -31,18 +32,6 @@ function Meta({
       <Icon className="size-3.5 shrink-0 text-muted-foreground/70" />
       {children}
     </span>
-  );
-}
-
-function Section({ title, body }: { title: string; body: string }) {
-  if (!body) return null;
-  return (
-    <section className="space-y-1.5">
-      <h3 className="text-sm font-medium">{title}</h3>
-      <p className="text-sm whitespace-pre-line break-words text-muted-foreground">
-        {body}
-      </p>
-    </section>
   );
 }
 
@@ -96,8 +85,8 @@ export function ProposalDetailSheet({
             </SheetHeader>
 
             <div className="flex-1 space-y-6 overflow-y-auto px-4 py-5">
-              <Section title="Mô tả" body={proposal.description} />
-              <Section
+              <TextSection title="Mô tả" body={proposal.description} />
+              <TextSection
                 title="Yêu cầu đầu ra"
                 body={proposal.expectedOutcomes}
               />

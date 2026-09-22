@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { GraduationCap, Layers, Users } from 'lucide-react';
 import type { TopicDetail } from '@/lib/api/types';
 import { TopicStatusBadge } from '@/components/topics/topic-status-badge';
+import { TextSection } from '@/components/shared/text-section';
 
 function Meta({
   icon: Icon,
@@ -15,17 +16,6 @@ function Meta({
       <Icon className="size-3.5 shrink-0 text-muted-foreground/70" />
       {children}
     </span>
-  );
-}
-
-function Section({ title, body }: { title: string; body: string }) {
-  return (
-    <section className="space-y-1.5">
-      <h2 className="text-sm font-medium">{title}</h2>
-      <p className="text-sm whitespace-pre-line break-words text-muted-foreground">
-        {body}
-      </p>
-    </section>
   );
 }
 
@@ -62,8 +52,14 @@ export function TopicDetailView({
         </div>
       </header>
 
-      <Section title="Mô tả" body={topic.description} />
-      <Section title="Yêu cầu đầu ra" body={topic.expectedOutcomes} />
+      <div className="space-y-6 pt-2">
+        <TextSection title="Mô tả" body={topic.description} titleAs="h2" />
+        <TextSection
+          title="Yêu cầu đầu ra"
+          body={topic.expectedOutcomes}
+          titleAs="h2"
+        />
+      </div>
 
       {actions && <div className="flex items-center gap-2 pt-1">{actions}</div>}
     </article>
