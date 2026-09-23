@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { api, ApiError } from '@/lib/api/client';
-import type { ChangePasswordResponse } from '@/lib/api/types';
 import { passwordSchema } from '@/lib/auth/password';
 import { homePathFor, useSession } from '@/lib/auth/session';
 import { Button } from '@/components/ui/button';
@@ -41,11 +40,10 @@ export default function ChangePasswordPage() {
   const { status, user, setAccessToken, patchUser } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
 
-  const wasForced = useRef(false);
-  if (user?.mustChangePassword) {
-    wasForced.current = true;
+  const [forced, setForced] = useState(false);
+  if (user?.mustChangePassword && !forced) {
+    setForced(true);
   }
-  const forced = wasForced.current;
 
   const {
     register,
