@@ -87,14 +87,16 @@ export default function SemesterRoundsPage({
           Đợt đăng ký · {semester?.name ?? `Học kỳ #${semesterId}`}
           <TooltipProvider delayDuration={200}>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <span
-                  tabIndex={0}
-                  className="cursor-default text-muted-foreground hover:text-foreground"
-                >
-                  <Info className="size-4" />
-                </span>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <span
+                    tabIndex={0}
+                    className="cursor-default text-muted-foreground hover:text-foreground"
+                  >
+                    <Info className="size-4" />
+                  </span>
+                }
+              />
               <TooltipContent>
                 Mỗi loại đồ án là một đợt riêng, mở và đóng theo lịch của nó.
                 <br />

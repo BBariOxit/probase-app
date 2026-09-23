@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,7 +41,11 @@ export default function ChangePasswordPage() {
   const { status, user, setAccessToken, patchUser } = useSession();
   const [formError, setFormError] = useState<string | null>(null);
 
-  const forced = user?.mustChangePassword ?? false;
+  const wasForced = useRef(false);
+  if (user?.mustChangePassword) {
+    wasForced.current = true;
+  }
+  const forced = wasForced.current;
 
   const {
     register,

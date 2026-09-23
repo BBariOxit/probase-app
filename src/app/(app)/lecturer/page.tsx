@@ -24,6 +24,7 @@ import { useDebouncedValue } from '@/lib/use-debounced-value';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { EmptyState } from '@/components/shared/empty-state';
 import { PaginationBar } from '@/components/shared/pagination-bar';
+import { TopicDetailSheet } from '@/components/topics/topic-detail-sheet';
 import { TopicOwnerBadge } from '@/components/topics/topic-status-badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -122,6 +123,7 @@ export default function LecturerTopicsPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
+  const [selectedTopicId, setSelectedTopicId] = useState<number | null>(null);
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, isPending, error } = useTopics({
@@ -209,11 +211,19 @@ export default function LecturerTopicsPage() {
             </TableHeader>
             <TableBody>
               {topics.map((topic) => (
-                <TableRow key={topic.id}>
+                <TableRow
+                  key={topic.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => setSelectedTopicId(topic.id)}
+                >
                   <TableCell className="font-medium">
                     <Link
                       href={`/lecturer/topics/${topic.id}`}
                       className="rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedTopicId(topic.id);
+                      }}
                     >
                       {topic.title}
                     </Link>
@@ -233,7 +243,7 @@ export default function LecturerTopicsPage() {
                       activeGroup={topic.activeGroup}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <RowActions topic={topic} />
                   </TableCell>
                 </TableRow>
@@ -279,6 +289,12 @@ export default function LecturerTopicsPage() {
           onPageChange={setPage}
         />
       )}
+
+      <TopicDetailSheet
+        topicId={selectedTopicId}
+        onClose={() => setSelectedTopicId(null)}
+        hideRegisterButton
+      />
     </div>
   );
 }

@@ -26,9 +26,14 @@ function Meta({
 interface TopicDetailSheetProps {
   topicId: number | null;
   onClose: () => void;
+  hideRegisterButton?: boolean;
 }
 
-export function TopicDetailSheet({ topicId, onClose }: TopicDetailSheetProps) {
+export function TopicDetailSheet({
+  topicId,
+  onClose,
+  hideRegisterButton,
+}: TopicDetailSheetProps) {
   const { data: topic, isPending } = useTopic(topicId ?? 0);
 
   const meta = topic ? (
@@ -48,7 +53,7 @@ export function TopicDetailSheet({ topicId, onClose }: TopicDetailSheetProps) {
       <Button variant="ghost" onClick={onClose}>
         Đóng
       </Button>
-      <TopicRegisterButton topic={topic} idle={null} />
+      {!hideRegisterButton && <TopicRegisterButton topic={topic} idle={null} />}
     </>
   ) : null;
 
