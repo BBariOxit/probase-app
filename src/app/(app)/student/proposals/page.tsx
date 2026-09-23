@@ -307,9 +307,8 @@ function Answer({
         </p>
       ) : (
         <p className="text-sm">
-          Đề tài &ldquo;{topic.title}&rdquo; đang chờ khoa phê duyệt. Khi được
-          duyệt và mở đăng ký, đề tài sẽ được giữ riêng cho bạn — bạn sẽ nhận
-          thông báo.
+          Đang chờ khoa phê duyệt. Bạn sẽ nhận được thông báo khi đề tài mở đăng
+          ký.
         </p>
       )}
     </section>
