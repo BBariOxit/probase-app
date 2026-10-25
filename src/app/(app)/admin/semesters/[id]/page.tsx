@@ -85,7 +85,7 @@ export default function SemesterRoundsPage({
       <div className="space-y-1">
         <h1 className="flex items-center gap-2 font-heading text-xl font-semibold tracking-tight">
           Đợt đăng ký · {semester?.name ?? `Học kỳ #${semesterId}`}
-          <TooltipProvider delayDuration={200}>
+          <TooltipProvider delay={200}>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -262,9 +262,9 @@ function PlanForm({
                   <Select
                     disabled={locked}
                     value={row.cohorts}
-                    onValueChange={(value) =>
-                      patch(type.id, { cohorts: value })
-                    }
+                    onValueChange={(value) => {
+                      if (value) patch(type.id, { cohorts: value });
+                    }}
                   >
                     <SelectTrigger id={`cohorts-${type.id}`} className="w-full">
                       <SelectValue placeholder="Chọn khoá" />

@@ -118,8 +118,8 @@ function Panel({
       <DialogHeader className="gap-1 border-b p-4">
         <div className="flex items-center gap-1.5">
           <DialogTitle>Chọn giảng viên hướng dẫn</DialogTitle>
-          <TooltipProvider>
-            <Tooltip delay={100}>
+          <TooltipProvider delay={100}>
+            <Tooltip>
               <TooltipTrigger
                 type="button"
                 className="cursor-help text-muted-foreground hover:text-foreground"
